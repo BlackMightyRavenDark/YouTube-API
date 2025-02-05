@@ -674,6 +674,26 @@ namespace YouTubeApiLib
 			return new YouTubeVideoId(dict["v"]);
 		}
 
+		internal static string GetVisitorData(NameValueCollection requestHeaders = null)
+		{
+			string rawData = YouTubeVisitorData.GetRawData(requestHeaders);
+			return string.IsNullOrEmpty(rawData) ? null : YouTubeVisitorData.ExtractVisitorDataValue(rawData);
+		}
+
+		internal static string GetVisitorData(string userAgent)
+		{
+			NameValueCollection headers = null;
+			if (!string.IsNullOrEmpty(userAgent))
+			{
+				headers = new NameValueCollection()
+				{
+					{ "User-Agent", userAgent }
+				};
+			}
+
+			return GetVisitorData(headers);
+		}
+
 		public static int DownloadString(string url, out string response)
 		{
 			FileDownloader d = new FileDownloader() { Url = url };

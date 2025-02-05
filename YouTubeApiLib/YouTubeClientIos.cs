@@ -30,6 +30,7 @@ namespace YouTubeApiLib
 			}
 
 			int sts = youTubeConfig.SignatureTimestamp;
+			string visitorData = Utils.GetVisitorData(USER_AGENT);
 
 			JObject jClient = new JObject()
 			{
@@ -44,6 +45,11 @@ namespace YouTubeApiLib
 				["timeZone"] = "UTC",
 				["utcOffsetMinutes"] = 0
 			};
+			if (!string.IsNullOrEmpty(visitorData))
+			{
+				jClient["visitorData"] = visitorData;
+			}
+
 			JObject jContentPlaybackContext = new JObject()
 			{
 				["html5Preference"] = "HTML5_PREF_WANTS",
