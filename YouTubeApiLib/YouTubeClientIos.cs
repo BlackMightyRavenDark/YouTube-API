@@ -8,8 +8,7 @@ namespace YouTubeApiLib
 	{
 		public string DisplayName => "IOS";
 
-		private const string CLIENT_VERSION = "19.29.1";
-		private readonly string USER_AGENT;
+		private readonly IosDevice DEVICE; 
 
 		private YouTubeVideoWebPage _videoWebPage;
 
@@ -17,7 +16,7 @@ namespace YouTubeApiLib
 
 		public YouTubeClientIos(YouTubeVideoWebPage videoWebPage)
 		{
-			USER_AGENT = $"com.google.ios.youtube/{CLIENT_VERSION} (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)";
+			DEVICE = new IosDevice("Apple", "iPhone16,2", "IOS", 17, 5, 1, "21F90", "IOS", 19, 29, 1);
 			_videoWebPage = videoWebPage;
 		}
 
@@ -30,17 +29,19 @@ namespace YouTubeApiLib
 			}
 
 			int sts = youTubeConfig.SignatureTimestamp;
-			string visitorData = Utils.GetVisitorData(USER_AGENT);
+			string visitorData = Utils.GetVisitorData(DEVICE.UserAgent);
+			string clientVersionString = $"{DEVICE.ClientVersionMajor}.{DEVICE.ClientVersionMinor}.{DEVICE.ClientVersionPatch}";
+			string osVersionString = $"{DEVICE.OsVersionMajor}.{DEVICE.OsVersionMinor}.{DEVICE.OsVersionPatch}.{DEVICE.OsVersionBuild}";
 
 			JObject jClient = new JObject()
 			{
-				["clientName"] = "IOS",
-				["clientVersion"] = CLIENT_VERSION,
-				["deviceMake"] = "Apple",
-				["deviceModel"] = "iPhone16,2",
-				["userAgent"] = USER_AGENT,
-				["osName"] = "iPhone",
-				["osVersion"] = "17.5.1.21F90",
+				["clientName"] = DEVICE.ClientName,
+				["clientVersion"] = clientVersionString,
+				["deviceMake"] = DEVICE.DeviceMaker,
+				["deviceModel"] = DEVICE.DeviceModel,
+				["userAgent"] = DEVICE.UserAgent,
+				["osName"] = DEVICE.OsName,
+				["osVersion"] = osVersionString,
 				["hl"] = "en",
 				["timeZone"] = "UTC",
 				["utcOffsetMinutes"] = 0
@@ -78,13 +79,14 @@ namespace YouTubeApiLib
 			}
 			
 			string visitorData = youTubeConfig.VisitorData;
+			string clientVersionString = $"{DEVICE.ClientVersionMajor}.{DEVICE.ClientVersionMinor}.{DEVICE.ClientVersionPatch}";
 			NameValueCollection headers = new NameValueCollection()
 			{
 				{ "Origin", Utils.YOUTUBE_URL },
 				{ "X-Goog-Visitor-Id", visitorData },
 				{ "X-YouTube-Client-Name", "5" },
-				{ "X-YouTube-Client-Version", CLIENT_VERSION },
-				{ "User-Agent", USER_AGENT }
+				{ "X-YouTube-Client-Version", clientVersionString },
+				{ "User-Agent", DEVICE.UserAgent }
 			};
 
 			return headers;
