@@ -39,10 +39,11 @@ namespace YouTubeApiLib
 				["clientVersion"] = clientVersionString,
 				["deviceMake"] = DEVICE.DeviceMaker,
 				["deviceModel"] = DEVICE.DeviceModel,
-				["userAgent"] = DEVICE.UserAgent,
+				["platform"] = "MOBILE",
 				["osName"] = DEVICE.OsName,
 				["osVersion"] = osVersionString,
 				["hl"] = "en",
+				["gl"] = "US",
 				["timeZone"] = "UTC",
 				["utcOffsetMinutes"] = 0
 			};
