@@ -16,7 +16,7 @@ namespace YouTubeApiLib
 
 		public YouTubeClientIos(YouTubeVideoWebPage videoWebPage)
 		{
-			DEVICE = new IosDevice("Apple", "iPhone16,2", "IOS", 17, 5, 1, "21F90", "IOS", 19, 29, 1);
+			DEVICE = new IosDevice("Apple", "iPhone16,2", "IOS", 18, 1, 0, "22B83", "IOS", 19, 45, 4);
 			_videoWebPage = videoWebPage;
 		}
 
