@@ -29,7 +29,7 @@ namespace YouTubeApiLib
 			}
 
 			int sts = youTubeConfig.SignatureTimestamp;
-			string visitorData = Utils.GetVisitorData(DEVICE.UserAgent);
+			string visitorData = youTubeConfig.VisitorData;
 			string clientVersionString = $"{DEVICE.ClientVersionMajor}.{DEVICE.ClientVersionMinor}.{DEVICE.ClientVersionPatch}";
 			string osVersionString = $"{DEVICE.OsVersionMajor}.{DEVICE.OsVersionMinor}.{DEVICE.OsVersionPatch}.{DEVICE.OsVersionBuild}";
 

@@ -13,7 +13,7 @@ namespace YouTubeApiLib
 			const string CLIENT_VERSION = "2.20201021.03.00";
 
 			JObject jClient = YouTubeApiV1.GenerateYouTubeClientBody(CLIENT_NAME, CLIENT_VERSION);
-			string visitorData = Utils.GetVisitorData();
+			string visitorData = youTubeConfig != null ? youTubeConfig.VisitorData : Utils.GetVisitorData();
 			if (!string.IsNullOrEmpty(visitorData))
 			{
 				jClient["visitorData"] = visitorData;
