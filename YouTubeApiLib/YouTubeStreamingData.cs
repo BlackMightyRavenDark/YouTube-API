@@ -50,6 +50,17 @@ namespace YouTubeApiLib
 			return Get(videoId, client);
 		}
 
+		public static YouTubeStreamingData MakeFromRaw(string rawData, IYouTubeClient client,
+			YouTubeMediaTrackUrlDecryptionData urlDecryptionData = null)
+		{
+			return new YouTubeStreamingData(rawData, client, urlDecryptionData);
+		}
+
+		public static YouTubeStreamingData MakeFromRaw(string rawData)
+		{
+			return MakeFromRaw(rawData, null);
+		}
+
 		public YouTubeMediaFormatList Parse(FileDownloader downloader = null)
 		{
 			return YouTubeMediaFormatsParser.Parse(this, downloader);
