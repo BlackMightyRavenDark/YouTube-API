@@ -34,10 +34,8 @@ namespace YouTubeApiLib
 		{
 			if (!string.IsNullOrEmpty(webPageCode) && !string.IsNullOrWhiteSpace(webPageCode))
 			{
-				YouTubeVideoId youTubeVideoId = string.IsNullOrEmpty(videoId) || string.IsNullOrWhiteSpace(videoId) ? null :
-					new YouTubeVideoId(videoId);
-				YouTubeVideoWebPage webPage = new YouTubeVideoWebPage(youTubeVideoId, webPageCode, true);
-				return new YouTubeVideoWebPageResult(webPage, 200);
+				YouTubeVideoWebPage videoWebPage = MakeFromCode(videoId, webPageCode);
+				return new YouTubeVideoWebPageResult(videoWebPage, 200);
 			}
 			return new YouTubeVideoWebPageResult(null, 404);
 		}
@@ -45,6 +43,24 @@ namespace YouTubeApiLib
 		public static YouTubeVideoWebPageResult FromCode(string webPageCode)
 		{
 			return FromCode(null, webPageCode);
+		}
+
+		public static YouTubeVideoWebPage MakeFromCode(YouTubeVideoId videoId, string webPageCode)
+		{
+			return new YouTubeVideoWebPage(videoId, webPageCode, true);
+		}
+
+		public static YouTubeVideoWebPage MakeFromCode(string videoId, string webPageCode)
+		{
+			YouTubeVideoId youTubeVideoId =
+				string.IsNullOrEmpty(videoId) || string.IsNullOrWhiteSpace(videoId) ?
+				null : new YouTubeVideoId(videoId);
+			return MakeFromCode(youTubeVideoId, webPageCode);
+		}
+
+		public static YouTubeVideoWebPage MakeFromCode(string webPageCode)
+		{
+			return MakeFromCode((YouTubeVideoId)null, webPageCode);
 		}
 
 		public YouTubeConfig ExtractYouTubeConfig(string pattern)
