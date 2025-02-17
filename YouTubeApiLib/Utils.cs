@@ -674,13 +674,13 @@ namespace YouTubeApiLib
 			return new YouTubeVideoId(dict["v"]);
 		}
 
-		internal static string GetVisitorData(NameValueCollection requestHeaders = null)
+		public static string GetYouTubeVisitorData(NameValueCollection requestHeaders = null)
 		{
 			string rawData = YouTubeVisitorData.GetRawData(requestHeaders);
 			return string.IsNullOrEmpty(rawData) ? null : YouTubeVisitorData.ExtractVisitorDataValue(rawData);
 		}
 
-		internal static string GetVisitorData(string userAgent)
+		public static string GetYouTubeVisitorData(string userAgent)
 		{
 			NameValueCollection headers = null;
 			if (!string.IsNullOrEmpty(userAgent))
@@ -691,7 +691,7 @@ namespace YouTubeApiLib
 				};
 			}
 
-			return GetVisitorData(headers);
+			return GetYouTubeVisitorData(headers);
 		}
 
 		public static int DownloadString(string url, out string response, FileDownloader downloader = null)
