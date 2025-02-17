@@ -16,7 +16,7 @@ namespace YouTubeApiLib
 			IsProvidedManually = isProvidedManually;
 		}
 
-		internal static YouTubeVideoWebPageResult Get(string videoId, FileDownloader downloader)
+		internal static YouTubeVideoWebPageResult Get(string videoId, FileDownloader downloader = null)
 		{
 			string url = Utils.GetYouTubeVideoUrl(videoId);
 			int errorCode = Utils.DownloadString(url, out string responseWebPageCode, downloader);
@@ -25,7 +25,7 @@ namespace YouTubeApiLib
 			return new YouTubeVideoWebPageResult(webPage, errorCode);
 		}
 
-		public static YouTubeVideoWebPageResult Get(YouTubeVideoId youTubeVideoId, FileDownloader downloader)
+		public static YouTubeVideoWebPageResult Get(YouTubeVideoId youTubeVideoId, FileDownloader downloader = null)
 		{
 			return youTubeVideoId != null ? Get(youTubeVideoId.Id, downloader) : new YouTubeVideoWebPageResult(null, 400);
 		}
