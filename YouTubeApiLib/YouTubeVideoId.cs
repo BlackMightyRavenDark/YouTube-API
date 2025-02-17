@@ -10,6 +10,11 @@ namespace YouTubeApiLib
 			Id = id;
 		}
 
+		public YouTubeVideo GetVideo(IYouTubeClient client = null)
+		{
+			return YouTubeVideo.GetById(this, client);
+		}
+
 		public override string ToString()
 		{
 			return Id;
