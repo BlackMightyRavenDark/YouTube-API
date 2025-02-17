@@ -4,7 +4,7 @@ using MultiThreadedDownloaderLib;
 
 namespace YouTubeApiLib
 {
-	internal class YouTubeClientWebPage : IYouTubeClient
+	public class YouTubeClientWebPage : IYouTubeClient
 	{
 		public string DisplayName => "Web page";
 		public FileDownloader Downloader { get; set; }
