@@ -54,6 +54,17 @@ namespace YouTubeApiLib
 			return Get(videoId, client);
 		}
 
+		public static YouTubeRawVideoInfo MakeFromCode(string rawData, IYouTubeClient client,
+			YouTubeMediaTrackUrlDecryptionData urlDecryptionData = null)
+		{
+			return new YouTubeRawVideoInfo(rawData, client, urlDecryptionData);
+		}
+
+		public static YouTubeRawVideoInfo MakeFromCode(string rawData)
+		{
+			return MakeFromCode(rawData, null);
+		}
+
 		public YouTubeSimplifiedVideoInfoResult Simplify(YouTubeStreamingData customStreamingData = null)
 		{
 			return SimplifyRawVideoInfo(this, customStreamingData);
