@@ -148,7 +148,7 @@ namespace YouTubeApiLib
 		public static YouTubeVideo GetById(YouTubeVideoId videoId, IYouTubeClient client)
 		{
 			bool automaticClientSelection = client == null;
-			if (automaticClientSelection) { client = YouTubeApi.GetYouTubeClient("video_info"); }
+			if (automaticClientSelection) { client = YouTubeApi.GetYouTubeClient("web_page"); }
 			if (client == null) { return null; }
 			YouTubeRawVideoInfoResult rawVideoInfoResult = client.GetRawVideoInfo(videoId, out _);
 			if (rawVideoInfoResult.ErrorCode == 200)
