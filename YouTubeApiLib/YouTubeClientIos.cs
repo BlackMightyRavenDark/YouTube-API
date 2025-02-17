@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Specialized;
 using Newtonsoft.Json.Linq;
+using MultiThreadedDownloaderLib;
 
 namespace YouTubeApiLib
 {
 	public class YouTubeClientIos : IYouTubeClient
 	{
 		public string DisplayName => "IOS";
+
+		public FileDownloader Downloader { get; set; }
 
 		private readonly IosDevice DEVICE; 
 
@@ -105,7 +108,7 @@ namespace YouTubeApiLib
 			{
 				YouTubeVideoWebPageResult webPageResult = _videoWebPage != null ?
 					new YouTubeVideoWebPageResult(_videoWebPage, 200) :
-					YouTubeVideoWebPage.Get(videoId);
+					YouTubeVideoWebPage.Get(videoId, Downloader);
 				if (webPageResult.ErrorCode == 200)
 				{
 					YouTubeConfig config = webPageResult.VideoWebPage.ExtractYouTubeConfig();

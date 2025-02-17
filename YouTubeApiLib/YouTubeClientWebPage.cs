@@ -1,11 +1,13 @@
 ﻿using System.Collections.Specialized;
 using Newtonsoft.Json.Linq;
+using MultiThreadedDownloaderLib;
 
 namespace YouTubeApiLib
 {
 	internal class YouTubeClientWebPage : IYouTubeClient
 	{
 		public string DisplayName => "Web page";
+		public FileDownloader Downloader { get; set; }
 
 		public JObject GenerateRequestBody(string videoId, YouTubeConfig youTubeConfig)
 		{
@@ -46,7 +48,7 @@ namespace YouTubeApiLib
 
 		public YouTubeVideoWebPageResult GetWebPage(string videoId)
 		{
-			return YouTubeVideoWebPage.Get(videoId);
+			return YouTubeVideoWebPage.Get(videoId, Downloader);
 		}
 
 		public override string ToString()

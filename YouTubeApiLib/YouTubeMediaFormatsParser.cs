@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using MultiThreadedDownloaderLib;
 
 namespace YouTubeApiLib
 {
 	public static class YouTubeMediaFormatsParser
 	{
-		public static YouTubeMediaFormatList Parse(YouTubeStreamingData streamingData)
+		public static YouTubeMediaFormatList Parse(YouTubeStreamingData streamingData, FileDownloader downloader = null)
 		{
 			if (streamingData == null || streamingData.RawData == null)
 			{
@@ -17,7 +18,7 @@ namespace YouTubeApiLib
 
 			string hlsManifestUrl = streamingData.GetHlsManifestUrl();
 			if (!string.IsNullOrEmpty(hlsManifestUrl) && !string.IsNullOrWhiteSpace(hlsManifestUrl) &&
-				Utils.DownloadString(hlsManifestUrl, out string hlsManifest) == 200)
+				Utils.DownloadString(hlsManifestUrl, out string hlsManifest, downloader) == 200)
 			{
 				YouTubeHlsManifestParser parser = new YouTubeHlsManifestParser(hlsManifest);
 				LinkedList<YouTubeBroadcast> broadcasts = parser.Parse();
@@ -33,7 +34,7 @@ namespace YouTubeApiLib
 
 			string dashManifestUrl = streamingData.GetDashManifestUrl();
 			if (!string.IsNullOrEmpty(dashManifestUrl) && !string.IsNullOrWhiteSpace(dashManifestUrl) &&
-				Utils.DownloadString(dashManifestUrl, out string dashManifest) == 200)
+				Utils.DownloadString(dashManifestUrl, out string dashManifest, downloader) == 200)
 			{
 				YouTubeDashManifestParser parser = new YouTubeDashManifestParser(dashManifest, dashManifestUrl);
 				LinkedList<YouTubeMediaTrack> dashList = parser.Parse();

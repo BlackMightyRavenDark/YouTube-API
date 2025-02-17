@@ -1,4 +1,5 @@
-﻿
+﻿using MultiThreadedDownloaderLib;
+
 namespace YouTubeApiLib
 {
 	public class YouTubeVideoWebPage
@@ -15,18 +16,18 @@ namespace YouTubeApiLib
 			IsProvidedManually = isProvidedManually;
 		}
 
-		internal static YouTubeVideoWebPageResult Get(string videoId)
+		internal static YouTubeVideoWebPageResult Get(string videoId, FileDownloader downloader)
 		{
 			string url = Utils.GetYouTubeVideoUrl(videoId);
-			int errorCode = Utils.DownloadString(url, out string responseWebPageCode);
+			int errorCode = Utils.DownloadString(url, out string responseWebPageCode, downloader);
 			YouTubeVideoWebPage webPage = errorCode == 200 ?
 				new YouTubeVideoWebPage(new YouTubeVideoId(videoId), responseWebPageCode, false) : null;
 			return new YouTubeVideoWebPageResult(webPage, errorCode);
 		}
 
-		public static YouTubeVideoWebPageResult Get(YouTubeVideoId youTubeVideoId)
+		public static YouTubeVideoWebPageResult Get(YouTubeVideoId youTubeVideoId, FileDownloader downloader)
 		{
-			return youTubeVideoId != null ? Get(youTubeVideoId.Id) : new YouTubeVideoWebPageResult(null, 400);
+			return youTubeVideoId != null ? Get(youTubeVideoId.Id, downloader) : new YouTubeVideoWebPageResult(null, 400);
 		}
 
 		public static YouTubeVideoWebPageResult FromCode(string videoId, string webPageCode)

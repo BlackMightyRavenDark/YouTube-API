@@ -694,10 +694,11 @@ namespace YouTubeApiLib
 			return GetVisitorData(headers);
 		}
 
-		public static int DownloadString(string url, out string response)
+		public static int DownloadString(string url, out string response, FileDownloader downloader = null)
 		{
-			FileDownloader d = new FileDownloader() { Url = url };
-			return d.DownloadString(out response);
+			if (downloader == null) { downloader = new FileDownloader(); }
+			downloader.Url = url;
+			return downloader.DownloadString(out response);
 		}
 
 		public static Dictionary<string, string> SplitUrlQueryToDictionary(string urlQuery)

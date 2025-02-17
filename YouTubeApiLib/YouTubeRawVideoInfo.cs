@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using MultiThreadedDownloaderLib;
 using static YouTubeApiLib.Utils;
 
 namespace YouTubeApiLib
@@ -40,15 +41,16 @@ namespace YouTubeApiLib
 			return new YouTubeRawVideoInfoResult(rawVideoInfo, errorCode);
 		}
 
-		public static YouTubeRawVideoInfoResult Get(YouTubeVideoId videoId)
+		public static YouTubeRawVideoInfoResult Get(YouTubeVideoId videoId, FileDownloader downloader = null)
 		{
-			IYouTubeClient client = YouTubeApi.GetYouTubeClient(YouTubeApi.GetDefaultYouTubeClientId());
-			return Get(videoId.Id, client);
+			return Get(videoId.Id, downloader);
 		}
 
-		public static YouTubeRawVideoInfoResult Get(string videoId)
+		public static YouTubeRawVideoInfoResult Get(string videoId, FileDownloader downloader = null)
 		{
 			IYouTubeClient client = YouTubeApi.GetYouTubeClient(YouTubeApi.GetDefaultYouTubeClientId());
+			if (client == null) { return new YouTubeRawVideoInfoResult(null, 400); }
+			client.Downloader = downloader;
 			return Get(videoId, client);
 		}
 

@@ -1,11 +1,13 @@
 ﻿using System.Collections.Specialized;
 using Newtonsoft.Json.Linq;
+using MultiThreadedDownloaderLib;
 
 namespace YouTubeApiLib
 {
 	public class YouTubeClientVideoInfo : IYouTubeClient
 	{
 		public string DisplayName => "Video info client";
+		public FileDownloader Downloader { get; set; }
 
 		public JObject GenerateRequestBody(string videoId, YouTubeConfig youTubeConfig = null)
 		{
