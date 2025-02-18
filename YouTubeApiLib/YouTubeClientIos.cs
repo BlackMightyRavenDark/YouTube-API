@@ -150,5 +150,10 @@ namespace YouTubeApiLib
 		{
 			WebPage = webPage;
 		}
+
+		public override string ToString()
+		{
+			return DisplayName;
+		}
 	}
 }

@@ -58,5 +58,10 @@ namespace YouTubeApiLib
 		}
 
 		public void SetWebPage(YouTubeVideoWebPage webPage) { }
+
+		public override string ToString()
+		{
+			return DisplayName;
+		}
 	}
 }
