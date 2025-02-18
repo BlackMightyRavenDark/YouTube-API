@@ -63,6 +63,11 @@ namespace YouTubeApiLib
 			return MakeFromCode((YouTubeVideoId)null, webPageCode);
 		}
 
+		public YouTubeRawVideoInfoResult ExtractRawVideoInfo()
+		{
+			return Utils.ExtractRawVideoInfoFromWebPage(this);
+		}
+
 		public YouTubeConfig ExtractYouTubeConfig(string pattern)
 		{
 			return !string.IsNullOrEmpty(WebPageCode) ?
