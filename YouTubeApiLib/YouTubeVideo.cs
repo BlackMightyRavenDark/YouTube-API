@@ -175,8 +175,7 @@ namespace YouTubeApiLib
 
 		public static YouTubeVideo GetById(YouTubeVideoId videoId)
 		{
-			IYouTubeClient client = YouTubeApi.GetYouTubeClient(YouTubeApi.GetDefaultYouTubeClientId());
-			return client != null ? GetById(videoId, client) : null;
+			return GetById(videoId, null);
 		}
 
 		public static YouTubeVideo GetById(string videoId, IYouTubeClient client)
@@ -187,8 +186,7 @@ namespace YouTubeApiLib
 
 		public static YouTubeVideo GetById(string videoId)
 		{
-			IYouTubeClient client = YouTubeApi.GetYouTubeClient(YouTubeApi.GetDefaultYouTubeClientId());
-			return client != null ? GetById(videoId, client) : null;
+			return GetById(videoId, null);
 		}
 
 		public static YouTubeVideo GetByWebPage(YouTubeVideoWebPage videoWebPage)
