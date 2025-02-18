@@ -8,26 +8,21 @@ namespace YouTubeApiLib
 	public class YouTubeClientIos : IYouTubeClient
 	{
 		public string DisplayName => "IOS";
-
+		public YouTubeVideoWebPage WebPage { get; private set; }
 		public FileDownloader Downloader { get; set; }
 
 		private readonly IosDevice DEVICE; 
 
-		private YouTubeVideoWebPage _videoWebPage;
-
-		public YouTubeClientIos() : this(null) { }
-
-		public YouTubeClientIos(YouTubeVideoWebPage videoWebPage)
+		public YouTubeClientIos()
 		{
 			DEVICE = new IosDevice("Apple", "iPhone16,2", "IOS", 18, 1, 0, "22B83", "IOS", 19, 45, 4);
-			_videoWebPage = videoWebPage;
 		}
 
 		public JObject GenerateRequestBody(string videoId, YouTubeConfig youTubeConfig = null)
 		{
 			if (youTubeConfig == null)
 			{
-				youTubeConfig = _videoWebPage?.ExtractYouTubeConfig();
+				youTubeConfig = WebPage?.ExtractYouTubeConfig();
 				if (youTubeConfig == null) { return null; }
 			}
 
@@ -78,7 +73,7 @@ namespace YouTubeApiLib
 		{
 			if (youTubeConfig == null)
 			{
-				youTubeConfig = _videoWebPage?.ExtractYouTubeConfig();
+				youTubeConfig = WebPage?.ExtractYouTubeConfig();
 				if (youTubeConfig == null) { return null; }
 			}
 			
@@ -106,8 +101,9 @@ namespace YouTubeApiLib
 		{
 			try
 			{
-				YouTubeVideoWebPageResult webPageResult = _videoWebPage != null ?
-					new YouTubeVideoWebPageResult(_videoWebPage, 200) :
+				string webPageCode = WebPage?.WebPageCode;
+				YouTubeVideoWebPageResult webPageResult = !string.IsNullOrEmpty(webPageCode) && !string.IsNullOrWhiteSpace(webPageCode) ?
+					new YouTubeVideoWebPageResult(WebPage, 200) :
 					YouTubeVideoWebPage.Get(videoId, Downloader);
 				if (webPageResult.ErrorCode == 200)
 				{
@@ -147,6 +143,11 @@ namespace YouTubeApiLib
 				errorMessage = ex.Message;
 				return ex.HResult;
 			}
+		}
+
+		public void SetWebPage(YouTubeVideoWebPage webPage)
+		{
+			WebPage = webPage;
 		}
 	}
 }

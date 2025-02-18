@@ -7,6 +7,7 @@ namespace YouTubeApiLib
 	public class YouTubeClientWebPage : IYouTubeClient
 	{
 		public string DisplayName => "Web page";
+		public YouTubeVideoWebPage WebPage => null;
 		public FileDownloader Downloader { get; set; }
 
 		public JObject GenerateRequestBody(string videoId, YouTubeConfig youTubeConfig)
@@ -50,6 +51,8 @@ namespace YouTubeApiLib
 		{
 			return YouTubeVideoWebPage.Get(videoId, Downloader);
 		}
+
+		public void SetWebPage(YouTubeVideoWebPage webPage) { }
 
 		public override string ToString()
 		{

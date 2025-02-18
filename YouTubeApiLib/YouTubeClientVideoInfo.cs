@@ -7,6 +7,7 @@ namespace YouTubeApiLib
 	public class YouTubeClientVideoInfo : IYouTubeClient
 	{
 		public string DisplayName => "Video info client";
+		public YouTubeVideoWebPage WebPage => null;
 		public FileDownloader Downloader { get; set; }
 
 		public JObject GenerateRequestBody(string videoId, YouTubeConfig youTubeConfig = null)
@@ -55,5 +56,7 @@ namespace YouTubeApiLib
 			errorMessage = null;
 			return errorCode;
 		}
+
+		public void SetWebPage(YouTubeVideoWebPage webPage) { }
 	}
 }
