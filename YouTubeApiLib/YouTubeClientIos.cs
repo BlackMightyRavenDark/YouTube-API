@@ -10,12 +10,13 @@ namespace YouTubeApiLib
 		public string DisplayName => "IOS";
 		public YouTubeVideoWebPage WebPage { get; private set; }
 		public FileDownloader Downloader { get; set; }
+		public IosDevice Device { get; }
 
-		private readonly IosDevice DEVICE; 
+		public YouTubeClientIos() : this(null) { }
 
-		public YouTubeClientIos()
+		public YouTubeClientIos(IosDevice device)
 		{
-			DEVICE = new IosDevice("Apple", "iPhone16,2", "IOS", 18, 1, 0, "22B83", "IOS", 19, 45, 4);
+			Device = device ?? new IosDevice("Apple", "iPhone16,2", "IOS", 18, 1, 0, "22B83", "IOS", 19, 45, 4);
 		}
 
 		public JObject GenerateRequestBody(string videoId, YouTubeConfig youTubeConfig = null)
@@ -28,17 +29,17 @@ namespace YouTubeApiLib
 
 			int sts = youTubeConfig.SignatureTimestamp;
 			string visitorData = youTubeConfig.VisitorData;
-			string clientVersionString = $"{DEVICE.ClientVersionMajor}.{DEVICE.ClientVersionMinor}.{DEVICE.ClientVersionPatch}";
-			string osVersionString = $"{DEVICE.OsVersionMajor}.{DEVICE.OsVersionMinor}.{DEVICE.OsVersionPatch}.{DEVICE.OsVersionBuild}";
+			string clientVersionString = $"{Device.ClientVersionMajor}.{Device.ClientVersionMinor}.{Device.ClientVersionPatch}";
+			string osVersionString = $"{Device.OsVersionMajor}.{Device.OsVersionMinor}.{Device.OsVersionPatch}.{Device.OsVersionBuild}";
 
 			JObject jClient = new JObject()
 			{
-				["clientName"] = DEVICE.ClientName,
+				["clientName"] = Device.ClientName,
 				["clientVersion"] = clientVersionString,
-				["deviceMake"] = DEVICE.DeviceMaker,
-				["deviceModel"] = DEVICE.DeviceModel,
+				["deviceMake"] = Device.DeviceMaker,
+				["deviceModel"] = Device.DeviceModel,
 				["platform"] = "MOBILE",
-				["osName"] = DEVICE.OsName,
+				["osName"] = Device.OsName,
 				["osVersion"] = osVersionString,
 				["hl"] = "en",
 				["gl"] = "US",
@@ -78,14 +79,14 @@ namespace YouTubeApiLib
 			}
 			
 			string visitorData = youTubeConfig.VisitorData;
-			string clientVersionString = $"{DEVICE.ClientVersionMajor}.{DEVICE.ClientVersionMinor}.{DEVICE.ClientVersionPatch}";
+			string clientVersionString = $"{Device.ClientVersionMajor}.{Device.ClientVersionMinor}.{Device.ClientVersionPatch}";
 			NameValueCollection headers = new NameValueCollection()
 			{
 				{ "Origin", Utils.YOUTUBE_URL },
 				{ "X-Goog-Visitor-Id", visitorData },
 				{ "X-YouTube-Client-Name", "5" },
 				{ "X-YouTube-Client-Version", clientVersionString },
-				{ "User-Agent", DEVICE.UserAgent }
+				{ "User-Agent", Device.UserAgent }
 			};
 
 			return headers;

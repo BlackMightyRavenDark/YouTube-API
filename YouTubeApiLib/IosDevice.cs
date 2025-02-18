@@ -1,7 +1,7 @@
 ﻿
 namespace YouTubeApiLib
 {
-	internal class IosDevice
+	public class IosDevice
 	{
 		public string DeviceMaker { get; }
 		public string DeviceModel { get; }
