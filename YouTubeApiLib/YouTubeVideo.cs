@@ -156,7 +156,7 @@ namespace YouTubeApiLib
 				YouTubeVideo video = rawVideoInfoResult.RawVideoInfo.ToVideo();
 				if (video != null)
 				{
-					if (YouTubeApi.getMediaTracksInfoImmediately)
+					if (YouTubeApi.getMediaTracksInfoImmediately && !(client is YouTubeClientIos))
 					{
 						IYouTubeClient streamingDataClient = automaticClientSelection ?
 							YouTubeApi.GetYouTubeClient("ios") : client;
