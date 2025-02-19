@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace YouTubeApiLib
 {
@@ -6,7 +7,7 @@ namespace YouTubeApiLib
 	{
 		public static bool getMediaTracksInfoImmediately = false;
 		private static string _defaultYouTubeClientId = "ios";
-		private static Dictionary<string, IYouTubeClient> _clients = new Dictionary<string, IYouTubeClient>()
+		private static ConcurrentDictionary<string, IYouTubeClient> _clients = new ConcurrentDictionary<string, IYouTubeClient>()
 		{
 			["video_info"] = new YouTubeClientVideoInfo(),
 			["web_page"] = new YouTubeClientWebPage(),
@@ -88,14 +89,6 @@ namespace YouTubeApiLib
 			return YouTubeApiV1.SearchYouTube(searchQuery, continuationToken, searchResultFilter);
 		}
 
-		public static IYouTubeClient GetYouTubeClient(string clientId)
-		{
-			lock (_clients)
-			{
-				return _clients.ContainsKey(clientId) ? _clients[clientId] : null;
-			}
-		}
-
 		public static string GetDefaultYouTubeClientId()
 		{
 			lock (_defaultYouTubeClientId)
@@ -112,37 +105,39 @@ namespace YouTubeApiLib
 			}
 		}
 
+		public static IYouTubeClient GetYouTubeClient(string clientId)
+		{
+			return _clients.ContainsKey(clientId) ? _clients[clientId] : null;
+		}
+
 		/// <summary>
 		/// Adds a new client to the client list or replaces the existing client.
 		/// </summary>
-		public static void AddYouTubeClient(string clientId, IYouTubeClient client)
+		/// <returns>True when success or False when failed.</returns>
+		public static bool AddYouTubeClient(string clientId, IYouTubeClient client)
 		{
-			lock (_clients)
+			try
 			{
 				_clients[clientId] = client;
+				return true;
+			} catch (System.Exception ex)
+			{
+				System.Diagnostics.Debug.WriteLine(ex.Message);
+				return false;
 			}
 		}
 
-		public static void RemoveYouTubeClient(string clientId)
+		public static bool RemoveYouTubeClient(string clientId)
 		{
-			lock (_clients)
-			{
-				if (_clients.ContainsKey(clientId))
-				{
-					_clients.Remove(clientId);
-				}
-			}
+			return _clients.ContainsKey(clientId) ? _clients.TryRemove(clientId, out _) : false;
 		}
 
 		public static IEnumerable<string> GetYouTubeClientNames()
 		{
-			lock (_clients)
+			var keys = _clients.Keys;
+			foreach (string name in keys)
 			{
-				var keys = _clients.Keys;
-				foreach (string name in keys)
-				{
-					yield return name;
-				}
+				yield return name;
 			}
 		}
 	}
