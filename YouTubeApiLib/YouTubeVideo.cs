@@ -306,7 +306,7 @@ namespace YouTubeApiLib
 		{
 			if (client == null)
 			{
-				client = YouTubeApi.GetYouTubeClient("video_info");
+				client = YouTubeApi.GetYouTubeClient(YouTubeApi.GetDefaultYouTubeClientId());
 			}
 
 			if (client != null)

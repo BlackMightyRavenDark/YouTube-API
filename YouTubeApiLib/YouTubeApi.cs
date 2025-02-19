@@ -21,7 +21,7 @@ namespace YouTubeApiLib
 
 		public YouTubeVideo GetVideo(YouTubeVideoId youTubeVideoId)
 		{
-			IYouTubeClient client = GetYouTubeClient("video_info");
+			IYouTubeClient client = GetYouTubeClient(GetDefaultYouTubeClientId());
 			return client != null ? GetVideo(youTubeVideoId, client) : null;
 		}
 
