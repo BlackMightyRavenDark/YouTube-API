@@ -68,35 +68,36 @@ namespace YouTubeApiLib
 
 		public JArray GetFormats()
 		{
-			if (_parsedData == null) { _parsedData = TryParseJson(RawData); }
-			return _parsedData?.Value<JArray>("formats");
+			return PreParse() ? _parsedData.Value<JArray>("formats") : null;
 		}
 
 		public JArray GetAdaptiveFormats()
 		{
-			if (_parsedData == null) { _parsedData = TryParseJson(RawData); }
-			return _parsedData?.Value<JArray>("adaptiveFormats");
+			return PreParse() ? _parsedData.Value<JArray>("adaptiveFormats") : null;
 		}
 
 		public string GetDashManifestUrl()
 		{
-			if (_parsedData == null) { _parsedData = TryParseJson(RawData); }
-			return _parsedData?.Value<string>("dashManifestUrl");
+			return PreParse() ? _parsedData.Value<string>("dashManifestUrl") : null;
 		}
 
 		public string GetHlsManifestUrl()
 		{
-			if (_parsedData == null) { _parsedData = TryParseJson(RawData); }
-			return _parsedData?.Value<string>("hlsManifestUrl");
+			return PreParse() ? _parsedData.Value<string>("hlsManifestUrl") : null;
+		}
+
+		public bool PreParse()
+		{
+			if (_parsedData != null) { return true; }
+			_parsedData = TryParseJson(RawData);
+			return _parsedData != null;
 		}
 
 		public void FormatRawData()
 		{
-			JObject j = TryParseJson(RawData);
-			if (j != null)
+			if (PreParse())
 			{
-				if (_parsedData == null) { _parsedData = j; }
-				RawData = j.ToString();
+				RawData = _parsedData.ToString();
 			}
 		}
 
