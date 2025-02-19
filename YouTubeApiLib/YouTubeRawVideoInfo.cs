@@ -65,9 +65,25 @@ namespace YouTubeApiLib
 			return MakeFromRaw(rawData, null);
 		}
 
-		public YouTubeSimplifiedVideoInfoResult Simplify(YouTubeStreamingData customStreamingData = null)
+		public YouTubeSimplifiedVideoInfoResult Simplify(JObject customMicroformat,
+			YouTubeStreamingData customStreamingData)
 		{
-			return SimplifyRawVideoInfo(this, customStreamingData);
+			return SimplifyRawVideoInfo(this, customMicroformat, customStreamingData);
+		}
+
+		public YouTubeSimplifiedVideoInfoResult Simplify(JObject customMicroformat)
+		{
+			return Simplify(customMicroformat, null);
+		}
+
+		public YouTubeSimplifiedVideoInfoResult Simplify(YouTubeStreamingData customStreamingData)
+		{
+			return Simplify(null, customStreamingData);
+		}
+
+		public YouTubeSimplifiedVideoInfoResult Simplify()
+		{
+			return Simplify(null, null);
 		}
 
 		private YouTubeVideoPlayabilityStatus ExtractPlayabilityStatus()
@@ -113,9 +129,9 @@ namespace YouTubeApiLib
 			return PreParse() ? _parsedData.Value<JObject>("microformat") : null;
 		}
 
-		public YouTubeVideo ToVideo()
+		public YouTubeVideo ToVideo(JObject jMicroformat = null)
 		{
-			return MakeYouTubeVideo(this);
+			return MakeYouTubeVideo(this, jMicroformat);
 		}
 
 		public bool PreParse()

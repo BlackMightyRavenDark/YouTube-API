@@ -59,7 +59,7 @@ namespace YouTubeApiLib
 		}
 
 		internal static YouTubeSimplifiedVideoInfoResult SimplifyRawVideoInfo(YouTubeRawVideoInfo rawVideoInfo,
-			YouTubeStreamingData youTubeStreamingData = null)
+			JObject customMicroformat, YouTubeStreamingData customStreamingData = null)
 		{
 			JObject jVideoDetails = rawVideoInfo.VideoDetails?.Parse();
 			if (jVideoDetails == null)
@@ -67,7 +67,7 @@ namespace YouTubeApiLib
 				return new YouTubeSimplifiedVideoInfoResult(null, 404);
 			}
 
-			JObject jMicroformat = rawVideoInfo.Microformat;
+			JObject jMicroformat = customMicroformat ?? rawVideoInfo.Microformat;
 			JObject jMicroformatRenderer = jMicroformat?.Value<JObject>("playerMicroformatRenderer");
 
 			JObject jSimplifiedVideoInfo = new JObject();
@@ -129,16 +129,21 @@ namespace YouTubeApiLib
 				jSimplifiedVideoInfo["thumbnails"] = ThumbnailsToJson(videoThumbnails);
 			}
 
-			YouTubeStreamingData streamingData = youTubeStreamingData ?? rawVideoInfo.StreamingData?.Data;
+			YouTubeStreamingData streamingData = customStreamingData ?? rawVideoInfo.StreamingData?.Data;
 
 			YouTubeSimplifiedVideoInfo simplifiedVideoInfo = new YouTubeSimplifiedVideoInfo(
 				jSimplifiedVideoInfo, jVideoDetails != null, jMicroformatRenderer != null, streamingData);
 			return new YouTubeSimplifiedVideoInfoResult(simplifiedVideoInfo, 200);
 		}
 
-		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo)
+		internal static YouTubeSimplifiedVideoInfoResult SimplifyRawVideoInfo(YouTubeRawVideoInfo rawVideoInfo)
 		{
-			YouTubeSimplifiedVideoInfoResult simplifiedVideoInfoResult = rawVideoInfo.Simplify();
+			return SimplifyRawVideoInfo(rawVideoInfo, null);
+		}
+
+		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo, JObject jMicroformat = null)
+		{
+			YouTubeSimplifiedVideoInfoResult simplifiedVideoInfoResult = rawVideoInfo.Simplify(jMicroformat);
 			if (simplifiedVideoInfoResult.ErrorCode != 200)
 			{
 				return YouTubeVideo.CreateEmpty(rawVideoInfo.PlayabilityStatus);

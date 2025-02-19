@@ -153,7 +153,21 @@ namespace YouTubeApiLib
 			YouTubeRawVideoInfoResult rawVideoInfoResult = client.GetRawVideoInfo(videoId, out _);
 			if (rawVideoInfoResult.ErrorCode == 200)
 			{
-				YouTubeVideo video = rawVideoInfoResult.RawVideoInfo.ToVideo();
+				JObject jMicroformat = null;
+				if (client is YouTubeClientIos)
+				{
+					YouTubeVideoWebPageResult videoWebPageResult = YouTubeVideoWebPage.Get(videoId);
+					if (videoWebPageResult.ErrorCode == 200)
+					{
+						YouTubeRawVideoInfoResult rawResult = videoWebPageResult.VideoWebPage.ExtractRawVideoInfo();
+						if (rawResult.ErrorCode == 200)
+						{
+							jMicroformat = rawResult.RawVideoInfo.Microformat;
+						}
+					}
+				}
+
+				YouTubeVideo video = rawVideoInfoResult.RawVideoInfo.ToVideo(jMicroformat);
 				if (video != null)
 				{
 					if (YouTubeApi.getMediaTracksInfoImmediately && !(client is YouTubeClientIos))
