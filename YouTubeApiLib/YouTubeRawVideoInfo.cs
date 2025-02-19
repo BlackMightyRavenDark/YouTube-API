@@ -72,15 +72,18 @@ namespace YouTubeApiLib
 
 		private YouTubeVideoPlayabilityStatus ExtractPlayabilityStatus()
 		{
-			if (_parsedData == null) { _parsedData = TryParseJson(RawData); }
-			JObject jPlayabilityStatus = _parsedData?.Value<JObject>("playabilityStatus");
-			return jPlayabilityStatus != null ? YouTubeVideoPlayabilityStatus.Parse(jPlayabilityStatus) : null;
+			if (PreParse())
+			{
+				JObject jPlayabilityStatus = _parsedData.Value<JObject>("playabilityStatus");
+				return jPlayabilityStatus != null ? YouTubeVideoPlayabilityStatus.Parse(jPlayabilityStatus) : null;
+			}
+
+			return null;
 		}
 
 		private YouTubeStreamingDataResult ExtractStreamingData()
 		{
-			if (_parsedData == null) { _parsedData = TryParseJson(RawData); }
-			if (_parsedData != null)
+			if (PreParse())
 			{
 				JObject jStreamingData = _parsedData.Value<JObject>("streamingData");
 				if (jStreamingData != null)
@@ -96,15 +99,18 @@ namespace YouTubeApiLib
 
 		private YouTubeVideoDetails ExtractVideoDetails()
 		{
-			if (_parsedData == null) { _parsedData = TryParseJson(RawData); }
-			JObject j = _parsedData?.Value<JObject>("videoDetails");
-			return j != null ? new YouTubeVideoDetails(j.ToString(), Client) : null;
+			if (PreParse())
+			{
+				JObject j = _parsedData.Value<JObject>("videoDetails");
+				return j != null ? new YouTubeVideoDetails(j.ToString(), Client) : null;
+			}
+
+			return null;
 		}
 
 		private JObject ExtractMicroformat()
 		{
-			if (_parsedData == null) { _parsedData = TryParseJson(RawData); }
-			return _parsedData?.Value<JObject>("microformat");
+			return PreParse() ? _parsedData.Value<JObject>("microformat") : null;
 		}
 
 		public YouTubeVideo ToVideo()
@@ -112,13 +118,18 @@ namespace YouTubeApiLib
 			return MakeYouTubeVideo(this);
 		}
 
+		public bool PreParse()
+		{
+			if (_parsedData != null) { return true; }
+			_parsedData = TryParseJson(RawData);
+			return _parsedData != null;
+		}
+
 		public void FormatRawData()
 		{
-			JObject j = TryParseJson(RawData);
-			if (j != null)
+			if (PreParse())
 			{
-				if (_parsedData == null) { _parsedData = j; }
-				RawData = j.ToString();
+				RawData = _parsedData.ToString();
 			}
 		}
 
