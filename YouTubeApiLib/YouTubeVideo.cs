@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using MultiThreadedDownloaderLib;
 
 namespace YouTubeApiLib
 {
@@ -145,7 +146,9 @@ namespace YouTubeApiLib
 			return CreateEmpty(null);
 		}
 
-		public static YouTubeVideo GetById(YouTubeVideoId videoId, IYouTubeClient client)
+		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used while downloading some required data.
+		/// If this argument is NULL, a new instance of the default "FileDownloader" will be created automatically.</param>
+		public static YouTubeVideo GetById(YouTubeVideoId videoId, IYouTubeClient client, FileDownloader downloader = null)
 		{
 			bool automaticClientSelection = client == null;
 			if (automaticClientSelection) { client = YouTubeApi.GetYouTubeClient("web_page"); }
@@ -156,7 +159,7 @@ namespace YouTubeApiLib
 				JObject jMicroformat = null;
 				if (client is YouTubeClientIos)
 				{
-					YouTubeVideoWebPageResult videoWebPageResult = YouTubeVideoWebPage.Get(videoId);
+					YouTubeVideoWebPageResult videoWebPageResult = YouTubeVideoWebPage.Get(videoId, downloader);
 					if (videoWebPageResult.ErrorCode == 200)
 					{
 						YouTubeRawVideoInfoResult rawResult = videoWebPageResult.VideoWebPage.ExtractRawVideoInfo();
@@ -167,7 +170,7 @@ namespace YouTubeApiLib
 					}
 				}
 
-				YouTubeVideo video = rawVideoInfoResult.RawVideoInfo.ToVideo(jMicroformat);
+				YouTubeVideo video = rawVideoInfoResult.RawVideoInfo.ToVideo(jMicroformat, downloader);
 				if (video != null)
 				{
 					if (YouTubeApi.getMediaTracksInfoImmediately && !(client is YouTubeClientIos))
@@ -187,20 +190,26 @@ namespace YouTubeApiLib
 			return CreateEmpty(new YouTubeVideoPlayabilityStatus(400));
 		}
 
-		public static YouTubeVideo GetById(YouTubeVideoId videoId)
+		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used while downloading some required data.
+		/// If this argument is NULL, a new instance of the default "FileDownloader" will be created automatically.</param>
+		public static YouTubeVideo GetById(YouTubeVideoId videoId, FileDownloader downloader = null)
 		{
-			return GetById(videoId, null);
+			return GetById(videoId, null, downloader);
 		}
 
-		public static YouTubeVideo GetById(string videoId, IYouTubeClient client)
+		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used while downloading some required data.
+		/// If this argument is NULL, a new instance of the default "FileDownloader" will be created automatically.</param>
+		public static YouTubeVideo GetById(string videoId, IYouTubeClient client, FileDownloader downloader = null)
 		{
 			YouTubeVideoId youTubeVideoId = new YouTubeVideoId(videoId);
-			return GetById(youTubeVideoId, client);
+			return GetById(youTubeVideoId, client, downloader);
 		}
 
-		public static YouTubeVideo GetById(string videoId)
+		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used while downloading some required data.
+		/// If this argument is NULL, a new instance of the default "FileDownloader" will be created automatically.</param>
+		public static YouTubeVideo GetById(string videoId, FileDownloader downloader = null)
 		{
-			return GetById(videoId, null);
+			return GetById(videoId, null, downloader);
 		}
 
 		public static YouTubeVideo GetByWebPage(YouTubeVideoWebPage videoWebPage)

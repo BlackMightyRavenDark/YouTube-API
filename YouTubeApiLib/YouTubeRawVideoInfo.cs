@@ -68,7 +68,7 @@ namespace YouTubeApiLib
 		public YouTubeSimplifiedVideoInfoResult Simplify(JObject customMicroformat,
 			YouTubeStreamingData customStreamingData)
 		{
-			return SimplifyRawVideoInfo(this, customMicroformat, customStreamingData);
+			return SimplifyRawVideoInfo(VideoDetails, customMicroformat, customStreamingData);
 		}
 
 		public YouTubeSimplifiedVideoInfoResult Simplify(JObject customMicroformat)
@@ -129,9 +129,18 @@ namespace YouTubeApiLib
 			return PreParse() ? _parsedData.Value<JObject>("microformat") : null;
 		}
 
-		public YouTubeVideo ToVideo(JObject jMicroformat = null)
+		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used in the streaming data parser.
+		/// If this argument is NULL, a new instance of the "FileDownloader" will be created automatically.</param>
+		public YouTubeVideo ToVideo(JObject jMicroformat, FileDownloader downloader = null)
 		{
-			return MakeYouTubeVideo(this, jMicroformat);
+			return MakeYouTubeVideo(this, jMicroformat, downloader);
+		}
+
+		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used in the streaming data parser.
+		/// If this argument is NULL, a new instance of the "FileDownloader" will be created automatically.</param>
+		public YouTubeVideo ToVideo(FileDownloader downloader = null)
+		{
+			return ToVideo(null, downloader);
 		}
 
 		public bool PreParse()

@@ -59,28 +59,30 @@ namespace YouTubeApiLib
 		}
 
 		internal static YouTubeSimplifiedVideoInfoResult SimplifyRawVideoInfo(
-			JObject videoDetails, JObject microformat, YouTubeStreamingData streamingData)
+			YouTubeVideoDetails videoDetails, JObject microformat,
+			YouTubeStreamingData streamingData = null)
 		{
+			JObject jVideoDetails = videoDetails?.Parse();
 			JObject jMicroformatRenderer = microformat?.Value<JObject>("playerMicroformatRenderer");
 			JObject jSimplifiedVideoInfo = new JObject();
 
 			string videoId;
-			if (videoDetails != null)
+			if (jVideoDetails != null)
 			{
-				jSimplifiedVideoInfo["title"] = videoDetails.Value<string>("title");
-				videoId = videoDetails.Value<string>("videoId");
+				jSimplifiedVideoInfo["title"] = jVideoDetails.Value<string>("title");
+				videoId = jVideoDetails.Value<string>("videoId");
 				jSimplifiedVideoInfo["id"] = videoId;
 				jSimplifiedVideoInfo["url"] = GetYouTubeVideoUrl(videoId);
-				if (int.TryParse(videoDetails.Value<string>("lengthSeconds"), out int lengthSeconds))
+				if (int.TryParse(jVideoDetails.Value<string>("lengthSeconds"), out int lengthSeconds))
 				{
 					jSimplifiedVideoInfo["lengthSeconds"] = lengthSeconds;
 				}
-				jSimplifiedVideoInfo["ownerChannelTitle"] = videoDetails.Value<string>("author");
-				jSimplifiedVideoInfo["ownerChannelId"] = videoDetails.Value<string>("channelId");
-				jSimplifiedVideoInfo["viewCount"] = int.Parse(videoDetails.Value<string>("viewCount"));
-				jSimplifiedVideoInfo["isPrivate"] = videoDetails.Value<bool>("isPrivate");
-				jSimplifiedVideoInfo["isLiveContent"] = videoDetails.Value<bool>("isLiveContent");
-				jSimplifiedVideoInfo["shortDescription"] = videoDetails.Value<string>("shortDescription");
+				jSimplifiedVideoInfo["ownerChannelTitle"] = jVideoDetails.Value<string>("author");
+				jSimplifiedVideoInfo["ownerChannelId"] = jVideoDetails.Value<string>("channelId");
+				jSimplifiedVideoInfo["viewCount"] = int.Parse(jVideoDetails.Value<string>("viewCount"));
+				jSimplifiedVideoInfo["isPrivate"] = jVideoDetails.Value<bool>("isPrivate");
+				jSimplifiedVideoInfo["isLiveContent"] = jVideoDetails.Value<bool>("isLiveContent");
+				jSimplifiedVideoInfo["shortDescription"] = jVideoDetails.Value<string>("shortDescription");
 			}
 			else
 			{
@@ -133,18 +135,28 @@ namespace YouTubeApiLib
 				}
 			}
 
+			if (streamingData != null)
+			{
+				JObject jStreamingData = TryParseJson(streamingData.RawData);
+				if (jStreamingData != null)
+				{
+					jSimplifiedVideoInfo["streamingData"] = jStreamingData;
+				}
+			}
+
 			YouTubeSimplifiedVideoInfo simplifiedVideoInfo = new YouTubeSimplifiedVideoInfo(
-				jSimplifiedVideoInfo, videoDetails != null, jMicroformatRenderer != null, streamingData);
+				jSimplifiedVideoInfo, jVideoDetails != null, jMicroformatRenderer != null);
 			return new YouTubeSimplifiedVideoInfoResult(simplifiedVideoInfo, 200);
 		}
 
 		internal static YouTubeSimplifiedVideoInfoResult SimplifyRawVideoInfo(YouTubeRawVideoInfo rawVideoInfo,
-			JObject customMicroformat, YouTubeStreamingData customStreamingData = null)
+			JObject customMicroformat)
 		{
-			JObject jVideoDetails = rawVideoInfo.VideoDetails?.Parse();
+			YouTubeVideoDetails videoDetails = rawVideoInfo.VideoDetails;
 			JObject jMicroformat = customMicroformat ?? rawVideoInfo.Microformat;
+			YouTubeStreamingData streamingData = rawVideoInfo.StreamingData.Data;
 
-			return SimplifyRawVideoInfo(jVideoDetails, jMicroformat, customStreamingData);
+			return SimplifyRawVideoInfo(videoDetails, jMicroformat, streamingData);
 		}
 
 		internal static YouTubeSimplifiedVideoInfoResult SimplifyRawVideoInfo(YouTubeRawVideoInfo rawVideoInfo)
@@ -152,19 +164,11 @@ namespace YouTubeApiLib
 			return SimplifyRawVideoInfo(rawVideoInfo, null);
 		}
 
-		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo, JObject jMicroformat = null)
-		{
-			YouTubeSimplifiedVideoInfoResult simplifiedVideoInfoResult = rawVideoInfo.Simplify(jMicroformat);
-			if (simplifiedVideoInfoResult.ErrorCode != 200)
-			{
-				return YouTubeVideo.CreateEmpty(rawVideoInfo.PlayabilityStatus);
-			}
-
-			return MakeYouTubeVideo(rawVideoInfo, simplifiedVideoInfoResult.SimplifiedVideoInfo);
-		}
-
+		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used in the streaming data parser.
+		/// If this argument is NULL, a new instance of the "FileDownloader" will be created automatically.</param>
 		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo,
-			YouTubeSimplifiedVideoInfo simplifiedVideoInfo)
+			YouTubeSimplifiedVideoInfo simplifiedVideoInfo, YouTubeStreamingData customStreamingData,
+			FileDownloader downloader = null)
 		{
 			string videoTitle = null;
 			string videoId = null;
@@ -236,18 +240,37 @@ namespace YouTubeApiLib
 				ownerChannelId, descr, viewCount, category, isShort, isPrivate, isUnlisted,
 				isFamilySafe, isLiveContent, videoDetails, videoThumbnails,
 				rawVideoInfo, simplifiedVideoInfo, videoStatus);
-			if (YouTubeApi.getMediaTracksInfoImmediately)
+
+			YouTubeStreamingData actualStreamingData = customStreamingData ?? rawVideoInfo.StreamingData?.Data;
+			YouTubeMediaFormatList mediaFormats = actualStreamingData?.Parse(downloader);
+			if (mediaFormats != null)
 			{
-				YouTubeMediaFormatList mediaFormats = simplifiedVideoInfo.StreamingData != null ?
-					simplifiedVideoInfo.StreamingData.Parse() :
-					rawVideoInfo.StreamingData.Data?.Parse();
-				if (mediaFormats != null)
-				{
-					youTubeVideo.MediaTracks[mediaFormats.Client.DisplayName] = mediaFormats;
-				}
+				youTubeVideo.MediaTracks[mediaFormats.Client.DisplayName] = mediaFormats;
 			}
 
 			return youTubeVideo;
+		}
+
+		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used in the streaming data parser.
+		/// If this argument is NULL, a new instance of the "FileDownloader" will be created automatically.</param>
+		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo, JObject jMicroformat,
+			FileDownloader downloader = null)
+		{
+			YouTubeSimplifiedVideoInfoResult simplifiedVideoInfoResult = rawVideoInfo.Simplify(jMicroformat);
+			if (simplifiedVideoInfoResult.ErrorCode != 200)
+			{
+				return YouTubeVideo.CreateEmpty(rawVideoInfo.PlayabilityStatus);
+			}
+
+			return MakeYouTubeVideo(rawVideoInfo, simplifiedVideoInfoResult.SimplifiedVideoInfo, downloader);
+		}
+
+		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used in the streaming data parser.
+		/// If this argument is NULL, a new instance of the "FileDownloader" will be created automatically.</param>
+		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo,
+			YouTubeSimplifiedVideoInfo simplifiedVideoInfo, FileDownloader downloader = null)
+		{
+			return MakeYouTubeVideo(rawVideoInfo, simplifiedVideoInfo, null, downloader);
 		}
 
 		public static YouTubeVideoDetails GetVideoDetails(string videoId, IYouTubeClient client)
