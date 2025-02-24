@@ -16,10 +16,9 @@ namespace YouTubeApiLib.TestChannelPages
 			};
 
 			YouTubeChannel channel = new YouTubeChannel("UCSCHk4GbzMlKtxwpXPyYeMA", "Frozzen Fro");
-			YouTubeApi api = new YouTubeApi();
 			foreach (YouTubeChannelTabPage page in pages)
 			{
-				YouTubeVideoIdPageResult videoIdPageResult = api.GetVideoIdPage(channel, page);
+				YouTubeVideoIdPageResult videoIdPageResult = channel.GetVideoIdPage(page);
 				if (videoIdPageResult.ErrorCode == 200)
 				{
 					Console.WriteLine($"{channel} {page.Title} tab page:");

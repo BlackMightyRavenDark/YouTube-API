@@ -48,7 +48,7 @@ namespace YouTubeApiLib
 		public YouTubeVideoIdPageResult GetVideoIdPage(
 			YouTubeChannel youTubeChannel, YouTubeChannelTabPage channelTabPage, string continuationToken)
 		{
-			return YouTubeApiV1.GetVideoIdPage(youTubeChannel?.Id, channelTabPage, continuationToken);
+			return youTubeChannel.GetVideoIdPage(channelTabPage, continuationToken);
 		}
 
 		public YouTubeVideoIdPageResult GetVideoIdPage(YouTubeChannel youTubeChannel, YouTubeChannelTabPage channelTabPage)

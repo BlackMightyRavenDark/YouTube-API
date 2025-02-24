@@ -171,7 +171,7 @@ namespace YouTubeApiLib
 
 		internal static YouTubeVideoPageResult GetVideoPage(string channelId, YouTubeChannelTabPage tabPage, string continuationToken)
 		{
-			YouTubeVideoIdPageResult videoIdPageResult = GetVideoIdPage(channelId, tabPage, continuationToken);
+			YouTubeVideoIdPageResult videoIdPageResult = YouTubeChannel.GetVideoIdPage(channelId, tabPage, continuationToken);
 			if (videoIdPageResult.ErrorCode == 200)
 			{
 				LinkedList<YouTubeVideo> videos = new LinkedList<YouTubeVideo>();
@@ -218,7 +218,7 @@ namespace YouTubeApiLib
 			int errorCode;
 			while (true)
 			{
-				YouTubeVideoIdPageResult videoIdPageResult = GetVideoIdPage(channelId, YouTubeChannelTabPages.Videos, continuationToken);
+				YouTubeVideoIdPageResult videoIdPageResult = YouTubeChannel.GetVideoIdPage(channelId, YouTubeChannelTabPages.Videos, continuationToken);
 
 				errorCode = videoIdPageResult.ErrorCode;
 				if (errorCode != 200)
