@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using Newtonsoft.Json.Linq;
 using MultiThreadedDownloaderLib;
+using System.Text;
 
 namespace YouTubeApiLib
 {
@@ -519,28 +520,20 @@ namespace YouTubeApiLib
 			return jsonArr;
 		}
 
-		public static int YouTubeHttpPost(string url, string body, string userAgent, out string responseString)
+		public static int YouTubeHttpPost(string url, byte[] body, NameValueCollection headers, out string responseString)
 		{
+			if (string.IsNullOrEmpty(url) || string.IsNullOrWhiteSpace(url) || body == null || body.Length == 0)
+			{
+				responseString = null;
+				return 400;
+			}
+
 			try
 			{
-				NameValueCollection headers = new NameValueCollection()
-				{
-					{ "Host", "www.youtube.com" },
-					{ "User-Agent", userAgent },
-					{ "Accept", "*/*" },
-					{ "Accept-Encoding", "gzip" }
-				};
+				if (headers == null) { headers = new NameValueCollection(); }
 
-				if (!string.IsNullOrEmpty(body))
-				{
-					byte[] bodyBytes = System.Text.Encoding.UTF8.GetBytes(body);
-					headers.Add("Content-Type", "application/json");
-					headers.Add("Content-Length", bodyBytes.Length.ToString());
-				}
-				else
-				{
-					headers.Add("Content-Length", "0");
-				}
+				headers["Content-Type"] = "application/json";
+				headers["Content-Length"] = body.Length.ToString();
 
 				using (HttpRequestResult requestResult = HttpRequestSender.Send("POST", url, body, headers))
 				{
@@ -561,6 +554,19 @@ namespace YouTubeApiLib
 				responseString = ex.Message;
 				return ex.HResult;
 			}
+		}
+
+		public static int YouTubeHttpPost(string url, string body, string userAgent, out string responseString)
+		{
+			NameValueCollection headers = new NameValueCollection()
+			{
+				{ "Host", "www.youtube.com" },
+				{ "User-Agent", userAgent },
+				{ "Accept", "*/*" },
+				{ "Accept-Encoding", "gzip" }
+			};
+			byte[] bodyBytes = Encoding.UTF8.GetBytes(body);
+			return YouTubeHttpPost(url, bodyBytes, headers, out responseString);
 		}
 
 		public static int YouTubeHttpPost(string url, string body, out string responseString)
