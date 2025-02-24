@@ -656,6 +656,19 @@ namespace YouTubeApiLib
 			return null;
 		}
 
+		public static YouTubeInitialData ExtractYouTubeInitialDataFromWebPageCode(string webPageCode,
+			string pattern = @"var ytInitialData =\s*(.*}}});</script")
+		{
+			Regex regex = new Regex(pattern, RegexOptions.Singleline | RegexOptions.Compiled);
+			MatchCollection matches = regex.Matches(webPageCode);
+			if (matches.Count > 0 && matches[0].Groups.Count > 1)
+			{
+				return new YouTubeInitialData(matches[0].Groups[1].Value);
+			}
+
+			return null;
+		}
+
 		public static YouTubeVideoId ExtractVideoIdFromUrl(string url)
 		{
 			if (string.IsNullOrEmpty(url) || string.IsNullOrWhiteSpace(url))
