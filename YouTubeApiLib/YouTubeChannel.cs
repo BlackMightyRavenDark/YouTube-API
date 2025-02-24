@@ -23,6 +23,16 @@ namespace YouTubeApiLib
 			return YouTubeApiV1.GetVideoIdPage(channelId, channelTabPage, continuationToken);
 		}
 
+		public string GetTabPageUrl(YouTubeChannelTabPage channelTabPage)
+		{
+			return GetTabPageUrl(Id, channelTabPage);
+		}
+
+		public static string GetTabPageUrl(string channelId, YouTubeChannelTabPage channelTabPage)
+		{
+			return channelTabPage.GetWebPageUrl(channelId);
+		}
+
 		public override string ToString()
 		{
 			return $"{DisplayName} ({Id})";
