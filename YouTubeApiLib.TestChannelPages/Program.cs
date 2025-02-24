@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace YouTubeApiLib.TestChannelPages
 {
@@ -7,15 +6,17 @@ namespace YouTubeApiLib.TestChannelPages
 	{
 		static void Main(string[] args)
 		{
-			YouTubeChannel channel = new YouTubeChannel("UCSCHk4GbzMlKtxwpXPyYeMA", "Frozzen Fro");
-			YouTubeApi api = new YouTubeApi();
 			YouTubeApi.getMediaTracksInfoImmediately = false;
-			List<YouTubeChannelTabPage> pages = new List<YouTubeChannelTabPage>()
+
+			YouTubeChannelTabPage[] pages = new YouTubeChannelTabPage[]
 			{
 				YouTubeChannelTabPages.Videos,
 				YouTubeChannelTabPages.Shorts,
 				YouTubeChannelTabPages.Live
 			};
+
+			YouTubeChannel channel = new YouTubeChannel("UCSCHk4GbzMlKtxwpXPyYeMA", "Frozzen Fro");
+			YouTubeApi api = new YouTubeApi();
 			foreach (YouTubeChannelTabPage page in pages)
 			{
 				YouTubeVideoIdPageResult videoIdPageResult = api.GetVideoIdPage(channel, page);
