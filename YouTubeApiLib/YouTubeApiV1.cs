@@ -250,7 +250,7 @@ namespace YouTubeApiLib
 
 		internal static YouTubeChannelTabResult GetChannelTab(string channelId, YouTubeChannelTabPage channelTabPage)
 		{
-			string url = $"{API_V1_BROWSE_URL}?key={API_V1_KEY}";
+			string url = GetBrowseRequestUrl();
 			JObject body = GenerateChannelTabRequestBody(channelId, channelTabPage, null);
 			int errorCode = YouTubeHttpPost(url, body.ToString(), out string response);
 			if (errorCode == 200)
@@ -281,10 +281,10 @@ namespace YouTubeApiLib
 		}
 
 		public static YouTubeChannelTabPageContentResult GetChannelTabContentRawData(
-			string channelId, YouTubeChannelTabPage channelTabPage, string pageToken)
+			string channelId, YouTubeChannelTabPage channelTabPage, string continuationToken)
 		{
-			string url = $"{API_V1_BROWSE_URL}?key={API_V1_KEY}";
-			JObject body = GenerateChannelTabRequestBody(channelId, channelTabPage, pageToken);
+			string url = GetBrowseRequestUrl();
+			JObject body = GenerateChannelTabRequestBody(channelId, channelTabPage, continuationToken);
 			int errorCode = YouTubeHttpPost(url, body.ToString(), out string response);
 			return new YouTubeChannelTabPageContentResult(
 				new YouTubeChannelTabPageContent(channelTabPage, response), errorCode);
