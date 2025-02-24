@@ -104,8 +104,8 @@ namespace YouTubeApiLib.ConsoleTest
 							foreach (var dictItem in video.MediaTracks)
 							{
 								// Quick drafted code may display incorrect field values!
-								// Some of the displayed values can be a big mistake!
-								// The displayed information can be also incomplete in current commit!
+								// Some of the displayed values might be a big mistake!
+								// The displayed information might be also incomplete!
 
 								Console.WriteLine("");
 								if (dictItem.Value.Client is YouTubeClientVideoInfo)
