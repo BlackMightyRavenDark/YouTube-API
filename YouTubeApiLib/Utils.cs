@@ -257,7 +257,8 @@ namespace YouTubeApiLib
 		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo, JObject jMicroformat,
 			FileDownloader downloader = null)
 		{
-			YouTubeSimplifiedVideoInfoResult simplifiedVideoInfoResult = rawVideoInfo.Simplify(jMicroformat);
+			JObject actualMicroformat = jMicroformat ?? rawVideoInfo.Microformat;
+			YouTubeSimplifiedVideoInfoResult simplifiedVideoInfoResult = rawVideoInfo.Simplify(actualMicroformat);
 			if (simplifiedVideoInfoResult.ErrorCode != 200)
 			{
 				return YouTubeVideo.CreateEmpty(rawVideoInfo.PlayabilityStatus);
