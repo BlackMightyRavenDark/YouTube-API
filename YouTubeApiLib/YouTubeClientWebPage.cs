@@ -7,7 +7,7 @@ namespace YouTubeApiLib
 	public class YouTubeClientWebPage : IYouTubeClient
 	{
 		public string DisplayName => "Web page";
-		public YouTubeVideoWebPage WebPage => null;
+		public YouTubeVideoWebPage WebPage { get; private set; }
 		public FileDownloader Downloader { get; set; }
 
 		public JObject GenerateRequestBody(string videoId, YouTubeConfig youTubeConfig)
@@ -32,10 +32,15 @@ namespace YouTubeApiLib
 			YouTubeVideoWebPageResult webPageResult = GetWebPage(videoId);
 			if (webPageResult.ErrorCode == 200)
 			{
+				SetWebPage(webPageResult.VideoWebPage);
 				YouTubeMediaTrackUrlDecryptionData urlDecryptionData = new YouTubeMediaTrackUrlDecryptionData(webPageResult.VideoWebPage);
 				string raw = Utils.ExtractRawVideoInfoFromWebPageCode(webPageResult.VideoWebPage.WebPageCode);
 				rawVideoInfo = new YouTubeRawVideoInfo(raw, this, urlDecryptionData);
 				return webPageResult.ErrorCode;
+			}
+			else
+			{
+				SetWebPage(null);
 			}
 
 			rawVideoInfo = null;
@@ -52,7 +57,10 @@ namespace YouTubeApiLib
 			return YouTubeVideoWebPage.Get(videoId, Downloader);
 		}
 
-		public void SetWebPage(YouTubeVideoWebPage webPage) { }
+		public void SetWebPage(YouTubeVideoWebPage webPage)
+		{
+			WebPage = webPage;
+		}
 
 		public override string ToString()
 		{
