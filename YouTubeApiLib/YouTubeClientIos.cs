@@ -108,6 +108,7 @@ namespace YouTubeApiLib
 					YouTubeVideoWebPage.Get(videoId, Downloader);
 				if (webPageResult.ErrorCode == 200)
 				{
+					SetWebPage(webPageResult.VideoWebPage);
 					YouTubeConfig config = webPageResult.VideoWebPage.ExtractYouTubeConfig();
 					if (config == null)
 					{
