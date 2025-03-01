@@ -131,9 +131,9 @@ namespace YouTubeApiLib
 
 		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used in the streaming data parser.
 		/// If this argument is NULL, a new instance of the "FileDownloader" will be created automatically.</param>
-		public YouTubeVideo ToVideo(JObject jMicroformat, FileDownloader downloader = null)
+		public YouTubeVideo ToVideo(JObject customMicroformat, FileDownloader downloader = null)
 		{
-			return MakeYouTubeVideo(this, jMicroformat, downloader);
+			return MakeYouTubeVideo(this, customMicroformat, downloader);
 		}
 
 		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used in the streaming data parser.
