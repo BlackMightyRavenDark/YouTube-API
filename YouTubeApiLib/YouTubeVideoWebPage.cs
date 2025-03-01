@@ -1,4 +1,5 @@
 ﻿using MultiThreadedDownloaderLib;
+using Newtonsoft.Json.Linq;
 
 namespace YouTubeApiLib
 {
@@ -78,6 +79,28 @@ namespace YouTubeApiLib
 		{
 			return !string.IsNullOrEmpty(WebPageCode) ?
 				Utils.ExtractYouTubeConfigFromWebPageCode(WebPageCode, VideoId?.Id) : null;
+		}
+
+		public YouTubeVideo GetVideo(FileDownloader downloader = null)
+		{
+			if (VideoId != null)
+			{
+				YouTubeRawVideoInfoResult rawVideoInfoResult = ExtractRawVideoInfo();
+				if (rawVideoInfoResult.ErrorCode == 200)
+				{
+					IYouTubeClient client = new YouTubeClientIos();
+					client.SetWebPage(this);
+					client.Downloader = downloader;
+					YouTubeRawVideoInfoResult rawVideoInfoResultClient = client.GetRawVideoInfo(VideoId, out _);
+					if (rawVideoInfoResultClient.ErrorCode == 200)
+					{
+						JObject microformat = rawVideoInfoResultClient.RawVideoInfo.Microformat;
+						return rawVideoInfoResult.RawVideoInfo.ToVideo(microformat, downloader);
+					}
+				}
+			}
+
+			return null;
 		}
 	}
 }
