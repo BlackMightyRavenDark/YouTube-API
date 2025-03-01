@@ -159,13 +159,22 @@ namespace YouTubeApiLib
 				JObject jMicroformat = null;
 				if (client is YouTubeClientIos)
 				{
-					YouTubeVideoWebPageResult videoWebPageResult = YouTubeVideoWebPage.Get(videoId, downloader);
-					if (videoWebPageResult.ErrorCode == 200)
+					YouTubeVideoWebPage youTubeVideoWebPage = client.WebPage;
+					if (youTubeVideoWebPage == null)
 					{
-						YouTubeRawVideoInfoResult rawResult = videoWebPageResult.VideoWebPage.ExtractRawVideoInfo();
-						if (rawResult.ErrorCode == 200)
+						YouTubeVideoWebPageResult youTubeVideoWebPageResult = YouTubeVideoWebPage.Get(videoId);
+						if (youTubeVideoWebPageResult.ErrorCode == 200)
 						{
-							jMicroformat = rawResult.RawVideoInfo.Microformat;
+							youTubeVideoWebPage = youTubeVideoWebPageResult.VideoWebPage;
+						}
+					}
+
+					if (youTubeVideoWebPage != null)
+					{
+						YouTubeRawVideoInfoResult rawVideoInfoResultFromWebPage = youTubeVideoWebPage.ExtractRawVideoInfo();
+						if (rawVideoInfoResultFromWebPage.ErrorCode == 200)
+						{
+							jMicroformat = rawVideoInfoResultFromWebPage.RawVideoInfo.Microformat;
 						}
 					}
 				}
