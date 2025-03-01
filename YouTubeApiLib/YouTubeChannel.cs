@@ -12,15 +12,25 @@ namespace YouTubeApiLib
 			DisplayName = displayName;
 		}
 
-		public YouTubeVideoIdPageResult GetVideoIdPage(YouTubeChannelTabPage channelTabPage, string continuationToken = null)
+		public YouTubeVideoIdPageResult GetVideoIdPage(YouTubeChannelTabPage channelTabPage, string continuationToken)
 		{
 			return GetVideoIdPage(Id, channelTabPage, continuationToken);
 		}
 
 		public static YouTubeVideoIdPageResult GetVideoIdPage(string channelId,
-			YouTubeChannelTabPage channelTabPage, string continuationToken = null)
+			YouTubeChannelTabPage channelTabPage, string continuationToken)
 		{
 			return YouTubeApiV1.GetVideoIdPage(channelId, channelTabPage, continuationToken);
+		}
+
+		public static YouTubeVideoIdPageResult GetVideoIdPage(string channelId, YouTubeChannelTabPage channelTabPage)
+		{
+			return YouTubeApiV1.GetVideoIdPage(channelId, channelTabPage);
+		}
+
+		public YouTubeVideoIdPageResult GetVideoIdPage(YouTubeChannelTabPage channelTabPage)
+		{
+			return GetVideoIdPage(Id, channelTabPage);
 		}
 
 		public string GetTabPageUrl(YouTubeChannelTabPage channelTabPage)

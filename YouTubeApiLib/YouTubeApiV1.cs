@@ -211,6 +211,24 @@ namespace YouTubeApiLib
 			return new YouTubeVideoIdPageResult(null, errorCode);
 		}
 
+		internal static YouTubeVideoIdPageResult GetVideoIdPage(string channelId, YouTubeChannelTabPage channelTabPage)
+		{
+			string url = channelTabPage.GetWebPageUrl(channelId);
+			int errorCode = InternetWebPage.DownloadWebPageCode(url, out string response);
+			if (errorCode == 200)
+			{
+				YouTubeInitialData initialData = ExtractYouTubeInitialDataFromWebPageCode(response);
+				if (initialData != null)
+				{
+					YouTubeVideoIdPage videoIdPage = new YouTubeVideoIdPage(initialData.RawData, false);
+					int count = videoIdPage.Parse();
+					return new YouTubeVideoIdPageResult(videoIdPage, count > 0 ? 200 : 400);
+				}
+			}
+
+			return new YouTubeVideoIdPageResult(null, errorCode);
+		}
+
 		internal static YouTubeVideoListResult GetChannelVideoList(string channelId, IYouTubeClient client)
 		{
 			JArray resList = new JArray();
