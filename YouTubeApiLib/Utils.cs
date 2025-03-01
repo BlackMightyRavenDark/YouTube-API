@@ -254,10 +254,10 @@ namespace YouTubeApiLib
 
 		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used in the streaming data parser.
 		/// If this argument is NULL, a new instance of the "FileDownloader" will be created automatically.</param>
-		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo, JObject jMicroformat,
+		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo, JObject customMicroformat,
 			FileDownloader downloader = null)
 		{
-			JObject actualMicroformat = jMicroformat ?? rawVideoInfo.Microformat;
+			JObject actualMicroformat = customMicroformat ?? rawVideoInfo.Microformat;
 			YouTubeSimplifiedVideoInfoResult simplifiedVideoInfoResult = rawVideoInfo.Simplify(actualMicroformat);
 			if (simplifiedVideoInfoResult.ErrorCode != 200)
 			{
