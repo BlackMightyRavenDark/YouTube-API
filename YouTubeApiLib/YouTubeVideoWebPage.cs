@@ -83,24 +83,9 @@ namespace YouTubeApiLib
 
 		public YouTubeVideo GetVideo(FileDownloader downloader = null)
 		{
-			if (VideoId != null)
-			{
-				YouTubeRawVideoInfoResult rawVideoInfoResult = ExtractRawVideoInfo();
-				if (rawVideoInfoResult.ErrorCode == 200)
-				{
-					IYouTubeClient client = new YouTubeClientIos();
-					client.SetWebPage(this);
-					client.Downloader = downloader;
-					YouTubeRawVideoInfoResult rawVideoInfoResultClient = client.GetRawVideoInfo(VideoId, out _);
-					if (rawVideoInfoResultClient.ErrorCode == 200)
-					{
-						JObject microformat = rawVideoInfoResultClient.RawVideoInfo.Microformat;
-						return rawVideoInfoResult.RawVideoInfo.ToVideo(microformat, downloader);
-					}
-				}
-			}
-
-			return null;
+			YouTubeRawVideoInfoResult rawVideoInfoResult = ExtractRawVideoInfo();
+			return rawVideoInfoResult.ErrorCode == 200 ?
+				rawVideoInfoResult.RawVideoInfo.ToVideo(downloader) : null;
 		}
 	}
 }
