@@ -1,5 +1,4 @@
 ﻿using MultiThreadedDownloaderLib;
-using Newtonsoft.Json.Linq;
 
 namespace YouTubeApiLib
 {
