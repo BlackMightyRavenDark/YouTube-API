@@ -12,5 +12,11 @@ namespace YouTubeApiLib
 			RawData = rawData;
 			Data = Utils.TryParseJson(rawData);
 		}
+
+		public static YouTubeInitialData ExtractFromWebPageCode(string webPageCode,
+			string pattern = @"var ytInitialData =\s*(.*}}});</script")
+		{
+			return Utils.ExtractYouTubeInitialDataFromWebPageCode(webPageCode, pattern);
+		}
 	}
 }

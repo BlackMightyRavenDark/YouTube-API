@@ -217,7 +217,7 @@ namespace YouTubeApiLib
 			int errorCode = InternetWebPage.DownloadWebPageCode(url, out string response);
 			if (errorCode == 200)
 			{
-				YouTubeInitialData initialData = ExtractYouTubeInitialDataFromWebPageCode(response);
+				YouTubeInitialData initialData = YouTubeInitialData.ExtractFromWebPageCode(response);
 				if (initialData != null)
 				{
 					YouTubeVideoIdPage videoIdPage = new YouTubeVideoIdPage(initialData.RawData, false);
