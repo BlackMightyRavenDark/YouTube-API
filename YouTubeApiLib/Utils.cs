@@ -644,7 +644,7 @@ namespace YouTubeApiLib
 		}
 
 		public static YouTubeConfig ExtractYouTubeConfigFromWebPageCode(
-			string webPageCode, string videoId, string pattern = @"ytcfg\.set\(({\s*"".*""})\);.*window\.ytcfg")
+			string webPageCode, string videoId, string pattern = @"ytcfg\.set\(({\s*"".*""}+)\);.*window\.ytcfg")
 		{
 			Regex regex = new Regex(pattern, RegexOptions.Singleline | RegexOptions.Compiled);
 			MatchCollection matches = regex.Matches(webPageCode);
