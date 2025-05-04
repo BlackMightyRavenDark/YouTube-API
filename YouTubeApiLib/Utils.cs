@@ -80,7 +80,11 @@ namespace YouTubeApiLib
 				}
 				jSimplifiedVideoInfo["ownerChannelTitle"] = jVideoDetails.Value<string>("author");
 				jSimplifiedVideoInfo["ownerChannelId"] = jVideoDetails.Value<string>("channelId");
-				jSimplifiedVideoInfo["viewCount"] = int.Parse(jVideoDetails.Value<string>("viewCount"));
+				if (!long.TryParse(jVideoDetails.Value<string>("viewCount"), out long viewCount))
+				{
+					viewCount = -1L;
+				}
+				jSimplifiedVideoInfo["viewCount"] = viewCount;
 				jSimplifiedVideoInfo["isPrivate"] = jVideoDetails.Value<bool>("isPrivate");
 				jSimplifiedVideoInfo["isLiveContent"] = jVideoDetails.Value<bool>("isLiveContent");
 				jSimplifiedVideoInfo["shortDescription"] = jVideoDetails.Value<string>("shortDescription");
