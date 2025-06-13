@@ -68,7 +68,7 @@ namespace YouTubeApiLib
 		public YouTubeSimplifiedVideoInfoResult Simplify(JObject customMicroformat,
 			YouTubeStreamingData customStreamingData)
 		{
-			return SimplifyRawVideoInfo(VideoDetails, customMicroformat ?? Microformat, customStreamingData);
+			return SimplifyRawVideoInfo(VideoDetails, customMicroformat ?? Microformat, customStreamingData ?? StreamingData?.Data);
 		}
 
 		public YouTubeSimplifiedVideoInfoResult Simplify(JObject customMicroformat)
