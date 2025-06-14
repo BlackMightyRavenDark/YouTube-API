@@ -6,8 +6,6 @@ namespace YouTubeApiLib.TestChannelPages
 	{
 		static void Main(string[] args)
 		{
-			YouTubeApi.getMediaTracksInfoImmediately = false;
-
 			YouTubeChannelTabPage[] pages = new YouTubeChannelTabPage[]
 			{
 				YouTubeChannelTabPages.Videos,

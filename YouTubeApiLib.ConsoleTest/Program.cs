@@ -24,21 +24,11 @@ namespace YouTubeApiLib.ConsoleTest
 
 			if (videoId != null)
 			{
-				YouTubeApi.getMediaTracksInfoImmediately = true;
 				YouTubeVideo video = videoId.GetVideo();
 				if (video != null)
 				{
 					if (video.IsInfoAvailable)
 					{
-						if (!YouTubeApi.getMediaTracksInfoImmediately ||
-							(YouTubeApi.getMediaTracksInfoImmediately && video.MediaTracks.Count == 0))
-						{
-							IYouTubeClient client = YouTubeApi.GetYouTubeClient("ios");
-							if (client != null)
-							{
-								video.UpdateMediaFormats(client);
-							}
-						}
 						Console.WriteLine($"Title: {video.Title}");
 						Console.WriteLine($"ID: {video.Id}");
 						Console.WriteLine($"URL: {video.Url}");
@@ -108,11 +98,9 @@ namespace YouTubeApiLib.ConsoleTest
 								// The displayed information might be also incomplete!
 
 								Console.WriteLine("");
-								if (dictItem.Value.Client is YouTubeClientVideoInfo)
+								if (dictItem.Value.Client is YouTubeClientWebPage)
 								{
-									Console.WriteLine("The simple video info client has broken format URLs! Skipping it!");
-
-									continue;
+									Console.WriteLine("Warning! Download URLs from the video web page are broken!");
 								}
 
 								Console.WriteLine($"Track list for client [{dictItem.Value.Client.DisplayName}]:");

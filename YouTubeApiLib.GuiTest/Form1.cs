@@ -86,7 +86,6 @@ namespace YouTubeApiLib.GuiTest
 				return;
 			}
 
-			YouTubeApi.getMediaTracksInfoImmediately = false;
 			YouTubeChannelTabPageContentResult pageContentResult =
 				YouTubeChannelTabPageContent.Get(channelId, YouTubeChannelTabPages.Videos, null);
 			if (pageContentResult.ErrorCode == 200)
@@ -146,7 +145,6 @@ namespace YouTubeApiLib.GuiTest
 				return;
 			}
 
-			YouTubeApi.getMediaTracksInfoImmediately = false;
 			YouTubeChannelTabPageContentResult pageContentResult = YouTubeChannelTabPageContent.Get(nextPageToken);
 			if (pageContentResult != null)
 			{

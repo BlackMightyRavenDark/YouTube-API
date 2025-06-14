@@ -150,53 +150,20 @@ namespace YouTubeApiLib
 		/// If this argument is NULL, a new instance of the default "FileDownloader" will be created automatically.</param>
 		public static YouTubeVideo GetById(YouTubeVideoId videoId, IYouTubeClient client, FileDownloader downloader = null)
 		{
-			bool automaticClientSelection = client == null;
-			if (automaticClientSelection) { client = YouTubeApi.GetYouTubeClient("web_page"); }
-			if (client == null) { return null; }
+			if (client == null)
+			{
+				client = YouTubeApi.GetYouTubeClient(YouTubeApi.GetDefaultYouTubeClientId());
+				if (client == null) { return CreateEmpty(new YouTubeVideoPlayabilityStatus(400)); }
+			}
+
+			client.Downloader = downloader;
 			YouTubeRawVideoInfoResult rawVideoInfoResult = client.GetRawVideoInfo(videoId, out _);
 			if (rawVideoInfoResult.ErrorCode == 200)
 			{
-				JObject jMicroformat = null;
-				if (client is YouTubeClientIos)
-				{
-					YouTubeVideoWebPage youTubeVideoWebPage = client.WebPage;
-					if (youTubeVideoWebPage == null)
-					{
-						YouTubeVideoWebPageResult youTubeVideoWebPageResult = YouTubeVideoWebPage.Get(videoId);
-						if (youTubeVideoWebPageResult.ErrorCode == 200)
-						{
-							youTubeVideoWebPage = youTubeVideoWebPageResult.VideoWebPage;
-						}
-					}
-
-					if (youTubeVideoWebPage != null)
-					{
-						YouTubeRawVideoInfoResult rawVideoInfoResultFromWebPage = youTubeVideoWebPage.ExtractRawVideoInfo();
-						if (rawVideoInfoResultFromWebPage.ErrorCode == 200)
-						{
-							jMicroformat = rawVideoInfoResultFromWebPage.RawVideoInfo.Microformat;
-						}
-					}
-				}
-
-				YouTubeVideo video = rawVideoInfoResult.RawVideoInfo.ToVideo(jMicroformat, downloader);
-				if (video != null)
-				{
-					if (YouTubeApi.getMediaTracksInfoImmediately && !(client is YouTubeClientIos))
-					{
-						IYouTubeClient streamingDataClient = automaticClientSelection ?
-							YouTubeApi.GetYouTubeClient("ios") : client;
-						if (streamingDataClient != null)
-						{
-							video.UpdateMediaFormats(streamingDataClient);
-						}
-					}
-
-					return video;
-				}
+				return rawVideoInfoResult.RawVideoInfo.ToVideo(downloader);
 			}
 
-			return CreateEmpty(new YouTubeVideoPlayabilityStatus(400));
+			return CreateEmpty(new YouTubeVideoPlayabilityStatus(404));
 		}
 
 		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used while downloading some required data.
