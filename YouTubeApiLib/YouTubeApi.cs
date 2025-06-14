@@ -6,7 +6,7 @@ namespace YouTubeApiLib
 	public sealed class YouTubeApi
 	{
 		public static bool getMediaTracksInfoImmediately = false;
-		private static string _defaultYouTubeClientId = "ios";
+		private static string _defaultYouTubeClientId = "web_page";
 		private static ConcurrentDictionary<string, IYouTubeClient> _clients = new ConcurrentDictionary<string, IYouTubeClient>()
 		{
 			["video_info"] = new YouTubeClientVideoInfo(),
