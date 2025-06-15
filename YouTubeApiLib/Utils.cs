@@ -169,8 +169,16 @@ namespace YouTubeApiLib
 			return SimplifyRawVideoInfo(rawVideoInfo, null);
 		}
 
-		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used in the streaming data parser.
-		/// If this argument is NULL, a new instance of the "FileDownloader" will be created automatically.</param>
+		/// <summary>
+		/// Создаёт объект класса "YouTubeVideo" из переданных аргументов.
+		/// </summary>
+		/// <param name="customStreamingData">
+		/// Если не 'null', эти данные будут использованы вместо "rawVideoInfo.StreamingData.Data".
+		/// </param>
+		/// <param name="downloader">
+		/// Объект скачивателя, который будет использован для получения дополнительных данных (если это необходимо).
+		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
+		/// </param>
 		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo,
 			YouTubeSimplifiedVideoInfo simplifiedVideoInfo, YouTubeStreamingData customStreamingData,
 			FileDownloader downloader = null)
@@ -256,8 +264,16 @@ namespace YouTubeApiLib
 			return youTubeVideo;
 		}
 
-		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used in the streaming data parser.
-		/// If this argument is NULL, a new instance of the "FileDownloader" will be created automatically.</param>
+		/// <summary>
+		/// Создаёт объект класса "YouTubeVideo" из переданных аргументов.
+		/// </summary>
+		/// <param name="customMicroformat">
+		/// Если не 'null', эти данные будут использованы вместо "rawVideoInfo.Microformat".
+		/// </param>
+		/// <param name="downloader">
+		/// Объект скачивателя, который будет использован для получения дополнительных данных (если это необходимо).
+		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
+		/// </param>
 		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo, JObject customMicroformat,
 			FileDownloader downloader = null)
 		{
@@ -271,8 +287,13 @@ namespace YouTubeApiLib
 			return MakeYouTubeVideo(rawVideoInfo, simplifiedVideoInfoResult.SimplifiedVideoInfo, downloader);
 		}
 
-		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used in the streaming data parser.
-		/// If this argument is NULL, a new instance of the "FileDownloader" will be created automatically.</param>
+		/// <summary>
+		/// Создаёт объект класса "YouTubeVideo" из переданных аргументов.
+		/// </summary>
+		/// <param name="downloader">
+		/// Объект скачивателя, который будет использован для получения дополнительных данных (если это необходимо).
+		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
+		/// </param>
 		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo,
 			YouTubeSimplifiedVideoInfo simplifiedVideoInfo, FileDownloader downloader = null)
 		{
@@ -451,8 +472,8 @@ namespace YouTubeApiLib
 
 			foreach (YouTubeVideoThumbnail thumbnail in possibleThumbnails)
 			{
-				//TODO: Check the URL availability
-				//But it's extremely slow operation :(
+				//TODO: Проверить доступность ссылок
+				//Но это очень медленная операция :(
 				yield return thumbnail;
 			}
 		}
@@ -602,7 +623,7 @@ namespace YouTubeApiLib
 
 		internal static string ExtractRawVideoInfoFromWebPageCode(string webPageCode)
 		{
-			//TODO: Replace this shit with a cool web page parser!
+			//TODO: Заменить этот говнокод на что-то более получше!
 			try
 			{
 				int n = webPageCode.IndexOf("var ytInitialPlayerResponse");

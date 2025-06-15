@@ -287,8 +287,7 @@ namespace YouTubeApiLib
 
 				if (selectedTab.Title != channelTabPage.Title)
 				{
-					// If the requested tab is not exists,
-					// API returns the "Home" tab content.
+					// Если запрашиваемая вкладка не существует, API ютуба выдаёт данные вкладки "Home".
 					return new YouTubeChannelTabResult(null, 404);
 				}
 

@@ -20,7 +20,7 @@ namespace YouTubeApiLib
 		public string Category { get; }
 
 		/// <summary>
-		/// It's the short (aka "reel") video or not.
+		/// Является ли данное видео коротким (short aka "reel").
 		/// </summary>
 		public bool IsShortFormat { get; }
 
@@ -30,10 +30,9 @@ namespace YouTubeApiLib
 		public bool IsLiveContent { get; }
 
 		/// <summary>
-		/// Warning! This value can be always TRUE for some videos!
-		/// E.G. when the broadcast is finished, but not yet fully processed by YouTube.
-		/// This is a YouTube API bug.
-		/// It's better to use 'UpdateIsLiveNow()' method.
+		/// Является ли данное видео прямой трансляцией (стримом) и находится ли она сейчас в эфире.
+		/// Внимание! Это значение может быть всегда положительным даже если стрим был завершён какое-то время назад! Это глюк ютуба.
+		/// Лучше использовать метод 'UpdateIsLiveNow()'.
 		/// </summary>
 		public bool IsLiveNow => GetIsLiveNow();
 
@@ -146,8 +145,20 @@ namespace YouTubeApiLib
 			return CreateEmpty(null);
 		}
 
-		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used while downloading some required data.
-		/// If this argument is NULL, a new instance of the default "FileDownloader" will be created automatically.</param>
+		/// <summary>
+		/// Получить информацию о видео на YouTube.
+		/// </summary>
+		/// <param name="videoId">
+		/// ID запрашиваемого видео на YouTube.
+		/// </param>
+		/// <param name="client">
+		/// Клиент YouTube для получения информации о видео.
+		/// Если передать 'null', будут использованы методы по-умолчанию.
+		/// </param>
+		/// <param name="downloader">
+		/// Объект скачивателя, который будет использован для получения данных.
+		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
+		/// </param>
 		public static YouTubeVideo GetById(YouTubeVideoId videoId, IYouTubeClient client, FileDownloader downloader = null)
 		{
 			if (client == null)
@@ -166,23 +177,49 @@ namespace YouTubeApiLib
 			return CreateEmpty(new YouTubeVideoPlayabilityStatus(404));
 		}
 
-		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used while downloading some required data.
-		/// If this argument is NULL, a new instance of the default "FileDownloader" will be created automatically.</param>
+		/// <summary>
+		/// Получить информацию о видео на YouTube, используя методы по-умолчанию.
+		/// </summary>
+		/// <param name="videoId">
+		/// ID запрашиваемого видео на YouTube.
+		/// <param name="downloader">
+		/// Объект скачивателя, который будет использован для получения данных.
+		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
+		/// </param>
 		public static YouTubeVideo GetById(YouTubeVideoId videoId, FileDownloader downloader = null)
 		{
 			return GetById(videoId, null, downloader);
 		}
 
-		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used while downloading some required data.
-		/// If this argument is NULL, a new instance of the default "FileDownloader" will be created automatically.</param>
+		/// <summary>
+		/// Получить информацию о видео на YouTube.
+		/// </summary>
+		/// <param name="videoId">
+		/// ID запрашиваемого видео на YouTube.
+		/// </param>
+		/// <param name="client">
+		/// Клиент YouTube для получения информации о видео.
+		/// Если передать 'null', будут использованы методы по-умолчанию.
+		/// </param>
+		/// <param name="downloader">
+		/// Объект скачивателя, который будет использован для получения данных.
+		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
+		/// </param>
 		public static YouTubeVideo GetById(string videoId, IYouTubeClient client, FileDownloader downloader = null)
 		{
 			YouTubeVideoId youTubeVideoId = new YouTubeVideoId(videoId);
 			return GetById(youTubeVideoId, client, downloader);
 		}
 
-		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used while downloading some required data.
-		/// If this argument is NULL, a new instance of the default "FileDownloader" will be created automatically.</param>
+		/// <summary>
+		/// Получить информацию о видео на YouTube, используя методы по-умолчанию.
+		/// </summary>
+		/// <param name="videoId">
+		/// ID запрашиваемого видео на YouTube.
+		/// <param name="downloader">
+		/// Объект скачивателя, который будет использован для получения данных.
+		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
+		/// </param>
 		public static YouTubeVideo GetById(string videoId, FileDownloader downloader = null)
 		{
 			return GetById(videoId, null, downloader);
@@ -210,9 +247,12 @@ namespace YouTubeApiLib
 		}
 
 		/// <summary>
-		/// Reparse the downloadable formats info.
-		/// Warming!!! You may lost some data in the current media track list!
+		/// Обновить список медиа-форматов и ссылок для скачивания.
+		/// Внимание! Текущий список и ссылки будут утеряны!
 		/// </summary>
+		/// <param name="rawVideoInfo">
+		/// Объект, из которого будут взяты новые данные.
+		/// </param>
 		public void UpdateMediaFormats(YouTubeRawVideoInfo rawVideoInfo)
 		{
 			YouTubeStreamingDataResult streamingDataResult = rawVideoInfo.StreamingData;
@@ -232,10 +272,13 @@ namespace YouTubeApiLib
 		}
 
 		/// <summary>
-		/// Redownload and reparse the downloadable formats info.
-		/// Warming!!! You will lost the data previously obtained by the specified client!
+		/// Скачать заново и обновить список медиа-форматов и ссылок для скачивания.
+		/// Внимание! Текущий список и ссылки будут утеряны!
 		/// </summary>
-		/// <returns>HTTP error code.</returns>
+		/// <param name="client">
+		/// Клиент YouTube для получения информации о видео.
+		/// </param>
+		/// <returns>Код ошибки HTTP.</returns>
 		public int UpdateMediaFormats(IYouTubeClient client)
 		{
 			if (MediaTracks.ContainsKey(client.DisplayName))
@@ -257,10 +300,10 @@ namespace YouTubeApiLib
 		}
 
 		/// <summary>
-		/// Redownload and reparse the downloadable formats info using the default YouTube client.
-		/// Warming!!! You may lost some data in the current media track list!
+		/// Скачать заново и обновить список медиа-форматов и ссылок для скачивания, используя методы по-умолчанию.
+		/// Внимание! Текущий список и ссылки будут утеряны!
 		/// </summary>
-		/// <returns>HTTP error code.</returns>
+		/// <returns>Код ошибки HTTP.</returns>
 		public int UpdateMediaFormats()
 		{
 			IYouTubeClient client = YouTubeApi.GetYouTubeClient(YouTubeApi.GetDefaultYouTubeClientId());

@@ -7,7 +7,7 @@ namespace YouTubeApiLib
 		public string RawData { get; }
 
 		/// <summary>
-		/// The internal YouTube client used for getting this data.
+		/// Клиент YouTube, которым была получена информация.
 		/// </summary>
 		public IYouTubeClient Client { get; }
 

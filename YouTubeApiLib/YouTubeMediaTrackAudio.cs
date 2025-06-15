@@ -41,7 +41,7 @@ namespace YouTubeApiLib
 			LoudnessDb = loudnessDb;
 		}
 
-		//Simplified constructor for DASH audio track
+		// Упрощенный конструктор для аудио-дорожек DASH
 		public YouTubeMediaTrackAudio(
 			int formatId,
 			int bitrate,
@@ -63,7 +63,7 @@ namespace YouTubeApiLib
 			LoudnessDb = 0.0;
 		}
 
-		//Simplified constructor for non-DASH audio track
+		// Упрощенный конструктор для аудио-дорожек не-DASH
 		public YouTubeMediaTrackAudio(
 			int formatId,
 			int bitrate,

@@ -38,7 +38,7 @@ namespace YouTubeApiLib
 			FrameRate = frameRate;
 		}
 
-		//Simplified constructor for DASH video track
+		// Упрощенный конструктор для видео-дорожек DASH
 		public YouTubeMediaTrackVideo(
 			int formatId,
 			int videoWidth, int videoHeight,
@@ -60,7 +60,7 @@ namespace YouTubeApiLib
 			FrameRate = frameRate;
 		}
 
-		//Simplified constructor for non-DASH and non-HLS video track
+		// Упрощенный конструктор для видео-дорожек не-DASH и не-HLS
 		public YouTubeMediaTrackVideo(
 			int formatId,
 			int videoWidth, int videoHeight,

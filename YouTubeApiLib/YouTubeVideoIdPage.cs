@@ -17,9 +17,10 @@ namespace YouTubeApiLib
 		}
 
 		/// <summary>
-		/// Parse contained data.
+		/// Проанализировать данные, создать из них список ID видео и поместить его в свойство 'VideoIds'.
+		/// А так же, поместить в свойство 'ContinuationToken' токен для получения следующей страницы данных, если он есть.
 		/// </summary>
-		/// <returns>Video ID count</returns>
+		/// <returns>Количество ID видео.</returns>
 		public int Parse()
 		{
 			JObject json = Utils.TryParseJson(RawData);

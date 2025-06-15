@@ -68,7 +68,7 @@ namespace YouTubeApiLib
 					{
 						JToken jt = jFormat.Value<JToken>("isDrc");
 						bool isDrc = jt != null && jt.Value<bool>();
-						if (!isDrc) //Ignoring the DRC (Dynamic range compression) audio tracks.
+						if (!isDrc) // Временно игнорируем дорожки с пометкой "DRC (Dynamic range compression)".
 						{
 							YouTubeMediaTrackAudio audio = ParseAudioTrackItem(jFormat, mimeType);
 							mediaTracks.AddLast(audio);
@@ -195,7 +195,7 @@ namespace YouTubeApiLib
 			string mimeType = jFormatItem.Value<string>("mimeType");
 			ParseMime(mimeType, out string mimeCodecs, out string mimeExt);
 			string fileExtension = !string.IsNullOrEmpty(mimeExt) && !string.IsNullOrWhiteSpace(mimeExt) ?
-				mimeExt.ToLower() : "mp4"; //It's possible to be wrong for some videos.
+				mimeExt.ToLower() : "mp4"; // Не исключено, что для некоторых видео это может быть не правильно.
 			int formatId = jFormatItem.Value<int>("itag");
 			int bitrate = jFormatItem.Value<int>("bitrate");
 			int averageBitrate = jFormatItem.Value<int>("averageBitrate");

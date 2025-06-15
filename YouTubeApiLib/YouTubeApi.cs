@@ -109,9 +109,9 @@ namespace YouTubeApiLib
 		}
 
 		/// <summary>
-		/// Adds a new client to the client list or replaces the existing client.
+		/// Добавляет новый элемент или заменяет существующий элемент в списке.
 		/// </summary>
-		/// <returns>True when success or False when failed.</returns>
+		/// <returns>'true', если успешно; 'false', если неудачно.</returns>
 		public static bool AddYouTubeClient(string clientId, IYouTubeClient client)
 		{
 			try

@@ -22,8 +22,8 @@ namespace YouTubeApiLib.TestSearch
 			}
 			else
 			{
-				// Warning! A raw info may be too long for console output!
-				// TODO: Write the mighty search results parsers.
+				// Внимание! Сырые данные слишком длинные для вывода в консоль и могут быть обрезаны!
+				// TODO: Написать могучие анализаторы для этих данных.
 				Console.WriteLine(searchResults.RawData.ToString());
 			}
 

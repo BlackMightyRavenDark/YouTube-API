@@ -9,7 +9,7 @@ namespace YouTubeApiLib
 		public string RawData { get; private set; }
 
 		/// <summary>
-		/// The YouTube client which used for getting info.
+		/// Клиент YouTube, которым была получена информация.
 		/// </summary>
 		public IYouTubeClient Client { get; }
 
@@ -129,15 +129,28 @@ namespace YouTubeApiLib
 			return PreParse() ? _parsedData.Value<JObject>("microformat") : null;
 		}
 
-		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used in the streaming data parser.
-		/// If this argument is NULL, a new instance of the "FileDownloader" will be created automatically.</param>
+		/// <summary>
+		/// Создаёт объект класса "YouTubeVideo" из переданных аргументов.
+		/// </summary>
+		/// <param name="customMicroformat">
+		/// Если не 'null', эти данные будут использованы вместо текущих.
+		/// </param>
+		/// <param name="downloader">
+		/// Объект скачивателя, который будет использован для получения дополнительных данных (если это необходимо).
+		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
+		/// </param>
 		public YouTubeVideo ToVideo(JObject customMicroformat, FileDownloader downloader = null)
 		{
 			return MakeYouTubeVideo(this, customMicroformat, downloader);
 		}
 
-		/// <param name="downloader">This instance of the pre-configured "FileDownloader" will be used in the streaming data parser.
-		/// If this argument is NULL, a new instance of the "FileDownloader" will be created automatically.</param>
+		/// <summary>
+		/// Создаёт объект класса "YouTubeVideo" из переданных аргументов.
+		/// </summary>
+		/// <param name="downloader">
+		/// Объект скачивателя, который будет использован для получения дополнительных данных (если это необходимо).
+		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
+		/// </param>
 		public YouTubeVideo ToVideo(FileDownloader downloader = null)
 		{
 			return ToVideo(null, downloader);

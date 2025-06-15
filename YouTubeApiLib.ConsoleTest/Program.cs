@@ -93,9 +93,7 @@ namespace YouTubeApiLib.ConsoleTest
 						{
 							foreach (var dictItem in video.MediaTracks)
 							{
-								// Quick drafted code may display incorrect field values!
-								// Some of the displayed values might be a big mistake!
-								// The displayed information might be also incomplete!
+								// Выводимая информация может быть неточной, потому что API ютуба иногда выдаёт неверные данные!
 
 								Console.WriteLine("");
 								if (dictItem.Value.Client is YouTubeClientWebPage)
