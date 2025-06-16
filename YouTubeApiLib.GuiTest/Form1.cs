@@ -95,10 +95,7 @@ namespace YouTubeApiLib.GuiTest
 				{
 					if (videosTabPage.UpdateVideosMultiThreaded())
 					{
-						videosTabPage.VideoList.Sort((x, y) =>
-						{
-							return x.DatePublished > y.DatePublished ? -1 : 1;
-						});
+						videosTabPage.VideoList.Sort((x, y) => x.DatePublished > y.DatePublished ? -1 : 1);
 
 						foreach (YouTubeVideo video in videosTabPage.VideoList)
 						{
@@ -153,10 +150,7 @@ namespace YouTubeApiLib.GuiTest
 				{
 					if (videosTabPage.UpdateVideosMultiThreaded())
 					{
-						videosTabPage.VideoList.Sort((x, y) =>
-						{
-							return x.DatePublished > y.DatePublished ? -1 : 1;
-						});
+						videosTabPage.VideoList.Sort((x, y) => x.DatePublished > y.DatePublished ? -1 : 1);
 
 						foreach (YouTubeVideo video in videosTabPage.VideoList)
 						{
@@ -248,8 +242,7 @@ namespace YouTubeApiLib.GuiTest
 				int id = listView1.SelectedIndices[0];
 				if (id >= 0 && id < listView1.Items.Count)
 				{
-					YouTubeVideo video = listView1.Items[id].Tag as YouTubeVideo;
-					if (video != null)
+					if (listView1.Items[id].Tag is YouTubeVideo video)
 					{
 						FormVideoInfo formVideoInfo = new FormVideoInfo(video);
 						formVideoInfo.ShowDialog();
