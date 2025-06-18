@@ -73,7 +73,7 @@ namespace YouTubeApiLib.ConsoleTest
 							Console.WriteLine("");
 							foreach (YouTubeVideoThumbnail videoThumbnail in video.Thumbnails)
 							{
-								Console.WriteLine(videoThumbnail.ToString());
+								Console.WriteLine(videoThumbnail);
 							}
 						}
 						else

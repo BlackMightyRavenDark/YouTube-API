@@ -131,13 +131,10 @@ namespace YouTubeApiLib
 				}
 			}
 
-			if (microformat != null && !string.IsNullOrEmpty(videoId) && !string.IsNullOrWhiteSpace(videoId))
+			var videoThumbnails = GetThumbnails(videoDetails, microformat, videoId).ToList();
+			if (videoThumbnails.Count > 0)
 			{
-				List<YouTubeVideoThumbnail> videoThumbnails = GetThumbnailUrls(microformat, videoId).ToList();
-				if (videoThumbnails.Count > 0)
-				{
-					jSimplifiedVideoInfo["thumbnails"] = ThumbnailsToJson(videoThumbnails);
-				}
+				jSimplifiedVideoInfo["thumbnails"] = ThumbnailsToJson(videoThumbnails);
 			}
 
 			if (streamingData != null)
@@ -237,9 +234,12 @@ namespace YouTubeApiLib
 				videoThumbnails = new List<YouTubeVideoThumbnail>();
 				foreach (JObject jThumbnail in jaThumbnails.Cast<JObject>())
 				{
-					string id = jThumbnail.Value<string>("id");
+					ushort width = jThumbnail.Value<ushort>("width");
+					ushort height = jThumbnail.Value<ushort>("height");
+					string fileName = jThumbnail.Value<string>("fileName");
+					if (string.IsNullOrEmpty(fileName) || string.IsNullOrWhiteSpace(fileName)) { fileName = "unnamed.dat"; }
 					string url = jThumbnail.Value<string>("url");
-					videoThumbnails.Add(new YouTubeVideoThumbnail(id, url));
+					videoThumbnails.Add(new YouTubeVideoThumbnail(width, height, fileName, url));
 				}
 			}
 
@@ -442,43 +442,100 @@ namespace YouTubeApiLib
 			return null;
 		}
 
-		internal static IEnumerable<YouTubeVideoThumbnail> GetThumbnailUrls(JObject jMicroformat, string videoId)
+		internal static IEnumerable<YouTubeVideoThumbnail> GetThumbnails(
+			YouTubeVideoDetails videoDetails, JObject jMicroformat, string videoId = null)
 		{
-			if (string.IsNullOrEmpty(videoId) || string.IsNullOrWhiteSpace(videoId))
+			var microformatThumbnails = ExtractThumbnailsFromMicroformat(jMicroformat);
+			var videoDetailsThumbnails = ExtractThumbnails(videoDetails.Parse().Value<JObject>("thumbnail")?.Value<JArray>("thumbnails"));
+			List<YouTubeVideoThumbnail> thumbnails = new List<YouTubeVideoThumbnail>();
+			if (microformatThumbnails == null && videoDetailsThumbnails == null &&
+				microformatThumbnails.Count() <= 0 && videoDetailsThumbnails.Count() <= 0)
 			{
-				yield break;
+				return thumbnails;
 			}
 
-			List<YouTubeVideoThumbnail> possibleThumbnails = new List<YouTubeVideoThumbnail>()
+			if (microformatThumbnails != null) { thumbnails.AddRange(microformatThumbnails); }
+			if (videoDetailsThumbnails != null)
 			{
-				new YouTubeVideoThumbnail("maxresdefault", $"https://i.ytimg.com/vi/{videoId}/maxresdefault.jpg"),
-				new YouTubeVideoThumbnail("hqdefault", $"https://i.ytimg.com/vi/{videoId}/hqdefault.jpg"),
-				new YouTubeVideoThumbnail("mqdefault", $"https://i.ytimg.com/vi/{videoId}/mqdefault.jpg"),
-				new YouTubeVideoThumbnail("sddefault", $"https://i.ytimg.com/vi/{videoId}/sddefault.jpg"),
-				new YouTubeVideoThumbnail("default", $"https://i.ytimg.com/vi/{videoId}/default.jpg")
-			};
-
-			if (jMicroformat != null)
-			{
-				List<YouTubeVideoThumbnail> thumbnails = ExtractThumbnailsFromMicroformat(jMicroformat);
-				foreach (YouTubeVideoThumbnail thumbnail in thumbnails)
+				foreach (YouTubeVideoThumbnail thumbnail in videoDetailsThumbnails)
 				{
-					if (!possibleThumbnails.Any(item => string.Compare(thumbnail.Url, item.Url, true) == 0))
+					if (thumbnails.All(item => !item.Url.Equals(thumbnail.Url)))
 					{
-						possibleThumbnails.Add(thumbnail);
+						// В массиве 'videoDetailsThumbnails' содержится картинка с ошибочным размером 1920x1080.
+						// Картинка с правильным размером - 1280x720 (если таковая есть) - содержится в массиве 'microformatThumbnails'.
+
+						bool isValid = true;
+						if (thumbnail.Height == 1080 && thumbnail.Url.Contains("maxresdefault") &&
+							thumbnails.Any(item => item.FileName.Contains("maxresdefault")))
+						{
+							if (thumbnail.Url.Contains("webp"))
+							{
+								thumbnails.Add(new YouTubeVideoThumbnail(1280, 720, thumbnail.FileName, thumbnail.Url));
+								break;
+							}
+
+							isValid = false;
+						}
+
+						if (isValid) { thumbnails.Add(thumbnail); }
 					}
 				}
 			}
 
-			foreach (YouTubeVideoThumbnail thumbnail in possibleThumbnails)
+			if (thumbnails.Count > 0)
 			{
-				//TODO: Проверить доступность ссылок
-				//Но это очень медленная операция :(
-				yield return thumbnail;
+				thumbnails.Sort((x, y) => x.Height > y.Height ? -1 : 1);
+				if (!string.IsNullOrEmpty(thumbnails[0].FileName) && thumbnails[0].FileName.EndsWith(".webp"))
+				{
+					string url = thumbnails[0].Url.Replace("vi_webp", "vi").Replace(".webp", ".jpg");
+					string fileName = FindRegexp(url, @"vi/.{11}/([^\&\?]*)");
+					if (string.IsNullOrEmpty(fileName)) { fileName = "unnamed.jpg"; }
+					thumbnails.Insert(0, new YouTubeVideoThumbnail(
+						thumbnails[0].Width, thumbnails[0].Height, fileName, url));
+				}
 			}
+
+			if (!string.IsNullOrEmpty(videoId))
+			{
+				// Добавляем в список стандартные ссылки (на всякий случай).
+				// Однако, для некоторых видео они могут не работать!
+
+				YouTubeVideoThumbnail[] standardThumbnails = new YouTubeVideoThumbnail[]
+				{
+					new YouTubeVideoThumbnail(1280, 720, "maxresdefault.jpg", $"https://i.ytimg.com/vi/{videoId}/maxresdefault.jpg"),
+					new YouTubeVideoThumbnail(640, 480, "sddefault.jpg", $"https://i.ytimg.com/vi/{videoId}/sddefault.jpg"),
+					new YouTubeVideoThumbnail(480, 360, "hqdefault.jpg", $"https://i.ytimg.com/vi/{videoId}/hqdefault.jpg"),
+					new YouTubeVideoThumbnail(320, 180, "mqdefault.jpg", $"https://i.ytimg.com/vi/{videoId}/mqdefault.jpg"),
+					new YouTubeVideoThumbnail(120, 90, "default.jpg", $"https://i.ytimg.com/vi/{videoId}/default.jpg")
+				};
+
+				foreach (YouTubeVideoThumbnail thumbnail in standardThumbnails)
+				{
+					if (thumbnails.All(item => !item.Url.Contains(thumbnail.Url)))
+					{
+						thumbnails.Add(thumbnail);
+					}
+				}
+			}
+
+			if (thumbnails.Count > 1 && thumbnails[0].Url.Contains("?"))
+			{
+				for (int i = 0; i < thumbnails.Count; ++i)
+				{
+					// Избавляемся от пост-обработки картинки максимального качества.
+					if ((thumbnails[i].Height == 720 || thumbnails[i].Height == 1080) && thumbnails[i].Url.Contains("?"))
+					{
+						string url = thumbnails[i].Url.Split('?')[0];
+						thumbnails.Insert(0, new YouTubeVideoThumbnail(1280, 720, thumbnails[i].FileName, url));
+						break;
+					}
+				}
+			}
+
+			return thumbnails;
 		}
 
-		private static List<YouTubeVideoThumbnail> ExtractThumbnailsFromMicroformat(JObject jMicroformat)
+		private static IEnumerable<YouTubeVideoThumbnail> ExtractThumbnailsFromMicroformat(JObject jMicroformat)
 		{
 			if (jMicroformat != null)
 			{
@@ -488,46 +545,30 @@ namespace YouTubeApiLib
 			return null;
 		}
 
-		private static List<YouTubeVideoThumbnail> ExtractThumbnailsFromMicroformatRenderer(JObject jMicroformatRenderer)
+		private static IEnumerable<YouTubeVideoThumbnail> ExtractThumbnailsFromMicroformatRenderer(JObject jMicroformatRenderer)
 		{
-			List<YouTubeVideoThumbnail> resList = new List<YouTubeVideoThumbnail>();
-			if (jMicroformatRenderer != null)
-			{
-				JArray jaThumbnails = jMicroformatRenderer.Value<JObject>("thumbnail")?.Value<JArray>("thumbnails");
-				if (jaThumbnails != null && jaThumbnails.Count > 0)
-				{
-					foreach (JObject j in jaThumbnails.Cast<JObject>())
-					{
-						string url = j.Value<string>("url");
-						if (!string.IsNullOrEmpty(url) && !string.IsNullOrWhiteSpace(url))
-						{
-							if (url.Contains("?"))
-							{
-								url = url.Substring(0, url.IndexOf("?"));
-							}
-							if (url.Contains("vi_webp"))
-							{
-								url = url.Replace("vi_webp", "vi").Replace(".webp", ".jpg");
-							}
+			JArray jaThumbnails = jMicroformatRenderer?.Value<JObject>("thumbnail")?.Value<JArray>("thumbnails");
+			return ExtractThumbnails(jaThumbnails);
+		}
 
-							bool found = false;
-							foreach (YouTubeVideoThumbnail thumbnail in resList)
-							{
-								if (thumbnail.Url == url)
-								{
-									found = true;
-									break;
-								}
-							}
-							if (!found)
-							{
-								resList.Add(new YouTubeVideoThumbnail("Unnamed", url));
-							}
-						}
+		private static IEnumerable<YouTubeVideoThumbnail> ExtractThumbnails(JArray jsonArray)
+		{
+			if (jsonArray != null)
+			{
+				foreach (JObject jThumbnail in jsonArray.Cast<JObject>())
+				{
+					string url = jThumbnail.Value<string>("url");
+					if (!string.IsNullOrEmpty(url) && !string.IsNullOrWhiteSpace(url))
+					{
+						ushort width = jThumbnail.Value<ushort>("width");
+						ushort height = jThumbnail.Value<ushort>("height");
+						string fileName = FindRegexp(url, @"\w/.{11}/([^\&\?]*)");
+						if (string.IsNullOrEmpty(fileName)) { fileName = "unnamed.dat"; }
+
+						yield return new YouTubeVideoThumbnail(width, height, fileName, url);
 					}
 				}
 			}
-			return resList;
 		}
 
 		private static JArray ThumbnailsToJson(IEnumerable<YouTubeVideoThumbnail> videoThumbnails)
