@@ -101,7 +101,8 @@ namespace YouTubeApiLib.ConsoleTest
 									Console.WriteLine("Warning! Download URLs from the video web page are broken!");
 								}
 
-								Console.WriteLine($"Track list for client [{dictItem.Value.Client.DisplayName}]:");
+								string clientName = dictItem.Value.Client?.DisplayName ?? "unknown";
+								Console.WriteLine($"Track list for client [{clientName}]:");
 								foreach (YouTubeMediaTrack track in dictItem.Value.Tracks)
 								{
 									string info;

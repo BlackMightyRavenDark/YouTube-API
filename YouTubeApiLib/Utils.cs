@@ -256,10 +256,8 @@ namespace YouTubeApiLib
 
 			YouTubeStreamingData actualStreamingData = customStreamingData ?? rawVideoInfo.StreamingData?.Data;
 			YouTubeMediaFormatList mediaFormats = actualStreamingData?.Parse(downloader);
-			if (mediaFormats?.Client != null)
-			{
-				youTubeVideo.MediaTracks[mediaFormats.Client.DisplayName] = mediaFormats;
-			}
+			string clientName = mediaFormats?.Client?.DisplayName ?? "unknown";
+			youTubeVideo.MediaTracks[clientName] = mediaFormats;
 
 			return youTubeVideo;
 		}
