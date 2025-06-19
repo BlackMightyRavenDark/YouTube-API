@@ -66,13 +66,8 @@ namespace YouTubeApiLib
 					}
 					else if (mimeType.Contains("audio"))
 					{
-						JToken jt = jFormat.Value<JToken>("isDrc");
-						bool isDrc = jt != null && jt.Value<bool>();
-						if (!isDrc) // Временно игнорируем дорожки с пометкой "DRC (Dynamic range compression)".
-						{
-							YouTubeMediaTrackAudio audio = ParseAudioTrackItem(jFormat, mimeType);
-							mediaTracks.AddLast(audio);
-						}
+						YouTubeMediaTrackAudio audio = ParseAudioTrackItem(jFormat, mimeType);
+						mediaTracks.AddLast(audio);
 					}
 					else
 					{
@@ -152,22 +147,24 @@ namespace YouTubeApiLib
 			string qualityLabel = jFormatItem.Value<string>("qualityLabel");
 			string lastModified = jFormatItem.Value<string>("lastModified");
 			long contentLength = -1L;
-			JToken jt = jFormatItem.Value<JToken>("contentLength");
-			if (jt != null)
+			JToken jtLength = jFormatItem.Value<JToken>("contentLength");
+			if (jtLength != null)
 			{
-				string contentLengthString = jt.Value<string>();
+				string contentLengthString = jtLength.Value<string>();
 				if (!long.TryParse(contentLengthString, out contentLength))
 				{
 					contentLength = -1;
 				}
 			}
+			JToken jtDrc = jFormatItem.Value<JToken>("isDrc");
+			bool isDrc = jtDrc != null && jtDrc.Value<bool>();
 			int approxDurationMs = -1;
 			bool isCiphered = false;
 			string signatureCipherString = null;
-			jt = jFormatItem.Value<JToken>("signatureCipher");
-			if (jt != null)
+			JToken jtCipher = jFormatItem.Value<JToken>("signatureCipher");
+			if (jtCipher != null)
 			{
-				signatureCipherString = jt.Value<string>();
+				signatureCipherString = jtCipher.Value<string>();
 				isCiphered = true;
 			}
 			string url = jFormatItem.Value<string>("url");
@@ -185,7 +182,7 @@ namespace YouTubeApiLib
 			YouTubeMediaTrackAudio audio = new YouTubeMediaTrackAudio(
 				formatId, bitrate, averageBitrate, lastModified, contentLength,
 				quality, qualityLabel, audioQuality, audioSampleRate,
-				audioChannelCount, loudnessDb, approxDurationMs, trackUrl,
+				audioChannelCount, isDrc, loudnessDb, approxDurationMs, trackUrl,
 				mimeTypeRaw, mimeExt, mimeCodecs, fileExtension, isCiphered);
 			return audio;
 		}

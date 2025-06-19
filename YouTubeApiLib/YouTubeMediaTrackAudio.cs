@@ -6,6 +6,7 @@ namespace YouTubeApiLib
 		public string AudioQuality { get; }
 		public int SampleRate { get; }
 		public int ChannelCount { get; }
+		public bool IsDynamicRangeCompression { get; }
 		public double LoudnessDb { get; }
 
 		public YouTubeMediaTrackAudio(
@@ -19,6 +20,7 @@ namespace YouTubeApiLib
 			string audioQuality,
 			int sampleRate,
 			int channelCount,
+			bool isDynamicRangeCompression,
 			double loudnessDb,
 			int approxDurationMs,
 			YouTubeMediaTrackUrl fileUrl,
@@ -38,6 +40,7 @@ namespace YouTubeApiLib
 			AudioQuality = audioQuality;
 			SampleRate = sampleRate;
 			ChannelCount = channelCount;
+			IsDynamicRangeCompression = isDynamicRangeCompression;
 			LoudnessDb = loudnessDb;
 		}
 
@@ -75,6 +78,7 @@ namespace YouTubeApiLib
 			string audioQuality,
 			int sampleRate,
 			int channelCount,
+			bool isDynamicRangeCompression,
 			double loudnessDb,
 			int approxDurationMs,
 			YouTubeMediaTrackUrl fileUrl,
@@ -91,6 +95,7 @@ namespace YouTubeApiLib
 			AudioQuality = audioQuality;
 			SampleRate = sampleRate;
 			ChannelCount = channelCount;
+			IsDynamicRangeCompression = isDynamicRangeCompression;
 			LoudnessDb = loudnessDb;
 		}
 	}

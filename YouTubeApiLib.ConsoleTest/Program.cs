@@ -18,6 +18,10 @@ namespace YouTubeApiLib.ConsoleTest
 			//| 18+ | 1080p | 60 fps | 951661536 bytes
 			//string videoUrl = "https://www.youtube.com/watch?v=EUKa5G7TNI0";
 
+			//Ускорь разработку с помощью Chrome DevTools | Фишки Chrome DevTools о которых ТЫ НЕ ЗНАЛ | FRONTEND
+			//| 2160p | HDR | 60 fps | DRC audio | 1253582837 bytes
+			//string videoUrl = "https://www.youtube.com/watch?v=H3_M9KASsHY";
+
 			Console.WriteLine($"Video URL: {videoUrl}");
 
 			YouTubeVideoId videoId = ExtractVideoIdFromUrl(videoUrl);
@@ -127,7 +131,8 @@ namespace YouTubeApiLib.ConsoleTest
 									{
 										YouTubeMediaTrackAudio audioTrack = track as YouTubeMediaTrackAudio;
 										string trackType = audioTrack.IsDashManifestPresent ? "DASH AUDIO" : "AUDIO";
-										info = $"{trackType} | ID {audioTrack.FormatId} | {audioTrack.SampleRate} Hz | " +
+										string formatIdString = audioTrack.IsDynamicRangeCompression ? $"{audioTrack.FormatId}-DRC" : audioTrack.FormatId.ToString();
+										info = $"{trackType} | ID {formatIdString} | {audioTrack.SampleRate} Hz | " +
 											$"{audioTrack.ChannelCount} ch | {audioTrack.AudioQuality} | {audioTrack.FileExtension}";
 										if (audioTrack.ContentLength > 0L)
 										{
