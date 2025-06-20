@@ -71,7 +71,7 @@ namespace YouTubeApiLib
 					}
 					else
 					{
-						System.Diagnostics.Debug.WriteLine($"Warning! Unknown MIME type!");
+						System.Diagnostics.Debug.WriteLine("Warning! Unknown MIME type!");
 					}
 				}
 			}
