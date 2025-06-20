@@ -114,8 +114,13 @@ namespace YouTubeApiLib.ConsoleTest
 									{
 										YouTubeMediaTrackVideo videoTrack = track as YouTubeMediaTrackVideo;
 										string trackType = videoTrack.IsDashManifestPresent ? "DASH VIDEO" : "VIDEO";
+										int bitrate = videoTrack.AverageBitrate > 0 ? videoTrack.AverageBitrate : videoTrack.Bitrate;
 										info = $"{trackType} | ID {videoTrack.FormatId} | {videoTrack.VideoWidth}x{videoTrack.VideoHeight} | " +
 											$"{videoTrack.FrameRate} fps | {videoTrack.FileExtension}";
+										if (bitrate > 0)
+										{
+											info += $" | ~{bitrate / 1024} kb/s";
+										}
 										if (videoTrack.ContentLength > 0L)
 										{
 											info += $" | {videoTrack.ContentLength} bytes";
@@ -132,8 +137,13 @@ namespace YouTubeApiLib.ConsoleTest
 										YouTubeMediaTrackAudio audioTrack = track as YouTubeMediaTrackAudio;
 										string trackType = audioTrack.IsDashManifestPresent ? "DASH AUDIO" : "AUDIO";
 										string formatIdString = audioTrack.IsDynamicRangeCompression ? $"{audioTrack.FormatId}-DRC" : audioTrack.FormatId.ToString();
+										int bitrate = audioTrack.AverageBitrate > 0 ? audioTrack.AverageBitrate : audioTrack.Bitrate;
 										info = $"{trackType} | ID {formatIdString} | {audioTrack.SampleRate} Hz | " +
 											$"{audioTrack.ChannelCount} ch | {audioTrack.AudioQuality} | {audioTrack.FileExtension}";
+										if (bitrate > 0)
+										{
+											info += $" | ~{bitrate / 1024} kb/s";
+										}
 										if (audioTrack.ContentLength > 0L)
 										{
 											info += $" | {audioTrack.ContentLength} bytes";
