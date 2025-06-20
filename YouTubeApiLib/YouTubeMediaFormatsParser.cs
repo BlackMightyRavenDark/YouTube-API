@@ -105,22 +105,23 @@ namespace YouTubeApiLib
 			string projectionType = jFormatItem.Value<string>("projectionType");
 			string lastModified = jFormatItem.Value<string>("lastModified");
 			long contentLength = -1L;
-			JToken jt = jFormatItem.Value<JToken>("contentLength");
-			if (jt != null)
+			JToken jtLength = jFormatItem.Value<JToken>("contentLength");
+			if (jtLength != null)
 			{
-				string contentLengthString = jt.Value<string>();
+				string contentLengthString = jtLength.Value<string>();
 				if (!long.TryParse(contentLengthString, out contentLength))
 				{
 					contentLength = -1;
 				}
 			}
-			int approxDurationMs = -1;
+			JToken jtApproxDurationMs = jFormatItem.Value<JToken>("approxDurationMs");
+			int approxDurationMs = jtApproxDurationMs != null ? int.Parse(jtApproxDurationMs.Value<string>()) : -1;
 			bool isCiphered = false;
 			string signatureCipherString = null;
-			jt = jFormatItem.Value<JToken>("signatureCipher");
-			if (jt != null)
+			JToken jtCipher = jFormatItem.Value<JToken>("signatureCipher");
+			if (jtCipher != null)
 			{
-				signatureCipherString = jt.Value<string>();
+				signatureCipherString = jtCipher.Value<string>();
 				isCiphered = true;
 			}
 			string url = jFormatItem.Value<string>("url");
@@ -158,7 +159,8 @@ namespace YouTubeApiLib
 			}
 			JToken jtDrc = jFormatItem.Value<JToken>("isDrc");
 			bool isDrc = jtDrc != null && jtDrc.Value<bool>();
-			int approxDurationMs = -1;
+			JToken jtApproxDurationMs = jFormatItem.Value<JToken>("approxDurationMs");
+			int approxDurationMs = jtApproxDurationMs != null ? int.Parse(jtApproxDurationMs.Value<string>()) : -1;
 			bool isCiphered = false;
 			string signatureCipherString = null;
 			JToken jtCipher = jFormatItem.Value<JToken>("signatureCipher");
