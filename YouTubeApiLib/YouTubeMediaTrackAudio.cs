@@ -33,9 +33,9 @@ namespace YouTubeApiLib
 			string dashManifestUrl,
 			YouTubeDashUrlList dashUrls)
 			: base(formatId, bitrate, averageBitrate, lastModified, contentLength,
-				  quality, qualityLabel, approxDurationMs, null, fileUrl,
-				  mimeType, mimeExt, mimeCodecs, fileExtension,
-				  isDash, isCiphered, dashManifestUrl, dashUrls)
+				quality, qualityLabel, approxDurationMs, null, fileUrl,
+				mimeType, mimeExt, mimeCodecs, fileExtension,
+				isDash, isCiphered, dashManifestUrl, dashUrls)
 		{
 			AudioQuality = audioQuality;
 			SampleRate = sampleRate;
@@ -56,15 +56,8 @@ namespace YouTubeApiLib
 			string fileExtension,
 			string dashManifestUrl,
 			YouTubeDashUrlList dashUrls)
-			: base(formatId, bitrate, bitrate, null, -1L, null, null, -1, null, null,
-				  mimeType, mimeExt, mimeCodecs, fileExtension,
-				  true, false, dashManifestUrl, dashUrls)
-		{
-			AudioQuality = null;
-			SampleRate = sampleRate;
-			ChannelCount = channelCount;
-			LoudnessDb = 0.0;
-		}
+			: this(formatId, bitrate, bitrate, null, -1L, null, null, null, sampleRate, channelCount,
+				false, 0.0, -1, null, mimeType, mimeExt, mimeCodecs, fileExtension, false) { }
 
 		// Упрощенный конструктор для аудио-дорожек не-DASH
 		public YouTubeMediaTrackAudio(
@@ -87,16 +80,9 @@ namespace YouTubeApiLib
 			string mimeCodecs,
 			string fileExtension,
 			bool isCiphered)
-			: base(formatId, bitrate, averageBitrate, lastModified, contentLength,
-				  quality, qualityLabel, approxDurationMs, null, fileUrl,
-				  mimeType, mimeExt, mimeCodecs, fileExtension,
-				  false, isCiphered, null, null)
-		{
-			AudioQuality = audioQuality;
-			SampleRate = sampleRate;
-			ChannelCount = channelCount;
-			IsDynamicRangeCompression = isDynamicRangeCompression;
-			LoudnessDb = loudnessDb;
-		}
+			: this(formatId, bitrate, averageBitrate, lastModified, contentLength, quality, qualityLabel,
+				audioQuality, sampleRate, channelCount, isDynamicRangeCompression, loudnessDb,
+				approxDurationMs, fileUrl, mimeType, mimeExt, mimeCodecs, fileExtension,
+				false, isCiphered, null, null) { }
 	}
 }
