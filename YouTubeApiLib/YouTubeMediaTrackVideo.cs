@@ -50,15 +50,9 @@ namespace YouTubeApiLib
 			string fileExtension,
 			string dashManifestUrl,
 			YouTubeDashUrlList dashUrls)
-			: base(formatId, bitrate, bitrate, null, -1L,
-				  null, null, -1, null, null,
-				  mimeType, mimeExt, mimeCodecs, fileExtension,
-				  true, false, dashManifestUrl, dashUrls)
-		{
-			VideoWidth = videoWidth;
-			VideoHeight = videoHeight;
-			FrameRate = frameRate;
-		}
+			: this(formatId, videoWidth, videoHeight, frameRate, bitrate, bitrate,
+				null, -1L, null, null, -1, null, null,
+				mimeType, mimeExt, mimeCodecs, fileExtension, false) { }
 
 		// Упрощенный конструктор для видео-дорожек не-DASH и не-HLS
 		public YouTubeMediaTrackVideo(
@@ -79,14 +73,8 @@ namespace YouTubeApiLib
 			string mimeCodecs,
 			string fileExtension,
 			bool isCiphered)
-			: base(formatId, bitrate, averageBitrate, lastModified, contentLength,
-				  quality, qualityLabel, approxDurationMs, projectionType, fileUrl,
-				  mimeType, mimeExt, mimeCodecs, fileExtension, false,
-				  isCiphered, null, null)
-		{
-			VideoWidth = videoWidth;
-			VideoHeight = videoHeight;
-			FrameRate = frameRate;
-		}
+			: this(formatId, videoWidth, videoHeight, frameRate, bitrate, averageBitrate, lastModified,
+				contentLength, quality, qualityLabel, approxDurationMs, projectionType, fileUrl,
+				mimeType, mimeExt, mimeCodecs, fileExtension, false, isCiphered, null, null) { }
 	}
 }
