@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Newtonsoft.Json.Linq;
 using MultiThreadedDownloaderLib;
 
@@ -9,10 +8,7 @@ namespace YouTubeApiLib
 	{
 		public static YouTubeMediaFormatList Parse(YouTubeStreamingData streamingData, FileDownloader downloader = null)
 		{
-			if (streamingData == null || streamingData.RawData == null)
-			{
-				return null;
-			}
+			if (streamingData?.RawData == null) { return null; }
 
 			LinkedList<YouTubeMediaTrack> mediaTracks = new LinkedList<YouTubeMediaTrack>();
 
@@ -50,98 +46,62 @@ namespace YouTubeApiLib
 			JArray jaAdaptiveFormats = streamingData.GetAdaptiveFormats();
 			if (jaAdaptiveFormats != null)
 			{
-				foreach (JObject jFormat in jaAdaptiveFormats.Cast<JObject>())
+				var tracks = ParseFormatList(jaAdaptiveFormats, true);
+				foreach (YouTubeMediaTrack track in tracks)
 				{
-					string mimeType = jFormat.Value<string>("mimeType");
-					if (string.IsNullOrEmpty(mimeType) || string.IsNullOrWhiteSpace(mimeType))
-					{
-						System.Diagnostics.Debug.WriteLine("The \"mimeType\" field read error!");
-						continue;
-					}
-
-					if (mimeType.Contains("video"))
-					{
-						YouTubeMediaTrackVideo video = ParseVideoTrackItem(jFormat, mimeType);
-						mediaTracks.AddLast(video);
-					}
-					else if (mimeType.Contains("audio"))
-					{
-						YouTubeMediaTrackAudio audio = ParseAudioTrackItem(jFormat, mimeType);
-						mediaTracks.AddLast(audio);
-					}
-					else
-					{
-						System.Diagnostics.Debug.WriteLine("Warning! Unknown MIME type!");
-					}
+					mediaTracks.AddLast(track);
 				}
 			}
 
 			JArray jaFormats = streamingData.GetFormats();
 			if (jaFormats != null)
 			{
-				foreach (JObject jFormat in jaFormats.Cast<JObject>())
+				var tracks = ParseFormatList(jaFormats, false);
+				if (tracks != null)
 				{
-					YouTubeMediaTrackContainer container = ParseContainerTrackItem(jFormat);
-					mediaTracks.AddLast(container);
+					foreach (YouTubeMediaTrack track in tracks)
+					{
+						mediaTracks.AddLast(track);
+					}
 				}
 			}
 
 			return new YouTubeMediaFormatList(mediaTracks, streamingData.Client, streamingData.UrlDecryptionData);
 		}
 
-		private static YouTubeMediaTrackVideo ParseVideoTrackItem(JObject jFormatItem, string mimeTypeRaw)
+		private static IEnumerable<YouTubeMediaTrack> ParseFormatList(JArray jaFormats, bool isAdaptive)
 		{
-			int formatId = jFormatItem.Value<int>("itag");
-			ParseMime(mimeTypeRaw, out string mimeCodecs, out string mimeExt);
-			string fileExtension = !string.IsNullOrEmpty(mimeExt) && !string.IsNullOrWhiteSpace(mimeExt) ?
-				(mimeExt.ToLower() == "mp4" ? "m4v" : "webm") : "dat";
-			int bitrate = jFormatItem.Value<int>("bitrate");
-			int averageBitrate = jFormatItem.Value<int>("averageBitrate");
-			int videoWidth = jFormatItem.Value<int>("width");
-			int videoHeight = jFormatItem.Value<int>("height");
-			string quality = jFormatItem.Value<string>("quality");
-			string qualityLabel = jFormatItem.Value<string>("qualityLabel");
-			int videoFrameRate = jFormatItem.Value<int>("fps");
-			string projectionType = jFormatItem.Value<string>("projectionType");
-			string lastModified = jFormatItem.Value<string>("lastModified");
-			long contentLength = -1L;
-			JToken jtLength = jFormatItem.Value<JToken>("contentLength");
-			if (jtLength != null)
+			foreach (JObject jFormat in jaFormats)
 			{
-				string contentLengthString = jtLength.Value<string>();
-				if (!long.TryParse(contentLengthString, out contentLength))
+				string mimeType = jFormat.Value<string>("mimeType");
+				if (string.IsNullOrEmpty(mimeType) || string.IsNullOrWhiteSpace(mimeType))
 				{
-					contentLength = -1;
+					System.Diagnostics.Debug.WriteLine("The \"mimeType\" field read error!");
+					continue;
+				}
+
+				if (mimeType.Contains("video"))
+				{
+					YouTubeMediaTrack track = ParseMediaTrackItem(jFormat, mimeType, isAdaptive ? "video" : "container");
+					if (track != null) { yield return track; }
+				}
+				else if (mimeType.Contains("audio"))
+				{
+					YouTubeMediaTrack track = ParseMediaTrackItem(jFormat, mimeType, "audio");
+					if (track != null) { yield return track; }
+				}
+				else
+				{
+					System.Diagnostics.Debug.WriteLine("Warning! Unknown MIME type!");
 				}
 			}
-			JToken jtApproxDurationMs = jFormatItem.Value<JToken>("approxDurationMs");
-			int approxDurationMs = jtApproxDurationMs != null ? int.Parse(jtApproxDurationMs.Value<string>()) : -1;
-			bool isCiphered = false;
-			string signatureCipherString = null;
-			JToken jtCipher = jFormatItem.Value<JToken>("signatureCipher");
-			if (jtCipher != null)
-			{
-				signatureCipherString = jtCipher.Value<string>();
-				isCiphered = true;
-			}
-			string url = jFormatItem.Value<string>("url");
-
-			YouTubeMediaTrackUrl trackUrl = new YouTubeMediaTrackUrl(url, signatureCipherString);
-
-			YouTubeMediaTrackVideo video = new YouTubeMediaTrackVideo(
-				formatId, videoWidth, videoHeight, videoFrameRate, bitrate, averageBitrate,
-				lastModified, contentLength, quality, qualityLabel, approxDurationMs,
-				projectionType, trackUrl,
-				mimeTypeRaw, mimeExt, mimeCodecs, fileExtension, isCiphered);
-			return video;
 		}
 
-		private static YouTubeMediaTrackAudio ParseAudioTrackItem(JObject jFormatItem, string mimeTypeRaw)
+		private static YouTubeMediaTrack ParseMediaTrackItem(JObject jFormatItem, string mimeType, string trackType)
 		{
+			ParseMime(mimeType, out string mimeCodecs, out string mimeExt);
+
 			int formatId = jFormatItem.Value<int>("itag");
-			ParseMime(mimeTypeRaw, out string mimeCodecs, out string mimeExt);
-			string fileExtension = !string.IsNullOrEmpty(mimeExt) && !string.IsNullOrWhiteSpace(mimeExt) ?
-				(mimeExt.ToLower() == "mp4" ? "m4a" : "weba") : "dat";
 			int bitrate = jFormatItem.Value<int>("bitrate");
 			int averageBitrate = jFormatItem.Value<int>("averageBitrate");
 			string quality = jFormatItem.Value<string>("quality");
@@ -157,8 +117,6 @@ namespace YouTubeApiLib
 					contentLength = -1;
 				}
 			}
-			JToken jtDrc = jFormatItem.Value<JToken>("isDrc");
-			bool isDrc = jtDrc != null && jtDrc.Value<bool>();
 			JToken jtApproxDurationMs = jFormatItem.Value<JToken>("approxDurationMs");
 			int approxDurationMs = jtApproxDurationMs != null ? int.Parse(jtApproxDurationMs.Value<string>()) : -1;
 			bool isCiphered = false;
@@ -173,74 +131,60 @@ namespace YouTubeApiLib
 
 			YouTubeMediaTrackUrl trackUrl = new YouTubeMediaTrackUrl(url, signatureCipherString);
 
-			string audioQuality = jFormatItem.Value<string>("audioQuality");
-			if (!int.TryParse(jFormatItem.Value<string>("audioSampleRate"), out int audioSampleRate))
+			string audioQuality = trackType == "audio" || trackType == "container" ? jFormatItem.Value<string>("audioQuality") : null;
+			int audioChannelCount = trackType == "audio" || trackType == "container" ? jFormatItem.Value<int>("audioChannels") : -1;
+			int audioSampleRate = -1;
+			if ((trackType == "audio" || trackType == "container") &&
+				!int.TryParse(jFormatItem.Value<string>("audioSampleRate"), out audioSampleRate))
 			{
 				audioSampleRate = -1;
 			}
-			int audioChannelCount = jFormatItem.Value<int>("audioChannels");
-			double loudnessDb = jFormatItem.Value<double>("loudnessDb");
 
-			YouTubeMediaTrackAudio audio = new YouTubeMediaTrackAudio(
-				formatId, bitrate, averageBitrate, lastModified, contentLength,
-				quality, qualityLabel, audioQuality, audioSampleRate,
-				audioChannelCount, isDrc, loudnessDb, approxDurationMs, trackUrl,
-				mimeTypeRaw, mimeExt, mimeCodecs, fileExtension, isCiphered);
-			return audio;
-		}
-
-		private static YouTubeMediaTrackContainer ParseContainerTrackItem(JObject jFormatItem)
-		{
-			string mimeType = jFormatItem.Value<string>("mimeType");
-			ParseMime(mimeType, out string mimeCodecs, out string mimeExt);
-			string fileExtension = !string.IsNullOrEmpty(mimeExt) && !string.IsNullOrWhiteSpace(mimeExt) ?
-				mimeExt.ToLower() : "mp4"; // Не исключено, что для некоторых видео это может быть не правильно.
-			int formatId = jFormatItem.Value<int>("itag");
-			int bitrate = jFormatItem.Value<int>("bitrate");
-			int averageBitrate = jFormatItem.Value<int>("averageBitrate");
-			int videoWidth = jFormatItem.Value<int>("width");
-			int videoHeight = jFormatItem.Value<int>("height");
-			string quality = jFormatItem.Value<string>("quality");
-			string qualityLabel = jFormatItem.Value<string>("qualityLabel");
-			int videoFrameRate = jFormatItem.Value<int>("fps");
-			string projectionType = jFormatItem.Value<string>("projectionType");
-			string lastModified = jFormatItem.Value<string>("lastModified");
-			long contentLength = -1L;
-			JToken jt = jFormatItem.Value<JToken>("contentLength");
-			if (jt != null)
+			switch (trackType)
 			{
-				string contentLengthString = jt.Value<string>();
-				if (!long.TryParse(contentLengthString, out contentLength))
-				{
-					contentLength = -1;
-				}
-			}
-			string audioQuality = jFormatItem.Value<string>("audioQuality");
-			jt = jFormatItem.Value<JToken>("audioSampleRate");
-			int audioSampleRate = jt != null ? int.Parse(jt.Value<string>()) : -1;
-			jt = jFormatItem.Value<JToken>("audioChannels");
-			int audioChannelCount = jt != null ? int.Parse(jt.Value<string>()) : -1;
-			jt = jFormatItem.Value<JToken>("approxDurationMs");
-			int approxDurationMs = jt != null ? int.Parse(jt.Value<string>()) : -1;
-			bool isCiphered = false;
-			string signatureCipherString = null;
-			jt = jFormatItem.Value<JToken>("signatureCipher");
-			if (jt != null)
-			{
-				signatureCipherString = jt.Value<string>();
-				isCiphered = true;
-			}
-			string url = jFormatItem.Value<string>("url");
+				case "video":
+				case "container":
+					{
+						string fileExtension = !string.IsNullOrEmpty(mimeExt) && !string.IsNullOrWhiteSpace(mimeExt) ?
+							(trackType == "video" ? (mimeExt.ToLower() == "mp4" ? "m4v" : "webm") : mimeExt) : "dat";
+						int videoWidth = jFormatItem.Value<int>("width");
+						int videoHeight = jFormatItem.Value<int>("height");
+						int videoFrameRate = jFormatItem.Value<int>("fps");
+						string projectionType = jFormatItem.Value<string>("projectionType");
 
-			YouTubeMediaTrackUrl trackUrl = new YouTubeMediaTrackUrl(url, signatureCipherString);
+						if (trackType == "video")
+						{
+							return new YouTubeMediaTrackVideo(
+								formatId, videoWidth, videoHeight, videoFrameRate, bitrate, averageBitrate,
+								lastModified, contentLength, quality, qualityLabel, approxDurationMs,
+								projectionType, trackUrl,
+								mimeType, mimeExt, mimeCodecs, fileExtension, isCiphered);
+						}
 
-			YouTubeMediaTrackContainer container = new YouTubeMediaTrackContainer(
-				formatId, videoWidth, videoHeight, videoFrameRate, bitrate, averageBitrate,
-				lastModified, contentLength, quality, qualityLabel,
-				audioQuality, audioSampleRate, audioChannelCount, approxDurationMs,
-				projectionType, trackUrl,
-				mimeType, mimeExt, mimeCodecs, fileExtension, isCiphered);
-			return container;
+						return new YouTubeMediaTrackContainer(
+							formatId, videoWidth, videoHeight, videoFrameRate, bitrate, averageBitrate,
+							lastModified, contentLength, quality, qualityLabel, audioQuality, audioSampleRate,
+							audioChannelCount, approxDurationMs, projectionType, trackUrl,
+							mimeType, mimeExt, mimeCodecs, fileExtension, isCiphered);
+					}
+
+				case "audio":
+					{
+						string fileExtension = !string.IsNullOrEmpty(mimeExt) && !string.IsNullOrWhiteSpace(mimeExt) ?
+							(mimeExt.ToLower() == "mp4" ? "m4a" : "weba") : "dat";
+						JToken jtDrc = jFormatItem.Value<JToken>("isDrc");
+						bool isDrc = jtDrc != null && jtDrc.Value<bool>();
+						double loudnessDb = jFormatItem.Value<double>("loudnessDb");
+
+						return new YouTubeMediaTrackAudio(
+							formatId, bitrate, averageBitrate, lastModified, contentLength,
+							quality, qualityLabel, audioQuality, audioSampleRate, audioChannelCount,
+							isDrc, loudnessDb, approxDurationMs, trackUrl,
+							mimeType, mimeExt, mimeCodecs, fileExtension, isCiphered);
+					}
+			}
+
+			return null;
 		}
 
 		private static void ParseMime(string mime, out string codecs, out string mimeExt)
