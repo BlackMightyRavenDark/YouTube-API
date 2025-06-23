@@ -22,6 +22,10 @@ namespace YouTubeApiLib.ConsoleTest
 			//| 2160p | HDR | 60 fps | DRC audio | 1253582837 bytes
 			//string videoUrl = "https://www.youtube.com/watch?v=H3_M9KASsHY";
 
+			//Moving to Phoenix Arizona?
+			//| 1080p | 24 fps | Multilingual | 232686490 bytes
+			//string videoUrl = "https://www.youtube.com/watch?v=pXyRINEG044";
+
 			Console.WriteLine($"Video URL: {videoUrl}");
 
 			YouTubeVideoId videoId = ExtractVideoIdFromUrl(videoUrl);
@@ -147,6 +151,12 @@ namespace YouTubeApiLib.ConsoleTest
 										if (audioTrack.ContentLength > 0L)
 										{
 											info += $" | {audioTrack.ContentLength} bytes";
+										}
+										if (audioTrack.Language != null)
+										{
+											string languageString = $"{audioTrack.Language.Id} | {audioTrack.Language.DisplayName}";
+											if (audioTrack.Language.IsDefault) { languageString += " | DEFAULT"; }
+											info += $"{Environment.NewLine}Language: {languageString}";
 										}
 									}
 									else if (track.GetType() == typeof(YouTubeMediaTrackContainer))

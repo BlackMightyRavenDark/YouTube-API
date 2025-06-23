@@ -8,6 +8,7 @@ namespace YouTubeApiLib
 		public int ChannelCount { get; }
 		public bool IsDynamicRangeCompression { get; }
 		public double LoudnessDb { get; }
+		public YouTubeAudioTrackLanguage Language { get; }
 
 		public YouTubeMediaTrackAudio(
 			int formatId,
@@ -21,6 +22,7 @@ namespace YouTubeApiLib
 			int sampleRate,
 			int channelCount,
 			bool isDynamicRangeCompression,
+			YouTubeAudioTrackLanguage language,
 			double loudnessDb,
 			int approxDurationMs,
 			YouTubeMediaTrackUrl fileUrl,
@@ -41,6 +43,7 @@ namespace YouTubeApiLib
 			SampleRate = sampleRate;
 			ChannelCount = channelCount;
 			IsDynamicRangeCompression = isDynamicRangeCompression;
+			Language = language;
 			LoudnessDb = loudnessDb;
 		}
 
@@ -57,7 +60,7 @@ namespace YouTubeApiLib
 			string dashManifestUrl,
 			YouTubeDashUrlList dashUrls)
 			: this(formatId, bitrate, bitrate, null, -1L, null, null, null, sampleRate, channelCount,
-				false, 0.0, -1, null, mimeType, mimeExt, mimeCodecs, fileExtension,
+				false, null, 0.0, -1, null, mimeType, mimeExt, mimeCodecs, fileExtension,
 				true, false, dashManifestUrl, dashUrls) { }
 
 		// Упрощенный конструктор для аудио-дорожек не-DASH
@@ -73,6 +76,7 @@ namespace YouTubeApiLib
 			int sampleRate,
 			int channelCount,
 			bool isDynamicRangeCompression,
+			YouTubeAudioTrackLanguage language,
 			double loudnessDb,
 			int approxDurationMs,
 			YouTubeMediaTrackUrl fileUrl,
@@ -82,7 +86,7 @@ namespace YouTubeApiLib
 			string fileExtension,
 			bool isCiphered)
 			: this(formatId, bitrate, averageBitrate, lastModified, contentLength, quality, qualityLabel,
-				audioQuality, sampleRate, channelCount, isDynamicRangeCompression, loudnessDb,
+				audioQuality, sampleRate, channelCount, isDynamicRangeCompression, language, loudnessDb,
 				approxDurationMs, fileUrl, mimeType, mimeExt, mimeCodecs, fileExtension,
 				false, isCiphered, null, null) { }
 	}

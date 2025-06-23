@@ -175,11 +175,20 @@ namespace YouTubeApiLib
 						JToken jtDrc = jFormatItem.Value<JToken>("isDrc");
 						bool isDrc = jtDrc != null && jtDrc.Value<bool>();
 						double loudnessDb = jFormatItem.Value<double>("loudnessDb");
+						YouTubeAudioTrackLanguage language = null;
+						if (jFormatItem.ContainsKey("audioTrack"))
+						{
+							JObject j = jFormatItem.Value<JObject>("audioTrack");
+							language = new YouTubeAudioTrackLanguage(
+								j.Value<string>("displayName"),
+								j.Value<string>("id"),
+								j.Value<bool>("audioIsDefault"));
+						}
 
 						return new YouTubeMediaTrackAudio(
 							formatId, bitrate, averageBitrate, lastModified, contentLength,
 							quality, qualityLabel, audioQuality, audioSampleRate, audioChannelCount,
-							isDrc, loudnessDb, approxDurationMs, trackUrl,
+							isDrc, language, loudnessDb, approxDurationMs, trackUrl,
 							mimeType, mimeExt, mimeCodecs, fileExtension, isCiphered);
 					}
 			}
