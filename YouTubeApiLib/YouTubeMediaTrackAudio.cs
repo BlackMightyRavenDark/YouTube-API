@@ -57,7 +57,8 @@ namespace YouTubeApiLib
 			string dashManifestUrl,
 			YouTubeDashUrlList dashUrls)
 			: this(formatId, bitrate, bitrate, null, -1L, null, null, null, sampleRate, channelCount,
-				false, 0.0, -1, null, mimeType, mimeExt, mimeCodecs, fileExtension, false) { }
+				false, 0.0, -1, null, mimeType, mimeExt, mimeCodecs, fileExtension,
+				true, false, dashManifestUrl, dashUrls) { }
 
 		// Упрощенный конструктор для аудио-дорожек не-DASH
 		public YouTubeMediaTrackAudio(
