@@ -94,43 +94,18 @@ namespace YouTubeApiLib
 			SimplifiedInfo = simplifiedInfo;
 			Status = status;
 
-			if (MediaTracks != null)
+			YouTubeStreamingData streamingData = rawInfo?.StreamingData.Data;
+			if (streamingData != null)
 			{
-				foreach (var item in MediaTracks)
-				{
-					foreach (YouTubeMediaTrack track in item.Value.Tracks)
-					{
-						if (!IsDashed)
-						{
-							IsDashed = track.IsDashManifestPresent;
-							DashManifestUrl = track.DashManifestUrl;
-						}
-						if (IsLiveNow && track.GetType() == typeof(YouTubeMediaTrackHlsStream))
-						{
-							HlsManifestUrl = (track as YouTubeMediaTrackHlsStream).HlsManifestUrl;
-						}
-						if (IsDashed && !string.IsNullOrEmpty(HlsManifestUrl))
-						{
-							return;
-						}
-					}
-				}
+				DashManifestUrl = streamingData.GetDashManifestUrl();
+				IsDashed = !string.IsNullOrEmpty(DashManifestUrl) && !string.IsNullOrWhiteSpace(DashManifestUrl);
+				HlsManifestUrl = streamingData.GetHlsManifestUrl();
 			}
 			else
 			{
-				YouTubeStreamingData streamingData = rawInfo?.StreamingData.Data;
-				if (streamingData != null)
-				{
-					DashManifestUrl = streamingData.GetDashManifestUrl();
-					IsDashed = !string.IsNullOrEmpty(DashManifestUrl) && !string.IsNullOrWhiteSpace(DashManifestUrl);
-					HlsManifestUrl = streamingData.GetHlsManifestUrl();
-				}
-				else
-				{
-					DashManifestUrl = null;
-					IsDashed = false;
-					HlsManifestUrl = null;
-				}
+				DashManifestUrl = null;
+				IsDashed = false;
+				HlsManifestUrl = null;
 			}
 		}
 
