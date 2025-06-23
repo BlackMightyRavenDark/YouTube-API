@@ -7,24 +7,25 @@ namespace YouTubeApiLib.ConsoleTest
 	{
 		static void Main(string[] args)
 		{
-			//11 HOURS of 4K Underwater Wonders + Relaxing Music - Coral Reefs & Colorful Sea Life in UHD
-			//| 2160p | 30 fps | 78583477005 bytes
+			// 11 HOURS of 4K Underwater Wonders + Relaxing Music - Coral Reefs & Colorful Sea Life in UHD
+			// 2160p | 30 fps | 78583477005 bytes
 			string videoUrl = "https://www.youtube.com/watch?v=843Rpqza_6o";
 
-			//Magical Underwater World 4K | 2160p | 24 fps | 7304448660 bytes
+			// Magical Underwater World 4K
+			// 2160p | 24 fps | 7304448660 bytes
 			//string videoUrl = "https://www.youtube.com/watch?v=7szcXCT-Oqw";
 
-			//date night what's in my bag, removing trees, and celebrating mothers everywhere ep. 147
-			//| 18+ | 1080p | 60 fps | 951661536 bytes
-			//string videoUrl = "https://www.youtube.com/watch?v=EUKa5G7TNI0";
-
-			//Ускорь разработку с помощью Chrome DevTools | Фишки Chrome DevTools о которых ТЫ НЕ ЗНАЛ | FRONTEND
-			//| 2160p | HDR | 60 fps | DRC audio | 1253582837 bytes
+			// Ускорь разработку с помощью Chrome DevTools | Фишки Chrome DevTools о которых ТЫ НЕ ЗНАЛ | FRONTEND
+			// 2160p | HDR | 60 fps | DRC audio | 1253582837 bytes
 			//string videoUrl = "https://www.youtube.com/watch?v=H3_M9KASsHY";
 
-			//Moving to Phoenix Arizona?
-			//| 1080p | 24 fps | Multilingual | 232686490 bytes
+			// Moving to Phoenix Arizona?
+			// 1080p | 24 fps | Multilingual | 232686490 bytes
 			//string videoUrl = "https://www.youtube.com/watch?v=pXyRINEG044";
+
+			// date night what's in my bag, removing trees, and celebrating mothers everywhere ep. 147
+			// 18+ | 1080p | 60 fps | 951661536 bytes
+			//string videoUrl = "https://www.youtube.com/watch?v=EUKa5G7TNI0";
 
 			Console.WriteLine($"Video URL: {videoUrl}");
 
