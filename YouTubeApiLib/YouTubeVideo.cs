@@ -233,8 +233,10 @@ namespace YouTubeApiLib
 			YouTubeStreamingDataResult streamingDataResult = rawVideoInfo.StreamingData;
 			if (streamingDataResult.ErrorCode == 200)
 			{
-				YouTubeMediaFormatList list = rawVideoInfo.StreamingData.Data.Parse();
-				string clientName = list.Client.DisplayName;
+				YouTubeMediaFormatList list = rawVideoInfo.StreamingData?.Data.Parse();
+				if (list != null)
+				{
+				string clientName = list.Client?.DisplayName ?? "unknown";
 				if (list.Tracks.Count > 0)
 				{
 					MediaTracks[clientName] = list;
@@ -244,6 +246,7 @@ namespace YouTubeApiLib
 					MediaTracks.Remove(clientName);
 				}
 			}
+		}
 		}
 
 		/// <summary>
