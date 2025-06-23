@@ -36,9 +36,9 @@ namespace YouTubeApiLib
 		/// </summary>
 		public bool IsLiveNow => GetIsLiveNow();
 
-		public bool IsDashed { get; }
-		public string DashManifestUrl { get; }
-		public string HlsManifestUrl { get; }
+		public bool IsDashed { get; private set; }
+		public string DashManifestUrl { get; private set; }
+		public string HlsManifestUrl { get; private set; }
 		public YouTubeVideoDetails Details { get; private set; }
 		public List<YouTubeVideoThumbnail> Thumbnails { get; }
 		public Dictionary<string, YouTubeMediaFormatList> MediaTracks { get; private set; }
@@ -94,19 +94,7 @@ namespace YouTubeApiLib
 			SimplifiedInfo = simplifiedInfo;
 			Status = status;
 
-			YouTubeStreamingData streamingData = rawInfo?.StreamingData.Data;
-			if (streamingData != null)
-			{
-				DashManifestUrl = streamingData.GetDashManifestUrl();
-				IsDashed = !string.IsNullOrEmpty(DashManifestUrl) && !string.IsNullOrWhiteSpace(DashManifestUrl);
-				HlsManifestUrl = streamingData.GetHlsManifestUrl();
-			}
-			else
-			{
-				DashManifestUrl = null;
-				IsDashed = false;
-				HlsManifestUrl = null;
-			}
+			UpdateStates();
 		}
 
 		public static YouTubeVideo CreateEmpty(YouTubeVideoPlayabilityStatus status)
@@ -236,22 +224,24 @@ namespace YouTubeApiLib
 				YouTubeMediaFormatList list = rawVideoInfo.StreamingData?.Data.Parse();
 				if (list != null)
 				{
-				string clientName = list.Client?.DisplayName ?? "unknown";
-				if (list.Tracks.Count > 0)
-				{
-					MediaTracks[clientName] = list;
-				}
-				else if (MediaTracks.ContainsKey(clientName))
-				{
-					MediaTracks.Remove(clientName);
+					string clientName = list.Client?.DisplayName ?? "unknown";
+					if (list.Tracks.Count > 0)
+					{
+						MediaTracks[clientName] = list;
+					}
+					else if (MediaTracks.ContainsKey(clientName))
+					{
+						MediaTracks.Remove(clientName);
+					}
 				}
 			}
-		}
 		}
 
 		/// <summary>
 		/// Скачать заново и обновить список медиа-форматов и ссылок для скачивания.
 		/// Внимание! Текущий список и ссылки будут утеряны!
+		/// Текущая сырая информация (raw info) о видео будет обновлена в случае успешного вызова,
+		/// либо утеряна в случае неудачного вызова!
 		/// </summary>
 		/// <param name="client">
 		/// Клиент YouTube для получения информации о видео.
@@ -264,14 +254,15 @@ namespace YouTubeApiLib
 				MediaTracks.Remove(client.DisplayName);
 			}
 			YouTubeRawVideoInfoResult rawVideoInfoResult = YouTubeRawVideoInfo.Get(Id, client);
-				RawInfo = rawVideoInfoResult.RawVideoInfo;
-				if (rawVideoInfoResult.ErrorCode == 200)
-				{
-					UpdateMediaFormats(rawVideoInfoResult.RawVideoInfo);
-					return MediaTracks.ContainsKey(client.DisplayName) ? 200 : 204;
-				}
-				return rawVideoInfoResult.ErrorCode;
+			RawInfo = rawVideoInfoResult.RawVideoInfo;
+			UpdateStates();
+			if (rawVideoInfoResult.ErrorCode == 200)
+			{
+				UpdateMediaFormats(rawVideoInfoResult.RawVideoInfo);
+				return MediaTracks.ContainsKey(client.DisplayName) ? 200 : 204;
 			}
+			return rawVideoInfoResult.ErrorCode;
+		}
 
 		/// <summary>
 		/// Скачать заново и обновить список медиа-форматов и ссылок для скачивания, используя методы по-умолчанию.
@@ -344,6 +335,23 @@ namespace YouTubeApiLib
 		{
 			YouTubeSimplifiedVideoInfoResult infoResult = RawInfo.Simplify();
 			return infoResult.ErrorCode == 200 ? infoResult.SimplifiedVideoInfo : null;
+		}
+
+		private void UpdateStates()
+		{
+			YouTubeStreamingData streamingData = RawInfo?.StreamingData.Data;
+			if (streamingData != null)
+			{
+				DashManifestUrl = streamingData.GetDashManifestUrl();
+				IsDashed = !string.IsNullOrEmpty(DashManifestUrl) && !string.IsNullOrWhiteSpace(DashManifestUrl);
+				HlsManifestUrl = streamingData.GetHlsManifestUrl();
+			}
+			else
+			{
+				DashManifestUrl = null;
+				IsDashed = false;
+				HlsManifestUrl = null;
+			}
 		}
 	}
 }
