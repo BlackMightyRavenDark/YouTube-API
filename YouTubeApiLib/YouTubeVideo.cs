@@ -264,8 +264,6 @@ namespace YouTubeApiLib
 				MediaTracks.Remove(client.DisplayName);
 			}
 			YouTubeRawVideoInfoResult rawVideoInfoResult = YouTubeRawVideoInfo.Get(Id, client);
-			if (rawVideoInfoResult != null)
-			{
 				RawInfo = rawVideoInfoResult.RawVideoInfo;
 				if (rawVideoInfoResult.ErrorCode == 200)
 				{
@@ -274,8 +272,6 @@ namespace YouTubeApiLib
 				}
 				return rawVideoInfoResult.ErrorCode;
 			}
-			return 404;
-		}
 
 		/// <summary>
 		/// Скачать заново и обновить список медиа-форматов и ссылок для скачивания, используя методы по-умолчанию.
