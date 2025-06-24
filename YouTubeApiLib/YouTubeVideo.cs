@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 using MultiThreadedDownloaderLib;
 
@@ -23,6 +24,11 @@ namespace YouTubeApiLib
 		/// Является ли данное видео коротким (short aka "reel").
 		/// </summary>
 		public bool IsShortFormat { get; }
+
+		/// <summary>
+		/// Присутствуют ли аудио-дорожки с переводами на другие языки.
+		/// </summary>
+		public bool IsMultilingual { get; private set; }
 
 		public bool IsPrivate { get; }
 		public bool IsUnlisted { get; }
@@ -233,6 +239,8 @@ namespace YouTubeApiLib
 					{
 						MediaTracks.Remove(clientName);
 					}
+
+					IsMultilingual = IsTranslatedAudioTrackPresent();
 				}
 			}
 		}
@@ -278,6 +286,7 @@ namespace YouTubeApiLib
 		public void ClearMediaFormatList()
 		{
 			MediaTracks?.Clear();
+			IsMultilingual = false;
 		}
 
 		private bool GetIsInfoAvailable()
@@ -363,6 +372,13 @@ namespace YouTubeApiLib
 					yield return track;
 				}
 			}
+		}
+
+		private bool IsTranslatedAudioTrackPresent()
+		{
+			var tracks = GetAllMediaTracks();
+			return tracks.Any(track => track is YouTubeMediaTrackAudio &&
+				!(bool)(track as YouTubeMediaTrackAudio).Language?.IsDefault);
 		}
 	}
 }
