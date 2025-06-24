@@ -353,5 +353,16 @@ namespace YouTubeApiLib
 				HlsManifestUrl = null;
 			}
 		}
+
+		public IEnumerable<YouTubeMediaTrack> GetAllMediaTracks()
+		{
+			foreach (var item in MediaTracks)
+			{
+				foreach (YouTubeMediaTrack track in item.Value.Tracks)
+				{
+					yield return track;
+				}
+			}
+		}
 	}
 }
