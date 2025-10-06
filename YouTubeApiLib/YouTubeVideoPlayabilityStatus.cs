@@ -11,6 +11,7 @@ namespace YouTubeApiLib
 		public bool IsPlayable { get; }
 		public bool IsPrivate { get; }
 		public bool IsAdult { get; }
+		public bool IsLoginRequired { get; }
 		public int ErrorCode { get; }
 		public string RawInfo { get; }
 
@@ -26,6 +27,7 @@ namespace YouTubeApiLib
 			IsPlayable = status == "OK";
 			IsPrivate = GetIsPrivate();
 			IsAdult = GetIsAdult();
+			IsLoginRequired = GetIsLoginRequired();
 		}
 
 		public YouTubeVideoPlayabilityStatus(int errorCode)
@@ -83,6 +85,11 @@ namespace YouTubeApiLib
 		{
 			return !string.IsNullOrEmpty(Reason) && !string.IsNullOrWhiteSpace(Reason) &&
 				Reason.ToLower().Contains("age");
+		}
+
+		private bool GetIsLoginRequired()
+		{
+			return Status == "LOGIN_REQUIRED";
 		}
 	}
 }
