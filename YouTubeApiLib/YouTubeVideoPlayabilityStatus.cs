@@ -12,6 +12,7 @@ namespace YouTubeApiLib
 		public bool IsPrivate { get; }
 		public bool IsAdult { get; }
 		public bool IsLoginRequired { get; }
+		public bool IsBotWarning { get; }
 		public int ErrorCode { get; }
 		public string RawInfo { get; }
 
@@ -28,6 +29,7 @@ namespace YouTubeApiLib
 			IsPrivate = GetIsPrivate();
 			IsAdult = GetIsAdult();
 			IsLoginRequired = GetIsLoginRequired();
+			IsBotWarning = GetIsBotWarning();
 		}
 
 		public YouTubeVideoPlayabilityStatus(int errorCode)
@@ -90,6 +92,17 @@ namespace YouTubeApiLib
 		private bool GetIsLoginRequired()
 		{
 			return Status == "LOGIN_REQUIRED";
+		}
+
+		private bool GetIsBotWarning()
+		{
+			if (!string.IsNullOrEmpty(Reason) && !string.IsNullOrWhiteSpace(Reason))
+			{
+				string lowercased = Reason.ToLower();
+				return lowercased.Contains("not a bot") || lowercased.Contains("вы не бот");
+			}
+
+			return false;
 		}
 	}
 }

@@ -206,6 +206,7 @@ namespace YouTubeApiLib.ConsoleTest
 						Console.WriteLine($"Is private: {video.Status.IsPrivate}");
 						Console.WriteLine($"Is adult: {video.Status.IsAdult}");
 						Console.WriteLine($"Is login required: {video.Status.IsLoginRequired}");
+						Console.WriteLine($"Is \"you're bot\" warning: {video.Status.IsBotWarning}");
 						Console.WriteLine($"Status: {video.Status.Status}");
 						Console.WriteLine($"Reason: {video.Status.Reason}");
 						if (!string.IsNullOrEmpty(video.Status.ReasonDetails))

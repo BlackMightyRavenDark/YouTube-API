@@ -278,7 +278,7 @@ namespace YouTubeApiLib
 		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo, JObject customMicroformat,
 			FileDownloader downloader = null)
 		{
-			if (rawVideoInfo.PlayabilityStatus.IsLoginRequired)
+			if (rawVideoInfo.PlayabilityStatus.IsLoginRequired || rawVideoInfo.PlayabilityStatus.IsBotWarning)
 			{
 				return YouTubeVideo.CreateEmpty(rawVideoInfo.PlayabilityStatus);
 			}
