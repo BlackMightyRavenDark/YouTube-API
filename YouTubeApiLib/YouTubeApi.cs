@@ -8,8 +8,7 @@ namespace YouTubeApiLib
 		private static string _defaultYouTubeClientId = "web_page";
 		private static ConcurrentDictionary<string, IYouTubeClient> _clients = new ConcurrentDictionary<string, IYouTubeClient>()
 		{
-			["web_page"] = new YouTubeClientWebPage(),
-			["ios"] = new YouTubeClientIos()
+			["web_page"] = new YouTubeClientWebPage()
 		};
 
 		public YouTubeVideo GetVideo(YouTubeVideoId youTubeVideoId, IYouTubeClient client)
