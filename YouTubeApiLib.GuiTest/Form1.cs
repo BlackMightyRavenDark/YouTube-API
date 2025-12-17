@@ -219,7 +219,7 @@ namespace YouTubeApiLib.GuiTest
 					YouTubeChannelTabPages.Shorts,
 					YouTubeChannelTabPages.Live,
 					YouTubeChannelTabPages.Playlists,
-					YouTubeChannelTabPages.Community
+					YouTubeChannelTabPages.Posts
 				};
 				YouTubeApi api = new YouTubeApi();
 				foreach (YouTubeChannelTabPage channelTabPage in pages)
