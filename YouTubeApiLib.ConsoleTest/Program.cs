@@ -33,7 +33,8 @@ namespace YouTubeApiLib.ConsoleTest
 
 			if (videoId != null)
 			{
-				YouTubeVideo video = videoId.GetVideo();
+				IYouTubeClient client = new YouTubeClientAndroidSdkless();
+				YouTubeVideo video = videoId.GetVideo(client);
 				if (video != null)
 				{
 					if (video.IsInfoAvailable)
