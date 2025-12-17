@@ -93,7 +93,7 @@ namespace YouTubeApiLib.GuiTest
 				YouTubeVideosTabPage videosTabPage = pageContentResult.Content.ParseAsVideosOrShortsOrLiveTabPage();
 				if (videosTabPage != null)
 				{
-					if (videosTabPage.UpdateVideosMultiThreaded())
+					if (videosTabPage.UpdateVideosMultiThreaded() > 0)
 					{
 						videosTabPage.VideoList.Sort((x, y) => x.DatePublished > y.DatePublished ? -1 : 1);
 
@@ -148,7 +148,7 @@ namespace YouTubeApiLib.GuiTest
 				YouTubeVideosTabPage videosTabPage = pageContentResult.Content.ParseAsVideosOrShortsOrLiveTabPage();
 				if (videosTabPage != null)
 				{
-					if (videosTabPage.UpdateVideosMultiThreaded())
+					if (videosTabPage.UpdateVideosMultiThreaded() > 0)
 					{
 						videosTabPage.VideoList.Sort((x, y) => x.DatePublished > y.DatePublished ? -1 : 1);
 

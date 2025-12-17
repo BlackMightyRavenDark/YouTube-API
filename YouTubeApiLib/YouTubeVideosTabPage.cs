@@ -10,20 +10,21 @@ namespace YouTubeApiLib
 	public class YouTubeVideosTabPage
 	{
 		public List<string> IdList { get; }
-		public List<YouTubeVideo> VideoList { get; private set; }
+		public List<YouTubeVideo> VideoList { get; }
 		public string NextPageToken { get; }
 
 		public YouTubeVideosTabPage(IEnumerable<string> idList, string nextPageToken)
 		{
 			IdList = idList.ToList();
+			VideoList = new List<YouTubeVideo>();
 			NextPageToken = nextPageToken;
 		}
 
-		public bool UpdateVideos()
+		public int UpdateVideos()
 		{
+			VideoList.Clear();
 			if (IdList != null && IdList.Count > 0)
 			{
-				VideoList = new List<YouTubeVideo>();
 				foreach (string videoId in IdList)
 				{
 					YouTubeVideo video = YouTubeVideo.GetById(videoId);
@@ -34,12 +35,13 @@ namespace YouTubeApiLib
 				}
 			}
 
-			return VideoList != null;
+			return VideoList.Count;
 		}
 
-		public bool UpdateVideosMultiThreaded(byte simultaneousThreads,
+		public int UpdateVideosMultiThreaded(byte simultaneousThreads,
 			CancellationToken cancellationToken, FileDownloader downloader = null)
 		{
+			VideoList.Clear();
 			if (IdList != null && IdList.Count > 0)
 			{
 				if (simultaneousThreads < 1) { simultaneousThreads = 2; }
@@ -66,7 +68,6 @@ namespace YouTubeApiLib
 
 				if (bag.Count > 0)
 				{
-					VideoList = new List<YouTubeVideo>();
 					foreach (YouTubeVideo item in bag)
 					{
 						VideoList.Add(item);
@@ -74,15 +75,15 @@ namespace YouTubeApiLib
 				}
 			}
 
-			return VideoList != null;
+			return VideoList.Count;
 		}
 
-		public bool UpdateVideosMultiThreaded(byte simultaneousThreads)
+		public int UpdateVideosMultiThreaded(byte simultaneousThreads)
 		{
 			return UpdateVideosMultiThreaded(simultaneousThreads, default);
 		}
 
-		public bool UpdateVideosMultiThreaded()
+		public int UpdateVideosMultiThreaded()
 		{
 			return UpdateVideosMultiThreaded(2);
 		}
