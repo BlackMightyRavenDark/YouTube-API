@@ -629,6 +629,19 @@ namespace YouTubeApiLib
 			}
 		}
 
+		public static int YouTubeHttpPost(string url, string body, Encoding bodyEncoding,
+			NameValueCollection headers, out string responseString)
+		{
+			byte[] bodyBytes = bodyEncoding.GetBytes(body);
+			return YouTubeHttpPost(url, bodyBytes, headers, out responseString);
+		}
+
+		public static int YouTubeHttpPost(string url, string body,
+			NameValueCollection headers, out string responseString)
+		{
+			return YouTubeHttpPost(url, body, Encoding.UTF8, headers, out responseString);
+		}
+
 		public static int YouTubeHttpPost(string url, string body, string userAgent, out string responseString)
 		{
 			NameValueCollection headers = new NameValueCollection()
