@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
+using System.Net;
+using System.Text;
 using Newtonsoft.Json.Linq;
 using MultiThreadedDownloaderLib;
 using static YouTubeApiLib.Utils;
@@ -13,21 +14,17 @@ namespace YouTubeApiLib
 		public const string API_V1_PLAYER_URL = "https://www.youtube.com/youtubei/v1/player";
 		public const string API_V1_SEARCH_URL = "https://www.youtube.com/youtubei/v1/search";
 
-		public static int CallHiddenApi(string url, NameValueCollection headers, string body, out string response)
+		public static int CallHiddenApi(string url, WebHeaderCollection headers, CookieContainer cookies, IWebProxy proxy,
+			string body, int timeout, out string response)
 		{
 			try
 			{
-				using (HttpRequestResult requestResult = HttpRequestSender.Send("POST", url, body, headers))
+				byte[] bodyBytes = Encoding.UTF8.GetBytes(body);
+				using (HttpRequestResult requestResult = HttpRequestSender.Send("POST", url, bodyBytes, headers, cookies, proxy, timeout))
 				{
-					if (requestResult.ErrorCode == 200)
-					{
-						return requestResult.WebContent.ContentToString(out response);
-					}
-					else
-					{
-						response = requestResult.ErrorMessage;
-						return requestResult.ErrorCode;
-					}
+					response = requestResult.HasErrorMessage ? requestResult.ErrorMessage : null;
+					int errorCode = requestResult.ErrorCode == 200 ? requestResult.GetContent(out response) : requestResult.ErrorCode;
+					return errorCode == 200 ? requestResult.WebContent.ContentToString(out response) : errorCode;
 				}
 			}
 			catch (System.Exception ex)
@@ -38,22 +35,25 @@ namespace YouTubeApiLib
 			}
 		}
 
-		public static int CallBrowseApi(NameValueCollection headers, string body, out string response)
+		public static int CallBrowseApi(WebHeaderCollection headers, CookieContainer cookies, IWebProxy proxy,
+			int timeout, string body, out string response)
 		{
 			string url = GetBrowseRequestUrl();
-			return CallHiddenApi(url, headers, body, out response);
+			return CallHiddenApi(url, headers, null, null, body, timeout, out response);
 		}
 
-		public static int CallPlayerApi(NameValueCollection headers, string body, out string response)
+		public static int CallPlayerApi(WebHeaderCollection headers, CookieContainer cookies, IWebProxy proxy,
+			int timeout, string body, out string response)
 		{
 			string url = GetPlayerRequestUrl();
-			return CallHiddenApi(url, headers, body, out response);
+			return CallHiddenApi(url, headers, cookies, proxy, body, timeout, out response);
 		}
 
-		public static int CallSearchApi(NameValueCollection headers, string body, out string response)
+		public static int CallSearchApi(WebHeaderCollection headers, CookieContainer cookies, IWebProxy proxy,
+			int timeout, string body, out string response)
 		{
 			string url = GetSearchRequestUrl();
-			return CallHiddenApi(url, headers, body, out response);
+			return CallHiddenApi(url, headers, cookies, proxy, body, timeout, out response);
 		}
 
 		public static JObject GenerateSearchQueryRequestBody(

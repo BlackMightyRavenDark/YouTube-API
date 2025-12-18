@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -593,7 +593,7 @@ namespace YouTubeApiLib
 			return jsonArr;
 		}
 
-		public static int YouTubeHttpPost(string url, byte[] body, NameValueCollection headers, out string responseString)
+		public static int YouTubeHttpPost(string url, byte[] body, WebHeaderCollection headers, out string responseString)
 		{
 			if (string.IsNullOrEmpty(url) || string.IsNullOrWhiteSpace(url) || body == null || body.Length == 0)
 			{
@@ -603,23 +603,16 @@ namespace YouTubeApiLib
 
 			try
 			{
-				if (headers == null) { headers = new NameValueCollection(); }
+				if (headers == null) { headers = new WebHeaderCollection(); }
 
 				headers["Content-Type"] = "application/json";
 				headers["Content-Length"] = body.Length.ToString();
 
-				using (HttpRequestResult requestResult = HttpRequestSender.Send("POST", url, body, headers))
+				using (HttpRequestResult requestResult = HttpRequestSender.Send("POST", url, body, headers, (CookieContainer)null))
 				{
-					if (requestResult.ErrorCode == 200)
-					{
-						bool isZipped = requestResult.IsZippedContent();
-						return requestResult.WebContent.ContentToString(out responseString, 4096, isZipped, null, default);
-					}
-					else
-					{
-						responseString = requestResult.ErrorMessage;
-						return requestResult.ErrorCode;
-					}
+					responseString = requestResult.HasErrorMessage ? requestResult.ErrorMessage : null;
+					int errorCode = requestResult.ErrorCode == 200 ? requestResult.GetContent(out responseString) : requestResult.ErrorCode;
+					return errorCode == 200 ? requestResult.WebContent.ContentToString(out responseString) : errorCode;
 				}
 			}
 			catch (Exception ex)
@@ -630,21 +623,21 @@ namespace YouTubeApiLib
 		}
 
 		public static int YouTubeHttpPost(string url, string body, Encoding bodyEncoding,
-			NameValueCollection headers, out string responseString)
+			WebHeaderCollection headers, out string responseString)
 		{
 			byte[] bodyBytes = bodyEncoding.GetBytes(body);
 			return YouTubeHttpPost(url, bodyBytes, headers, out responseString);
 		}
 
 		public static int YouTubeHttpPost(string url, string body,
-			NameValueCollection headers, out string responseString)
+			WebHeaderCollection headers, out string responseString)
 		{
 			return YouTubeHttpPost(url, body, Encoding.UTF8, headers, out responseString);
 		}
 
 		public static int YouTubeHttpPost(string url, string body, string userAgent, out string responseString)
 		{
-			NameValueCollection headers = new NameValueCollection()
+			WebHeaderCollection headers = new WebHeaderCollection()
 			{
 				{ "Host", "www.youtube.com" },
 				{ "User-Agent", userAgent },
@@ -818,7 +811,7 @@ namespace YouTubeApiLib
 			return new YouTubeVideoId(dict["v"]);
 		}
 
-		public static string GetYouTubeVisitorData(NameValueCollection requestHeaders = null)
+		public static string GetYouTubeVisitorData(WebHeaderCollection requestHeaders = null)
 		{
 			string rawData = YouTubeVisitorData.GetRawData(requestHeaders);
 			return string.IsNullOrEmpty(rawData) ? null : YouTubeVisitorData.ExtractVisitorDataValue(rawData);
@@ -826,10 +819,10 @@ namespace YouTubeApiLib
 
 		public static string GetYouTubeVisitorData(string userAgent)
 		{
-			NameValueCollection headers = null;
+			WebHeaderCollection headers = null;
 			if (!string.IsNullOrEmpty(userAgent))
 			{
-				headers = new NameValueCollection()
+				headers = new WebHeaderCollection()
 				{
 					{ "User-Agent", userAgent }
 				};

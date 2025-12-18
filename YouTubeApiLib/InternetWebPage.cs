@@ -1,4 +1,4 @@
-﻿using System.Collections.Specialized;
+﻿using System.Net;
 using MultiThreadedDownloaderLib;
 
 namespace YouTubeApiLib
@@ -9,7 +9,7 @@ namespace YouTubeApiLib
 		{
 			if (downloader == null)
 			{
-				NameValueCollection headers = new NameValueCollection()
+				WebHeaderCollection headers = new WebHeaderCollection()
 				{
 					{ "Host", "www.youtube.com" },
 					{ "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0" },

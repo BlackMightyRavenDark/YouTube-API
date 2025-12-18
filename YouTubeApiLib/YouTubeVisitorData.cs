@@ -1,4 +1,4 @@
-﻿using System.Collections.Specialized;
+﻿using System.Net;
 using Newtonsoft.Json.Linq;
 using MultiThreadedDownloaderLib;
 
@@ -8,7 +8,7 @@ namespace YouTubeApiLib
 	{
 		public const string FILE_URL = "https://www.youtube.com/sw.js_data";
 
-		public static string GetRawData(NameValueCollection requestHeaders)
+		public static string GetRawData(WebHeaderCollection requestHeaders)
 		{
 			FileDownloader d = new FileDownloader() { Url = FILE_URL, Headers = requestHeaders };
 			int errorCode = d.DownloadString(out string response);

@@ -1,4 +1,4 @@
-﻿using System.Collections.Specialized;
+﻿using System.Net;
 using Newtonsoft.Json.Linq;
 using MultiThreadedDownloaderLib;
 
@@ -10,7 +10,7 @@ namespace YouTubeApiLib
 		YouTubeVideoWebPage WebPage { get; }
 		FileDownloader Downloader { get; set; }
 		JObject GenerateRequestBody(string videoId, YouTubeConfig youTubeConfig = null);
-		NameValueCollection GenerateRequestHeaders(string videoId, YouTubeConfig youTubeConfig = null);
+		WebHeaderCollection GenerateRequestHeaders(string videoId, YouTubeConfig youTubeConfig = null);
 		YouTubeRawVideoInfoResult GetRawVideoInfo(YouTubeVideoId videoId, out string errorMessage);
 		int GetRawVideoInfo(string videoId, out YouTubeRawVideoInfo rawVideoInfo, out string errorMessage);
 		void SetWebPage(YouTubeVideoWebPage webPage);

@@ -1,4 +1,4 @@
-﻿using System.Collections.Specialized;
+﻿using System.Net;
 using Newtonsoft.Json.Linq;
 using MultiThreadedDownloaderLib;
 
@@ -49,9 +49,9 @@ namespace YouTubeApiLib.ConsoleTest
 			};
 		}
 
-		public NameValueCollection GenerateRequestHeaders(string videoId, YouTubeConfig youTubeConfig = null)
+		public WebHeaderCollection GenerateRequestHeaders(string videoId, YouTubeConfig youTubeConfig = null)
 		{
-			return new NameValueCollection()
+			return new WebHeaderCollection()
 			{
 				{ "Origin", Utils.YOUTUBE_URL },
 				{ "X-Goog-Visitor-Id", youTubeConfig.VisitorData },
@@ -84,7 +84,7 @@ namespace YouTubeApiLib.ConsoleTest
 				}
 
 				JObject body = GenerateRequestBody(videoId, youTubeConfig);
-				NameValueCollection headers = GenerateRequestHeaders(videoId, youTubeConfig);
+				WebHeaderCollection headers = GenerateRequestHeaders(videoId, youTubeConfig);
 				int errorCode = Utils.YouTubeHttpPost(YouTubeApiV1.API_V1_PLAYER_URL, body.ToString(), headers, out string response);
 				if (errorCode == 200)
 				{

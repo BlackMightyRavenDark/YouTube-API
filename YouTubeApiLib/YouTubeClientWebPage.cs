@@ -1,4 +1,4 @@
-﻿using System.Collections.Specialized;
+﻿using System.Net;
 using Newtonsoft.Json.Linq;
 using MultiThreadedDownloaderLib;
 
@@ -15,7 +15,7 @@ namespace YouTubeApiLib
 			return null;
 		}
 
-		public NameValueCollection GenerateRequestHeaders(string videoId, YouTubeConfig youTubeConfig)
+		public WebHeaderCollection GenerateRequestHeaders(string videoId, YouTubeConfig youTubeConfig)
 		{
 			return null;
 		}
