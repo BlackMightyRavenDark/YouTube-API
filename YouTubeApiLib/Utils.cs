@@ -593,7 +593,9 @@ namespace YouTubeApiLib
 			return jsonArr;
 		}
 
-		public static int YouTubeHttpPost(string url, byte[] body, WebHeaderCollection headers, out string responseString)
+		public static int YouTubeHttpPost(string url, byte[] body,
+			WebHeaderCollection headers, CookieContainer cookies, IWebProxy proxy,
+			int timeout, out string responseString)
 		{
 			if (string.IsNullOrEmpty(url) || string.IsNullOrWhiteSpace(url) || body == null || body.Length == 0)
 			{
@@ -608,7 +610,7 @@ namespace YouTubeApiLib
 				headers["Content-Type"] = "application/json";
 				headers["Content-Length"] = body.Length.ToString();
 
-				using (HttpRequestResult requestResult = HttpRequestSender.Send("POST", url, body, headers, (CookieContainer)null))
+				using (HttpRequestResult requestResult = HttpRequestSender.Send("POST", url, body, headers, cookies, proxy, timeout))
 				{
 					responseString = requestResult.HasErrorMessage ? requestResult.ErrorMessage : null;
 					int errorCode = requestResult.ErrorCode == 200 ? requestResult.GetContent(out responseString) : requestResult.ErrorCode;
@@ -622,11 +624,34 @@ namespace YouTubeApiLib
 			}
 		}
 
+
+		public static int YouTubeHttpPost(string url, byte[] body,
+			WebHeaderCollection headers, CookieContainer cookies, IWebProxy proxy,
+			out string responseString)
+		{
+			return YouTubeHttpPost(url, body, headers, cookies, proxy, 10000, out responseString);
+		}
+
+		public static int YouTubeHttpPost(string url, string body,
+			WebHeaderCollection headers, CookieContainer cookies, IWebProxy proxy,
+			int timeout, out string responseString)
+		{
+			byte[] bodyBytes = Encoding.UTF8.GetBytes(body);
+			return YouTubeHttpPost(url, bodyBytes, headers, cookies, proxy, timeout, out responseString);
+		}
+
+		public static int YouTubeHttpPost(string url, string body,
+			WebHeaderCollection headers, CookieContainer cookies, IWebProxy proxy,
+			out string responseString)
+		{
+			return YouTubeHttpPost(url, body, headers, cookies, proxy, 10000, out responseString);
+		}
+
 		public static int YouTubeHttpPost(string url, string body, Encoding bodyEncoding,
 			WebHeaderCollection headers, out string responseString)
 		{
 			byte[] bodyBytes = bodyEncoding.GetBytes(body);
-			return YouTubeHttpPost(url, bodyBytes, headers, out responseString);
+			return YouTubeHttpPost(url, bodyBytes, headers, null, null, out responseString);
 		}
 
 		public static int YouTubeHttpPost(string url, string body,
@@ -645,7 +670,7 @@ namespace YouTubeApiLib
 				{ "Accept-Encoding", "gzip" }
 			};
 			byte[] bodyBytes = Encoding.UTF8.GetBytes(body);
-			return YouTubeHttpPost(url, bodyBytes, headers, out responseString);
+			return YouTubeHttpPost(url, bodyBytes, headers, null, null, out responseString);
 		}
 
 		public static int YouTubeHttpPost(string url, string body, out string responseString)
