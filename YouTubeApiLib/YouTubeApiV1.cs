@@ -194,15 +194,17 @@ namespace YouTubeApiLib
 		/// Получить список ID видео из вкладки со страницы канала, используя API YouTube V1.
 		/// </summary>
 		/// <param name="channelId">ID канала YouTube</param>
-		/// <param name="tabPage">Запрашиваемая вкладка со страницы канала</param>
+		/// <param name="channelTabPage">
+		/// Запрашиваемая вкладка со страницы канала. Игнорируется, если указан continuation token.
+		/// </param>
 		/// <param name="continuationToken">
 		/// Токен, указывающий, какая часть списка должна быть получена.
 		/// Если передать 'null' или пустую строку, будут получены первые 30 элементов списка 
 		/// (30 ID последних видео из указанной вкладки канала).
 		/// </param>
-		internal static YouTubeVideoIdPageResult GetVideoIdPage(string channelId, YouTubeChannelTabPage tabPage, string continuationToken)
+		internal static YouTubeVideoIdPageResult GetVideoIdPage(string channelId, YouTubeChannelTabPage channelTabPage, string continuationToken)
 		{
-			JObject body = GenerateChannelTabRequestBody(channelId, tabPage, continuationToken);
+			JObject body = GenerateChannelTabRequestBody(channelId, channelTabPage, continuationToken);
 			bool tokenExists = !string.IsNullOrEmpty(continuationToken) && !string.IsNullOrWhiteSpace(continuationToken);
 			return GetVideoIdPage(body, tokenExists);
 		}
