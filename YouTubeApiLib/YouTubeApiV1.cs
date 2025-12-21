@@ -190,6 +190,16 @@ namespace YouTubeApiLib
 			return new YouTubeVideoPageResult(null, videoIdPageResult.ErrorCode);
 		}
 
+		/// <summary>
+		/// Получить список ID видео из вкладки со страницы канала, используя API YouTube V1.
+		/// </summary>
+		/// <param name="channelId">ID канала YouTube</param>
+		/// <param name="tabPage">Запрашиваемая вкладка со страницы канала</param>
+		/// <param name="continuationToken">
+		/// Токен, указывающий, какая часть списка должна быть получена.
+		/// Если передать 'null' или пустую строку, будут получены первые 30 элементов списка 
+		/// (30 ID последних видео из указанной вкладки канала).
+		/// </param>
 		internal static YouTubeVideoIdPageResult GetVideoIdPage(string channelId, YouTubeChannelTabPage tabPage, string continuationToken)
 		{
 			JObject body = GenerateChannelTabRequestBody(channelId, tabPage, continuationToken);
@@ -197,6 +207,11 @@ namespace YouTubeApiLib
 			return GetVideoIdPage(body, tokenExists);
 		}
 
+		/// <summary>
+		/// Получить список ID видео из вкладки со страницы канала, используя API YouTube V1.
+		/// </summary>
+		/// <param name="requestBody">Тело запроса</param>
+		/// <param name="continuationTokenExists">Используется ли в теле запроса continuation token</param>
 		internal static YouTubeVideoIdPageResult GetVideoIdPage(JObject requestBody, bool continuationTokenExists)
 		{
 			string url = GetBrowseRequestUrl();
@@ -211,6 +226,12 @@ namespace YouTubeApiLib
 			return new YouTubeVideoIdPageResult(null, errorCode);
 		}
 
+		/// <summary>
+		/// Получить список ID видео из вкладки со страницы канала, предварительно скачав эту страницу.
+		/// </summary>
+		/// <param name="channelId">ID канала YouTube</param>
+		/// <param name="channelTabPage">Запрашиваемая вкладка со страницы канала</param>
+		/// <returns>Список из 30 ID последних видео из указанной вкладки со страницы канала</returns>
 		internal static YouTubeVideoIdPageResult GetVideoIdPage(string channelId, YouTubeChannelTabPage channelTabPage)
 		{
 			string url = channelTabPage.GetWebPageUrl(channelId);
