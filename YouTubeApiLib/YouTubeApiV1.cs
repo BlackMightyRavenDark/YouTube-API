@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using MultiThreadedDownloaderLib;
@@ -105,8 +104,7 @@ namespace YouTubeApiLib
 
 			JObject json = new JObject()
 			{
-				["context"] = jContext,
-				["browseId"] = channelId
+				["context"] = jContext
 			};
 
 			bool tokenExists = !string.IsNullOrEmpty(continuationToken) && !string.IsNullOrWhiteSpace(continuationToken);
@@ -114,9 +112,16 @@ namespace YouTubeApiLib
 			{
 				json["continuation"] = continuationToken;
 			}
-			else if (youTubeChannelTabPage != null)
+			else
 			{
-				json["params"] = youTubeChannelTabPage.ParamsId;
+				if (!string.IsNullOrEmpty(channelId) && !string.IsNullOrWhiteSpace(channelId))
+				{
+					json["browseId"] = channelId;
+				}
+				if (youTubeChannelTabPage != null)
+				{
+					json["params"] = youTubeChannelTabPage.ParamsId;
+				}
 			}
 
 			return json;
@@ -169,130 +174,75 @@ namespace YouTubeApiLib
 			return GetRawVideoInfo(new YouTubeVideoId(videoId));
 		}
 
-		internal static YouTubeVideoPageResult GetVideoPage(string channelId, YouTubeChannelTabPage tabPage, string continuationToken)
-		{
-			YouTubeVideoIdPageResult videoIdPageResult = YouTubeChannel.GetVideoIdPage(channelId, tabPage, continuationToken);
-			if (videoIdPageResult.ErrorCode == 200)
-			{
-				LinkedList<YouTubeVideo> videos = new LinkedList<YouTubeVideo>();
-				foreach (string videoId in videoIdPageResult.VideoIdPage.VideoIds)
-				{
-					YouTubeVideo video = YouTubeVideo.GetById(videoId);
-					if (video != null && video.Status != null)
-					{
-						videos.AddLast(video);
-					}
-				}
-
-				return new YouTubeVideoPageResult(new YouTubeVideoPage(videos, videoIdPageResult.VideoIdPage.ContinuationToken), 200);
-			}
-
-			return new YouTubeVideoPageResult(null, videoIdPageResult.ErrorCode);
-		}
-
 		/// <summary>
-		/// Получить список ID видео из вкладки со страницы канала, используя API YouTube V1.
+		/// Получить упрощённый список видео из вкладки со страницы канала, используя API YouTube V1.
 		/// </summary>
-		/// <param name="channelId">ID канала YouTube</param>
+		/// <param name="channel">Канал на YouTube. Если указан continuation token, используется только как идентификатор.
+		/// </param>
 		/// <param name="channelTabPage">
-		/// Запрашиваемая вкладка со страницы канала. Игнорируется, если указан continuation token.
+		/// Запрашиваемая вкладка со страницы канала. Если указан continuation token, используется только как идентификатор.
 		/// </param>
 		/// <param name="continuationToken">
 		/// Токен, указывающий, какая часть списка должна быть получена.
 		/// Если передать 'null' или пустую строку, будут получены первые 30 элементов списка 
-		/// (30 ID последних видео из указанной вкладки канала).
+		/// (до 30 последних видео со вкладки канала).
 		/// </param>
-		internal static YouTubeVideoIdPageResult GetVideoIdPage(string channelId, YouTubeChannelTabPage channelTabPage, string continuationToken)
+		internal static YouTubeVideoLitePageResult GetChannelVideoLitePage(
+			YouTubeChannel channel, YouTubeChannelTabPage channelTabPage, string continuationToken)
 		{
-			JObject body = GenerateChannelTabRequestBody(channelId, channelTabPage, continuationToken);
-			bool tokenExists = !string.IsNullOrEmpty(continuationToken) && !string.IsNullOrWhiteSpace(continuationToken);
-			return GetVideoIdPage(body, tokenExists);
+			JObject body = GenerateChannelTabRequestBody(channel.Id, channelTabPage, continuationToken);
+			return GetChannelVideoLitePage(body, channel, channelTabPage);
 		}
 
 		/// <summary>
 		/// Получить список ID видео из вкладки со страницы канала, используя API YouTube V1.
 		/// </summary>
 		/// <param name="requestBody">Тело запроса</param>
-		/// <param name="continuationTokenExists">Используется ли в теле запроса continuation token</param>
-		internal static YouTubeVideoIdPageResult GetVideoIdPage(JObject requestBody, bool continuationTokenExists)
+		/// <param name="channel">Канал на YouTube. Будет привязан к результату запроса.</param>
+		/// <param name="channelTabPage">Используется для идентификации запрошенной страницы</param>
+		internal static YouTubeVideoLitePageResult GetChannelVideoLitePage(JObject requestBody,
+			YouTubeChannel channel, YouTubeChannelTabPage channelTabPage)
 		{
 			string url = GetBrowseRequestUrl();
 			string body = requestBody != null ? requestBody.ToString() : string.Empty;
 			int errorCode = YouTubeHttpPost(url, body, out string response);
 			if (errorCode == 200)
 			{
-				YouTubeVideoIdPage videoIdPage = new YouTubeVideoIdPage(response, continuationTokenExists);
-				int count = videoIdPage.Parse();
-				return new YouTubeVideoIdPageResult(videoIdPage, count > 0 ? 200 : 400);
+				YouTubeVideoLitePage videoLitePage = new YouTubeVideoLitePage(channel, channelTabPage, response, requestBody);
+				int count = videoLitePage.Parse();
+				return new YouTubeVideoLitePageResult(videoLitePage, count > 0 ? 200 : 400);
 			}
-			return new YouTubeVideoIdPageResult(null, errorCode);
+			return new YouTubeVideoLitePageResult(null, errorCode);
 		}
 
 		/// <summary>
-		/// Получить список ID видео из вкладки со страницы канала, предварительно скачав эту страницу.
+		/// Получить упрощённый список видео из вкладки со страницы канала, предварительно скачав эту страницу.
 		/// </summary>
-		/// <param name="channelId">ID канала YouTube</param>
+		/// <param name="channel">Канал на YouTube</param>
 		/// <param name="channelTabPage">Запрашиваемая вкладка со страницы канала</param>
-		/// <returns>Список из 30 ID последних видео из указанной вкладки со страницы канала</returns>
-		internal static YouTubeVideoIdPageResult GetVideoIdPage(string channelId, YouTubeChannelTabPage channelTabPage)
+		/// <returns>Список из 30 последних видео из указанной вкладки со страницы канала</returns>
+		internal static YouTubeVideoLitePageResult GetChannelVideoLitePage(YouTubeChannel channel, YouTubeChannelTabPage channelTabPage)
 		{
-			string url = channelTabPage.GetWebPageUrl(channelId);
+			string url = channelTabPage.GetWebPageUrl(channel.Id);
 			int errorCode = InternetWebPage.DownloadWebPageCode(url, out string response);
 			if (errorCode == 200)
 			{
 				YouTubeInitialData initialData = YouTubeInitialData.ExtractFromWebPageCode(response);
 				if (initialData != null)
 				{
-					YouTubeVideoIdPage videoIdPage = new YouTubeVideoIdPage(initialData.RawData, false);
-					int count = videoIdPage.Parse();
-					return new YouTubeVideoIdPageResult(videoIdPage, count > 0 ? 200 : 400);
+					return initialData.ToVideoLitePage(channel, channelTabPage);
 				}
+
+				return new YouTubeVideoLitePageResult(null, 404);
 			}
 
-			return new YouTubeVideoIdPageResult(null, errorCode);
+			return new YouTubeVideoLitePageResult(null, errorCode);
 		}
 
-		internal static YouTubeVideoListResult GetChannelVideoList(string channelId, IYouTubeClient client)
-		{
-			JArray resList = new JArray();
-			string continuationToken = null;
-			int errorCode;
-			while (true)
-			{
-				YouTubeVideoIdPageResult videoIdPageResult = YouTubeChannel.GetVideoIdPage(channelId, YouTubeChannelTabPages.Videos, continuationToken);
-
-				errorCode = videoIdPageResult.ErrorCode;
-				if (errorCode != 200)
-				{
-					break;
-				}
-
-				foreach (string videoId in videoIdPageResult.VideoIdPage.VideoIds)
-				{
-					YouTubeSimplifiedVideoInfoResult simplifiedVideoInfoResult = GetSimplifiedVideoInfo(videoId, client);
-					if (simplifiedVideoInfoResult.ErrorCode == 200)
-					{
-						resList.Add(simplifiedVideoInfoResult.SimplifiedVideoInfo.Info);
-					}
-				}
-
-				continuationToken = videoIdPageResult.VideoIdPage.ContinuationToken;
-				bool continuationTokenExists = !string.IsNullOrEmpty(continuationToken) && !string.IsNullOrEmpty(continuationToken);
-				if (!continuationTokenExists)
-				{
-					break;
-				}
-
-				System.Diagnostics.Debug.WriteLine(continuationToken);
-			}
-
-			return new YouTubeVideoListResult(resList, resList.Count > 0 ? 200 : errorCode);
-		}
-
-		internal static YouTubeChannelTabResult GetChannelTab(string channelId, YouTubeChannelTabPage channelTabPage)
+		internal static YouTubeChannelTabResult GetChannelTab(YouTubeChannel channel, YouTubeChannelTabPage channelTabPage)
 		{
 			string url = GetBrowseRequestUrl();
-			JObject body = GenerateChannelTabRequestBody(channelId, channelTabPage, null);
+			JObject body = GenerateChannelTabRequestBody(channel.Id, channelTabPage, null);
 			int errorCode = YouTubeHttpPost(url, body.ToString(), out string response);
 			if (errorCode == 200)
 			{
@@ -302,7 +252,7 @@ namespace YouTubeApiLib
 					return new YouTubeChannelTabResult(null, 404);
 				}
 
-				YouTubeChannelTab selectedTab = YouTubeChannelTab.FindSelectedTab(json);
+				YouTubeChannelTab selectedTab = YouTubeChannel.FindSelectedTab(json, channel);
 				if (selectedTab == null)
 				{
 					return new YouTubeChannelTabResult(null, 404);
@@ -318,16 +268,6 @@ namespace YouTubeApiLib
 			}
 
 			return new YouTubeChannelTabResult(null, errorCode);
-		}
-
-		public static YouTubeChannelTabPageContentResult GetChannelTabContentRawData(
-			string channelId, YouTubeChannelTabPage channelTabPage, string continuationToken)
-		{
-			string url = GetBrowseRequestUrl();
-			JObject body = GenerateChannelTabRequestBody(channelId, channelTabPage, continuationToken);
-			int errorCode = YouTubeHttpPost(url, body.ToString(), out string response);
-			return new YouTubeChannelTabPageContentResult(
-				new YouTubeChannelTabPageContent(channelTabPage, response), errorCode);
 		}
 
 		internal static YouTubeApiV1SearchResults SearchYouTube(

@@ -37,47 +37,41 @@ namespace YouTubeApiLib
 			return Utils.GetSimplifiedVideoInfo(videoId, client);
 		}
 
-		public YouTubeVideoListResult GetChannelVideoList(YouTubeChannel channel)
+		/// <summary>
+		/// Получить упрощённый список видео из вкладки со страницы канала, используя API YouTube V1.
+		/// </summary>
+		/// <param name="channel">Канал на YouTube. Если указан continuation token, используется только как идентификатор.
+		/// </param>
+		/// <param name="channelTabPage">
+		/// Запрашиваемая вкладка со страницы канала. Если указан continuation token, используется только как идентификатор.
+		/// </param>
+		/// <param name="continuationToken">
+		/// Токен, указывающий, какая часть списка должна быть получена.
+		/// Если передать 'null' или пустую строку, будут получены первые 30 элементов списка 
+		/// (до 30 последних видео со вкладки канала).
+		/// </param>
+		public YouTubeVideoLitePageResult GetChannelVideoPage(YouTubeChannel channel,
+			YouTubeChannelTabPage channelTabPage, string continuationToken)
 		{
-			return YouTubeApiV1.GetChannelVideoList(channel.Id, null);
+			return YouTubeChannel.GetVideoLitePage(channel, channelTabPage, continuationToken);
 		}
 
-		public YouTubeVideoIdPageResult GetVideoIdPage(
-			YouTubeChannel youTubeChannel, YouTubeChannelTabPage channelTabPage, string continuationToken)
+		/// <summary>
+		/// Получить упрощённый список видео из вкладки со страницы канала, предварительно скачав эту страницу.
+		/// </summary>
+		/// <param name="channel">Канал на YouTube</param>
+		/// <param name="channelTabPage">Запрашиваемая вкладка со страницы канала</param>
+		/// <returns>Список из 30 последних видео из указанной вкладки со страницы канала</returns>
+		public YouTubeVideoLitePageResult GetChannelVideoPage(YouTubeChannel channel,
+			YouTubeChannelTabPage channelTabPage)
 		{
-			return youTubeChannel.GetVideoIdPage(channelTabPage, continuationToken);
-		}
-
-		public YouTubeVideoIdPageResult GetVideoIdPage(YouTubeChannel youTubeChannel, YouTubeChannelTabPage channelTabPage)
-		{
-			return GetVideoIdPage(youTubeChannel, channelTabPage, null);
-		}
-
-		public YouTubeVideoIdPageResult GetVideoIdPage(YouTubeChannel youTubeChannel, string continuationToken)
-		{
-			return GetVideoIdPage(youTubeChannel, null, continuationToken);
-		}
-
-		public YouTubeVideoIdPageResult GetVideoIdPage(YouTubeChannel youTubeChannel)
-		{
-			return GetVideoIdPage(youTubeChannel, string.Empty);
-		}
-
-		public YouTubeVideoPageResult GetVideoPage(YouTubeChannel youTubeChannel, string continuationToken)
-		{
-			return GetVideoPage(youTubeChannel, null, continuationToken);
-		}
-
-		public YouTubeVideoPageResult GetVideoPage(
-			YouTubeChannel youTubeChannel, YouTubeChannelTabPage channelTabPage, string continuationToken)
-		{
-			return YouTubeApiV1.GetVideoPage(youTubeChannel?.Id, channelTabPage, continuationToken);
+			return YouTubeChannel.GetVideoLitePage(channel, channelTabPage);
 		}
 
 		public YouTubeChannelTabResult GetChannelTab(
 			YouTubeChannel youTubeChannel, YouTubeChannelTabPage youTubeChannelTabPage)
 		{
-			return YouTubeApiV1.GetChannelTab(youTubeChannel.Id, youTubeChannelTabPage);
+			return YouTubeApiV1.GetChannelTab(youTubeChannel, youTubeChannelTabPage);
 		}
 
 		public YouTubeApiV1SearchResults Search(string searchQuery, string continuationToken,

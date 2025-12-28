@@ -6,6 +6,8 @@ namespace YouTubeApiLib.TestChannelPages
 	{
 		static void Main(string[] args)
 		{
+			YouTubeApi api = new YouTubeApi();
+			YouTubeChannel channel = new YouTubeChannel("UCSCHk4GbzMlKtxwpXPyYeMA", "Frozzen Fro");
 			YouTubeChannelTabPage[] pages = new YouTubeChannelTabPage[]
 			{
 				YouTubeChannelTabPages.Videos,
@@ -13,22 +15,18 @@ namespace YouTubeApiLib.TestChannelPages
 				YouTubeChannelTabPages.Live
 			};
 
-			YouTubeChannel channel = new YouTubeChannel("UCSCHk4GbzMlKtxwpXPyYeMA", "Frozzen Fro");
 			foreach (YouTubeChannelTabPage page in pages)
 			{
-				YouTubeVideoIdPageResult videoIdPageResult = channel.GetVideoIdPage(page);
-				if (videoIdPageResult.ErrorCode == 200)
+				YouTubeVideoLitePageResult videoLitePageResult = api.GetChannelVideoPage(channel, page, null);
+				if (videoLitePageResult.ErrorCode == 200)
 				{
 					Console.WriteLine($"{channel} {page.Title} tab page:");
-					foreach (string videoId in videoIdPageResult.VideoIdPage.VideoIds)
+					foreach (YouTubeVideoLite videoLight in videoLitePageResult.VideoLitePage.Videos)
 					{
-						YouTubeVideo video = YouTubeVideo.GetById(videoId);
-						string t = video != null ? $"{video.Id} > {video.Title}" : $"{videoId} > null";
-						Console.WriteLine(t);
+						Console.WriteLine($"{videoLight.Id} > {videoLight.Title}");
 					}
-					string token = !string.IsNullOrEmpty(videoIdPageResult.VideoIdPage.ContinuationToken) &&
-						!string.IsNullOrWhiteSpace(videoIdPageResult.VideoIdPage.ContinuationToken) ?
-						videoIdPageResult.VideoIdPage.ContinuationToken : "null";
+
+					string token = videoLitePageResult.VideoLitePage.HasNextPage ? videoLitePageResult.VideoLitePage.ContinuationToken : "null";
 					Console.WriteLine($"Continuation token: {token}");
 				}
 				else
@@ -36,6 +34,7 @@ namespace YouTubeApiLib.TestChannelPages
 					Console.WriteLine($"{channel} {page.Title} tab page: null");
 				}
 			}
+
 			Console.ReadLine();
 		}
 	}

@@ -9,6 +9,20 @@ namespace YouTubeApiLib
 		public static readonly TabPageLive Live = new TabPageLive("Live", "EgdzdHJlYW1z8gYECgJ6AA%3D%3D");
 		public static readonly TabPagePlaylists Playlists = new TabPagePlaylists("Playlists", "EglwbGF5bGlzdHPyBgQKAkIA");
 		public static readonly TabPagePosts Posts = new TabPagePosts("Posts", "EgVwb3N0c_IGBAoCSgA%3D");
+
+		public static YouTubeChannelTabPage PageFromParams(string paramsId)
+		{
+			if (paramsId == Home.ParamsId) { return Home; }
+			else if (paramsId == Videos.ParamsId) { return Videos; }
+			else if (paramsId == Shorts.ParamsId) { return Shorts; }
+			else if (paramsId == Live.ParamsId) { return Live; }
+			else if (paramsId == Playlists.ParamsId) { return Playlists; }
+			else if (paramsId == Posts.ParamsId) { return Posts; }
+			else
+			{
+				return Home;
+			}
+		}
 	}
 
 	public class TabPageHome : YouTubeChannelTabPage

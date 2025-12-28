@@ -330,97 +330,6 @@ namespace YouTubeApiLib
 			return rawVideoInfoResult.ErrorCode == 200 ? rawVideoInfoResult.RawVideoInfo.VideoDetails : null;
 		}
 
-		public static string ExtractVideoIdFromGridRendererItem(string gridVideoRendererItemString)
-		{
-			string[] patterns = new string[]
-			{
-				@"""videoId"":\s*""(.*)""",
-				@"\/shorts/(.*)""",
-				@"""shorts-shelf-item-(.*)"""
-			};
-			return FindRegexp(gridVideoRendererItemString, patterns);
-		}
-
-		internal static string ExtractVideoIdFromGridRendererItem(JObject jGridVideoRendererItem)
-		{
-			return ExtractVideoIdFromGridRendererItem(jGridVideoRendererItem.ToString());
-		}
-
-		internal static List<string> ExtractVideoIDsFromGridRendererItems(
-			JArray gridVideoRendererItems, out string continuationToken)
-		{
-			continuationToken = null;
-			if (gridVideoRendererItems == null || gridVideoRendererItems.Count == 0)
-			{
-				return null;
-			}
-
-			List<string> idList = new List<string>();
-			foreach (JObject jItem in gridVideoRendererItems.Cast<JObject>())
-			{
-				string videoId = ExtractVideoIdFromGridRendererItem(jItem);
-				if (!string.IsNullOrEmpty(videoId) && !string.IsNullOrWhiteSpace(videoId))
-				{
-					idList.Add(videoId);
-				}
-				else
-				{
-					JObject jContinuationItemRenderer = jItem.Value<JObject>("continuationItemRenderer");
-					if (jContinuationItemRenderer != null)
-					{
-						JObject jContinuationCommand = jContinuationItemRenderer.Value<JObject>("continuationEndpoint")?.Value<JObject>("continuationCommand");
-						continuationToken = jContinuationCommand?.Value<string>("token");
-					}
-				}
-			}
-			return idList;
-		}
-
-		internal static JArray FindItemsArray(JObject json, bool dataWasRecievedUsingContinuationToken)
-		{
-			try
-			{
-				if (dataWasRecievedUsingContinuationToken)
-				{
-					IYouTubeChannelTabPageParser[] continuationParsers = new IYouTubeChannelTabPageParser[]
-					{
-						new YouTubeChannelTabPageVideoContinuationParser1(),
-						new YouTubeChannelTabPageVideoContinuationParser2()
-					};
-
-					foreach (IYouTubeChannelTabPageParser continuationParser in continuationParsers)
-					{
-						JArray items = continuationParser.FindGridItems(json);
-						if (items != null && items.Count > 0) { return items; }
-					}
-				}
-				else
-				{
-					YouTubeChannelTab selectedTab = YouTubeChannelTab.FindSelectedTab(json);
-					if (selectedTab != null)
-					{
-						IYouTubeChannelTabPageParser[] parsers = new IYouTubeChannelTabPageParser[]
-						{
-							new YouTubeChannelTabPageParserVideo1(),
-							new YouTubeChannelTabPageParserVideo2()
-						};
-
-						foreach (IYouTubeChannelTabPageParser parser in parsers)
-						{
-							JArray items = parser.FindGridItems(selectedTab.Json);
-							if (items != null && items.Count > 0) { return items; }
-						}
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-			}
-
-			return null;
-		}
-
 		public static string FindRegexp(string inputString, string pattern)
 		{
 			if (!string.IsNullOrEmpty(pattern))
@@ -912,6 +821,27 @@ namespace YouTubeApiLib
 
 			dateTime = DateTime.MaxValue;
 			return false;
+		}
+
+		internal static TimeSpan DurationFromString(string length)
+		{
+			string[] splitted = length?.Split(':');
+			if (splitted != null)
+			{
+				switch (splitted.Length)
+				{
+					case 1:
+						return TimeSpan.FromSeconds(int.Parse(splitted[0]));
+
+					case 2:
+						return TimeSpan.FromSeconds(int.Parse(splitted[0]) * 60 + int.Parse(splitted[1]));
+
+					case 3:
+						return TimeSpan.FromSeconds(int.Parse(splitted[0]) * 3600 + int.Parse(splitted[1]) * 60 + int.Parse(splitted[2]));
+				}
+			}
+
+			return TimeSpan.Zero;
 		}
 
 		public static void ExtractDatesFromMicroformat(

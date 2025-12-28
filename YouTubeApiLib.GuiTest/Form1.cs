@@ -8,8 +8,9 @@ namespace YouTubeApiLib.GuiTest
 {
 	public partial class Form1 : Form
 	{
-		private List<YouTubeVideo> foundVideos;
-		private string nextPageToken = null;
+		private YouTubeChannel _channel;
+		private YouTubeChannelTabPage _channelTabPage;
+		private string _nextPageToken = null;
 
 		public Form1()
 		{
@@ -21,51 +22,12 @@ namespace YouTubeApiLib.GuiTest
 			columnHeaderTitle.Width = listView1.Width - columnHeaderId.Width - 30;
 		}
 
-		private void panel1_Resize(object sender, EventArgs e)
-		{
-			btnNextPage.Left = panel1.Width / 2 - btnNextPage.Width / 2;
-		}
-
-		private void btnSaveList_Click(object sender, EventArgs e)
-		{
-			btnSaveList.Enabled = false;
-			if (foundVideos == null || foundVideos.Count == 0)
-			{
-				MessageBox.Show("Список пуст!", "Ошибка!",
-					MessageBoxButtons.OK, MessageBoxIcon.Error);
-				btnSaveList.Enabled = true;
-				return;
-			}
-
-			SaveFileDialog sfd = new SaveFileDialog();
-			sfd.Title = "Save ass...";
-			sfd.Filter = "JSON|*.json";
-			sfd.FileName = textBoxChannelName.Text;
-			sfd.DefaultExt = ".json";
-			if (sfd.ShowDialog() == DialogResult.OK)
-			{
-				JArray jArray = new JArray();
-				foreach (YouTubeVideo video in foundVideos)
-				{
-					jArray.Add(video.SimplifiedInfo.Info);
-				}
-				JObject json = new JObject();
-				json.Add(new JProperty("videos", jArray));
-				System.IO.File.WriteAllText(sfd.FileName, json.ToString());
-			}
-			sfd.Dispose();
-
-			btnSaveList.Enabled = true;
-		}
-
 		private void btnOpenChannel_Click(object sender, EventArgs e)
 		{
-			btnOpenChannel.Enabled = false;
+			btnOpenChannel.Enabled =
 			btnNextPage.Enabled = false;
-			btnSaveList.Enabled = false;
 			listView1.Items.Clear();
-			nextPageToken = null;
-			foundVideos = new List<YouTubeVideo>();
+			_nextPageToken = null;
 
 			string channelName = textBoxChannelName.Text;
 			if (string.IsNullOrEmpty(channelName) || string.IsNullOrWhiteSpace(channelName))
@@ -73,7 +35,6 @@ namespace YouTubeApiLib.GuiTest
 				MessageBox.Show("Не введено название канала!", "Ошибка!",
 					MessageBoxButtons.OK, MessageBoxIcon.Error);
 				btnOpenChannel.Enabled = true;
-				btnSaveList.Enabled = true;
 				return;
 			}
 			string channelId = textBoxChannelId.Text;
@@ -82,42 +43,27 @@ namespace YouTubeApiLib.GuiTest
 				MessageBox.Show("Не введён ID канала!", "Ошибка!",
 					MessageBoxButtons.OK, MessageBoxIcon.Error);
 				btnOpenChannel.Enabled = true;
-				btnSaveList.Enabled = true;
 				return;
 			}
 
-			YouTubeChannelTabPageContentResult pageContentResult =
-				YouTubeChannelTabPageContent.Get(channelId, YouTubeChannelTabPages.Videos, null);
-			if (pageContentResult.ErrorCode == 200)
+			_channel = new YouTubeChannel(channelId, channelName);
+			_channelTabPage = GetChannelTabPage();
+			YouTubeApi api = new YouTubeApi();
+			YouTubeVideoLitePageResult youTubeVideoLitePageResult = api.GetChannelVideoPage(_channel, _channelTabPage, null);
+			if (youTubeVideoLitePageResult.ErrorCode == 200 && youTubeVideoLitePageResult.VideoLitePage.Count > 0)
 			{
-				YouTubeVideosTabPage videosTabPage = pageContentResult.Content.ParseAsVideosOrShortsOrLiveTabPage();
-				if (videosTabPage != null)
+				foreach (YouTubeVideoLite videoLite in youTubeVideoLitePageResult.VideoLitePage.Videos)
 				{
-					if (videosTabPage.UpdateVideosMultiThreaded() > 0)
-					{
-						videosTabPage.VideoList.Sort((x, y) => x.DatePublished > y.DatePublished ? -1 : 1);
-
-						foreach (YouTubeVideo video in videosTabPage.VideoList)
-						{
-							foundVideos.Add(video);
-
-							ListViewItem item = new ListViewItem(video.Id);
-							item.SubItems.Add(video.Title);
-							item.Tag = video;
-							listView1.Items.Add(item);
-						}
-					}
-
-					nextPageToken = videosTabPage.NextPageToken;
-					if (!string.IsNullOrEmpty(nextPageToken) && !string.IsNullOrWhiteSpace(nextPageToken))
-					{
-						btnNextPage.Enabled = true;
-					}
+					ListViewItem item = new ListViewItem(videoLite.Id);
+					item.SubItems.Add(videoLite.Title);
+					item.Tag = videoLite;
+					listView1.Items.Add(item);
 				}
-				else
+
+				_nextPageToken = youTubeVideoLitePageResult.VideoLitePage.ContinuationToken;
+				if (!string.IsNullOrEmpty(_nextPageToken) && !string.IsNullOrWhiteSpace(_nextPageToken))
 				{
-					MessageBox.Show("Ничего не найдено!", "Ошибка!",
-						MessageBoxButtons.OK, MessageBoxIcon.Information);
+					btnNextPage.Enabled = true;
 				}
 			}
 			else
@@ -127,14 +73,13 @@ namespace YouTubeApiLib.GuiTest
 			}
 
 			btnOpenChannel.Enabled = true;
-			btnSaveList.Enabled = true;
 		}
 
 		private void btnNextPage_Click(object sender, EventArgs e)
 		{
 			btnNextPage.Enabled = false;
 			btnOpenChannel.Enabled = false;
-			if (string.IsNullOrEmpty(nextPageToken) || string.IsNullOrWhiteSpace(nextPageToken))
+			if (string.IsNullOrEmpty(_nextPageToken) || string.IsNullOrWhiteSpace(_nextPageToken))
 			{
 				MessageBox.Show("Дальше ничего нет! Дальше только мрак и пустота!", "Ошибка!",
 					MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -142,42 +87,34 @@ namespace YouTubeApiLib.GuiTest
 				return;
 			}
 
-			YouTubeChannelTabPageContentResult pageContentResult = YouTubeChannelTabPageContent.Get(nextPageToken);
-			if (pageContentResult != null)
+			YouTubeApi api = new YouTubeApi();
+			YouTubeVideoLitePageResult youTubeVideoLitePageResult = api.GetChannelVideoPage(_channel, _channelTabPage, _nextPageToken);
+			if (youTubeVideoLitePageResult.ErrorCode == 200 && youTubeVideoLitePageResult.VideoLitePage.Count > 0)
 			{
-				YouTubeVideosTabPage videosTabPage = pageContentResult.Content.ParseAsVideosOrShortsOrLiveTabPage();
-				if (videosTabPage != null)
+				int count = listView1.Items.Count;
+				foreach (YouTubeVideoLite videoLite in youTubeVideoLitePageResult.VideoLitePage.Videos)
 				{
-					if (videosTabPage.UpdateVideosMultiThreaded() > 0)
-					{
-						videosTabPage.VideoList.Sort((x, y) => x.DatePublished > y.DatePublished ? -1 : 1);
-
-						foreach (YouTubeVideo video in videosTabPage.VideoList)
-						{
-							foundVideos.Add(video);
-
-							ListViewItem item = new ListViewItem(video.Id);
-							item.SubItems.Add(video.Title);
-							item.Tag = video;
-							listView1.Items.Add(item);
-						}
-					}
-
-					nextPageToken = videosTabPage.NextPageToken;
-					if (!string.IsNullOrEmpty(nextPageToken) && !string.IsNullOrWhiteSpace(nextPageToken))
-					{
-						btnNextPage.Enabled = true;
-					}
+					ListViewItem item = new ListViewItem(videoLite.Id);
+					item.SubItems.Add(videoLite.Title);
+					item.Tag = videoLite;
+					listView1.Items.Add(item);
 				}
-				else
+				listView1.SelectedIndices.Clear();
+				listView1.Items[count].Selected = true;
+				listView1.EnsureVisible(count);
+
+				_nextPageToken = youTubeVideoLitePageResult.VideoLitePage.ContinuationToken;
+				if (!string.IsNullOrEmpty(_nextPageToken) && !string.IsNullOrWhiteSpace(_nextPageToken))
 				{
-					MessageBox.Show("Ничего не найдено!", "Ошибка!",
-						MessageBoxButtons.OK, MessageBoxIcon.Information);
+					btnNextPage.Enabled = true;
 				}
 			}
 			else
 			{
-				MessageBox.Show("Ничего не найдено!", "Ошибка!",
+				_channel = null;
+				_channelTabPage = null;
+				_nextPageToken = null;
+				MessageBox.Show("Дальше ничего нет! Там только мрак и пустота!", "Ошибка!",
 					MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 
@@ -225,7 +162,7 @@ namespace YouTubeApiLib.GuiTest
 				foreach (YouTubeChannelTabPage channelTabPage in pages)
 				{
 					YouTubeChannelTabResult channelTabResult = api.GetChannelTab(youTubeChannel, channelTabPage);
-					jResult.Add(new JProperty(channelTabPage.Title, channelTabResult.ChannelTab?.Json));
+					jResult[channelTabPage.Title] = channelTabResult.ChannelTab?.Data;
 				}
 			});
 
@@ -248,6 +185,23 @@ namespace YouTubeApiLib.GuiTest
 						formVideoInfo.ShowDialog();
 					}
 				}
+			}
+		}
+
+		private YouTubeChannelTabPage GetChannelTabPage()
+		{
+			if (radioButtonShorts.Checked)
+			{
+				return YouTubeChannelTabPages.Shorts;
+			}
+			else if (radioButtonStreams.Checked)
+			{
+				return YouTubeChannelTabPages.Live;
+			}
+			else
+			{
+				radioButtonVideos.Checked = true;
+				return YouTubeChannelTabPages.Videos;
 			}
 		}
 	}

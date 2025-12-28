@@ -36,17 +36,19 @@
 			this.listView1 = new System.Windows.Forms.ListView();
 			this.columnHeaderId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.columnHeaderTitle = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.btnSaveList = new System.Windows.Forms.Button();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPageChannelVideos = new System.Windows.Forms.TabPage();
-			this.panel1 = new System.Windows.Forms.Panel();
+			this.groupBoxChannelTab = new System.Windows.Forms.GroupBox();
+			this.radioButtonStreams = new System.Windows.Forms.RadioButton();
+			this.radioButtonShorts = new System.Windows.Forms.RadioButton();
+			this.radioButtonVideos = new System.Windows.Forms.RadioButton();
 			this.btnNextPage = new System.Windows.Forms.Button();
 			this.tabPageChannelPages = new System.Windows.Forms.TabPage();
 			this.textBoxChannelPages = new System.Windows.Forms.TextBox();
 			this.btnGetChannelPages = new System.Windows.Forms.Button();
 			this.tabControl1.SuspendLayout();
 			this.tabPageChannelVideos.SuspendLayout();
-			this.panel1.SuspendLayout();
+			this.groupBoxChannelTab.SuspendLayout();
 			this.tabPageChannelPages.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -115,7 +117,7 @@
 			this.listView1.HideSelection = false;
 			this.listView1.Location = new System.Drawing.Point(6, 6);
 			this.listView1.Name = "listView1";
-			this.listView1.Size = new System.Drawing.Size(537, 275);
+			this.listView1.Size = new System.Drawing.Size(537, 223);
 			this.listView1.TabIndex = 5;
 			this.listView1.UseCompatibleStateImageBehavior = false;
 			this.listView1.View = System.Windows.Forms.View.Details;
@@ -131,17 +133,6 @@
 			// 
 			this.columnHeaderTitle.Text = "Название видео";
 			this.columnHeaderTitle.Width = 300;
-			// 
-			// btnSaveList
-			// 
-			this.btnSaveList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnSaveList.Location = new System.Drawing.Point(468, 287);
-			this.btnSaveList.Name = "btnSaveList";
-			this.btnSaveList.Size = new System.Drawing.Size(75, 23);
-			this.btnSaveList.TabIndex = 6;
-			this.btnSaveList.Text = "Сохранить";
-			this.btnSaveList.UseVisualStyleBackColor = true;
-			this.btnSaveList.Click += new System.EventHandler(this.btnSaveList_Click);
 			// 
 			// tabControl1
 			// 
@@ -159,9 +150,9 @@
 			// tabPageChannelVideos
 			// 
 			this.tabPageChannelVideos.BackColor = System.Drawing.SystemColors.Control;
-			this.tabPageChannelVideos.Controls.Add(this.panel1);
+			this.tabPageChannelVideos.Controls.Add(this.groupBoxChannelTab);
+			this.tabPageChannelVideos.Controls.Add(this.btnNextPage);
 			this.tabPageChannelVideos.Controls.Add(this.listView1);
-			this.tabPageChannelVideos.Controls.Add(this.btnSaveList);
 			this.tabPageChannelVideos.Controls.Add(this.btnOpenChannel);
 			this.tabPageChannelVideos.Location = new System.Drawing.Point(4, 22);
 			this.tabPageChannelVideos.Name = "tabPageChannelVideos";
@@ -170,21 +161,57 @@
 			this.tabPageChannelVideos.TabIndex = 0;
 			this.tabPageChannelVideos.Text = "Спиок видео канала";
 			// 
-			// panel1
+			// groupBoxChannelTab
 			// 
-			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+			this.groupBoxChannelTab.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
 			| System.Windows.Forms.AnchorStyles.Right)));
-			this.panel1.Controls.Add(this.btnNextPage);
-			this.panel1.Location = new System.Drawing.Point(127, 287);
-			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(330, 25);
-			this.panel1.TabIndex = 7;
-			this.panel1.Resize += new System.EventHandler(this.panel1_Resize);
+			this.groupBoxChannelTab.Controls.Add(this.radioButtonStreams);
+			this.groupBoxChannelTab.Controls.Add(this.radioButtonShorts);
+			this.groupBoxChannelTab.Controls.Add(this.radioButtonVideos);
+			this.groupBoxChannelTab.Location = new System.Drawing.Point(6, 235);
+			this.groupBoxChannelTab.Name = "groupBoxChannelTab";
+			this.groupBoxChannelTab.Size = new System.Drawing.Size(537, 46);
+			this.groupBoxChannelTab.TabIndex = 6;
+			this.groupBoxChannelTab.TabStop = false;
+			this.groupBoxChannelTab.Text = "Channel tab";
+			// 
+			// radioButtonStreams
+			// 
+			this.radioButtonStreams.AutoSize = true;
+			this.radioButtonStreams.Location = new System.Drawing.Point(139, 19);
+			this.radioButtonStreams.Name = "radioButtonStreams";
+			this.radioButtonStreams.Size = new System.Drawing.Size(63, 17);
+			this.radioButtonStreams.TabIndex = 2;
+			this.radioButtonStreams.Text = "Streams";
+			this.radioButtonStreams.UseVisualStyleBackColor = true;
+			// 
+			// radioButtonShorts
+			// 
+			this.radioButtonShorts.AutoSize = true;
+			this.radioButtonShorts.Location = new System.Drawing.Point(78, 19);
+			this.radioButtonShorts.Name = "radioButtonShorts";
+			this.radioButtonShorts.Size = new System.Drawing.Size(55, 17);
+			this.radioButtonShorts.TabIndex = 1;
+			this.radioButtonShorts.Text = "Shorts";
+			this.radioButtonShorts.UseVisualStyleBackColor = true;
+			// 
+			// radioButtonVideos
+			// 
+			this.radioButtonVideos.AutoSize = true;
+			this.radioButtonVideos.Checked = true;
+			this.radioButtonVideos.Location = new System.Drawing.Point(15, 19);
+			this.radioButtonVideos.Name = "radioButtonVideos";
+			this.radioButtonVideos.Size = new System.Drawing.Size(57, 17);
+			this.radioButtonVideos.TabIndex = 0;
+			this.radioButtonVideos.TabStop = true;
+			this.radioButtonVideos.Text = "Videos";
+			this.radioButtonVideos.UseVisualStyleBackColor = true;
 			// 
 			// btnNextPage
 			// 
+			this.btnNextPage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.btnNextPage.Enabled = false;
-			this.btnNextPage.Location = new System.Drawing.Point(130, 2);
+			this.btnNextPage.Location = new System.Drawing.Point(473, 290);
 			this.btnNextPage.Name = "btnNextPage";
 			this.btnNextPage.Size = new System.Drawing.Size(70, 20);
 			this.btnNextPage.TabIndex = 0;
@@ -215,13 +242,13 @@
 			this.textBoxChannelPages.Multiline = true;
 			this.textBoxChannelPages.Name = "textBoxChannelPages";
 			this.textBoxChannelPages.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.textBoxChannelPages.Size = new System.Drawing.Size(534, 216);
+			this.textBoxChannelPages.Size = new System.Drawing.Size(534, 275);
 			this.textBoxChannelPages.TabIndex = 1;
 			// 
 			// btnGetChannelPages
 			// 
 			this.btnGetChannelPages.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnGetChannelPages.Location = new System.Drawing.Point(462, 228);
+			this.btnGetChannelPages.Location = new System.Drawing.Point(462, 287);
 			this.btnGetChannelPages.Name = "btnGetChannelPages";
 			this.btnGetChannelPages.Size = new System.Drawing.Size(75, 23);
 			this.btnGetChannelPages.TabIndex = 0;
@@ -244,7 +271,8 @@
 			this.Text = "YouTube API";
 			this.tabControl1.ResumeLayout(false);
 			this.tabPageChannelVideos.ResumeLayout(false);
-			this.panel1.ResumeLayout(false);
+			this.groupBoxChannelTab.ResumeLayout(false);
+			this.groupBoxChannelTab.PerformLayout();
 			this.tabPageChannelPages.ResumeLayout(false);
 			this.tabPageChannelPages.PerformLayout();
 			this.ResumeLayout(false);
@@ -262,13 +290,15 @@
 		private System.Windows.Forms.ListView listView1;
 		private System.Windows.Forms.ColumnHeader columnHeaderId;
 		private System.Windows.Forms.ColumnHeader columnHeaderTitle;
-		private System.Windows.Forms.Button btnSaveList;
 		private System.Windows.Forms.TabControl tabControl1;
 		private System.Windows.Forms.TabPage tabPageChannelVideos;
 		private System.Windows.Forms.TabPage tabPageChannelPages;
 		private System.Windows.Forms.TextBox textBoxChannelPages;
 		private System.Windows.Forms.Button btnGetChannelPages;
-		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Button btnNextPage;
+		private System.Windows.Forms.GroupBox groupBoxChannelTab;
+		private System.Windows.Forms.RadioButton radioButtonStreams;
+		private System.Windows.Forms.RadioButton radioButtonShorts;
+		private System.Windows.Forms.RadioButton radioButtonVideos;
 	}
 }

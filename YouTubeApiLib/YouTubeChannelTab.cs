@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace YouTubeApiLib
@@ -6,49 +7,66 @@ namespace YouTubeApiLib
 	public class YouTubeChannelTab
 	{
 		public string Title { get; }
-		public JObject Json { get; }
+		public bool IsSelected { get; }
+		public YouTubeChannel Channel { get; }
+		public JObject Data { get; }
 
-		public YouTubeChannelTab(string title, JObject json)
+		public YouTubeChannelTab(YouTubeChannel channel, JObject tabContent, string title = null)
 		{
-			Title = title;
-			Json = json;
-		}
-
-		public bool IsChannelTabPage(YouTubeChannelTabPage channelTabPage)
-		{
-			return !string.IsNullOrEmpty(Title) &&
-				Title.Equals(channelTabPage.Title, System.StringComparison.OrdinalIgnoreCase);
-		}
-
-		public static JArray FindTabList(JObject megaRoot)
-		{
-			JObject j = megaRoot?.Value<JObject>("contents")?.Value<JObject>("twoColumnBrowseResultsRenderer");
-			return j?.Value<JArray>("tabs");
-		}
-
-		public static YouTubeChannelTab FindSelectedTab(JArray tabList)
-		{
-			foreach (JObject jObject in tabList.Cast<JObject>())
+			if (string.IsNullOrEmpty(title) || string.IsNullOrWhiteSpace(title))
 			{
-				JObject j = jObject.Value<JObject>("tabRenderer") ?? jObject.Value<JObject>("expandableTabRenderer");
-				if (j != null)
+				string t = tabContent?.Value<string>("title");
+				Title = string.IsNullOrEmpty(t) || string.IsNullOrWhiteSpace(t) ? title : t;
+			}
+			else
+			{
+				Title = title;
+			}
+
+			IsSelected = tabContent != null && tabContent.Value<bool>("selected");
+			Channel = channel;
+			Data = tabContent;
+		}
+
+		internal static IEnumerable<YouTubeVideoThumbnail> ParseThumbnails(JArray[] thumbnails)
+		{
+			foreach (JArray ja in thumbnails)
+			{
+				if (ja != null)
 				{
-					bool selected = j.Value<bool>("selected");
-					if (selected)
+					foreach (JObject j in ja.Cast<JObject>())
 					{
-						string tabTitle = j.Value<string>("title");
-						return new YouTubeChannelTab(tabTitle, jObject);
+						string url = j.Value<string>("url");
+						ushort width = j.Value<ushort>("width");
+						ushort height = j.Value<ushort>("height");
+						string fileName = ExtractFileNameFromThumbnailUrl(url);
+						yield return new YouTubeVideoThumbnail(width, height, fileName, url);
 					}
 				}
 			}
-
-			return null;
 		}
 
-		public static YouTubeChannelTab FindSelectedTab(JObject megaRoot)
+		private static string ExtractFileNameFromThumbnailUrl(string url)
 		{
-			JArray jaTabs = FindTabList(megaRoot);
-			return jaTabs == null || jaTabs.Count == 0 ? null : FindSelectedTab(jaTabs);
+			string fileName = Utils.FindRegexp(url, @"/vi(?:_webp)?/.{11}/(.*)\?");
+			if (string.IsNullOrEmpty(fileName) || string.IsNullOrWhiteSpace(fileName))
+			{
+				int n = url.LastIndexOf("/");
+				if (n > 0)
+				{
+					return url.Substring(n + 1);
+				}
+
+				return "unnamed.jpg";
+			}
+
+			return fileName;
+		}
+
+		internal static string ExtractContinuationToken(JObject jTokenRoot)
+		{
+			JObject jContinuationItemRenderer = jTokenRoot.Value<JObject>("continuationItemRenderer");
+			return jContinuationItemRenderer?.Value<JObject>("continuationEndpoint")?.Value<JObject>("continuationCommand")?.Value<string>("token");
 		}
 	}
 }

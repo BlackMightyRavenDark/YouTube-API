@@ -21,11 +21,23 @@ namespace YouTubeApiLib
 			return Utils.ExtractYouTubeInitialDataFromWebPageCode(webPageCode, pattern);
 		}
 
-		public YouTubeVideoIdPageResult ToVideoIdPage()
+		/// <summary>
+		/// Извлечь упрощённый список видео из объекта.
+		/// </summary>
+		/// <param name="channel">Канал на YouTube, с которого были получены данные. Используется только как идентификатор.
+		/// </param>
+		/// <param name="channelTabPage">
+		/// Вкладка со страницы канала, из которой были получены данные. Используется только как идентификатор.
+		/// Если передать 'null', будет установлена вкладка "Videos".
+		/// </param>
+		public YouTubeVideoLitePageResult ToVideoLitePage(
+			YouTubeChannel channel, YouTubeChannelTabPage channelTabPage)
 		{
-			YouTubeVideoIdPage videoIdPage = new YouTubeVideoIdPage(RawData, DataWasReceivedWithContinuationToken);
-			int errorCode = videoIdPage.Parse() > 0 ? 200 : 404;
-			return new YouTubeVideoIdPageResult(videoIdPage, errorCode);
+			YouTubeVideoLitePage videoLitePage = new YouTubeVideoLitePage(channel,
+				channelTabPage ?? YouTubeChannelTabPages.Videos,
+				RawData, DataWasReceivedWithContinuationToken);
+			int errorCode = videoLitePage.Parse() > 0 ? 200 : 404;
+			return new YouTubeVideoLitePageResult(videoLitePage, errorCode);
 		}
 	}
 }
