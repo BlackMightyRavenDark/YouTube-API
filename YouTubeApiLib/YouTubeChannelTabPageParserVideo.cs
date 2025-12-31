@@ -115,7 +115,7 @@ namespace YouTubeApiLib
 							{
 								thumbnails.Sort((x, y) => x.Height > y.Height ? -1 : 1);
 							}
-							videos.Add(new YouTubeVideoLite(title, videoId, length, thumbnails, Channel, YouTubeChannelTabPages.Videos));
+							videos.Add(new YouTubeVideoLite(title, videoId, length, thumbnails, Channel, ChannelTabPage));
 						}
 					}
 					else
