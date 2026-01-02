@@ -83,6 +83,7 @@ namespace YouTubeApiLib
 			if (jaTabs == null || jaTabs.Count == 0)
 			{
 				System.Diagnostics.Debug.WriteLine("Tabs is not found!");
+				yield break;
 			}
 
 			foreach (JObject jTab in jaTabs.Cast<JObject>())
