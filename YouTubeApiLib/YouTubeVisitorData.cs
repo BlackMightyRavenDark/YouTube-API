@@ -27,9 +27,15 @@ namespace YouTubeApiLib
 					if (n > 0) { rawData = rawData.Substring(n); }
 					JArray jsonArr = JArray.Parse(rawData);
 					value = jsonArr[0][2][0][0][13].Value<string>();
-				} catch (System.Exception ex)
+				}
+#if DEBUG
+				catch (System.Exception ex)
 				{
 					System.Diagnostics.Debug.WriteLine(ex.Message);
+#else
+				catch
+				{
+#endif
 					return null;
 				}
 			}

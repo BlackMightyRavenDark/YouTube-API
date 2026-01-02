@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if DEBUG
+using System;
+#endif
 using System.Collections.Generic;
 
 namespace YouTubeApiLib
@@ -100,11 +102,15 @@ namespace YouTubeApiLib
 				string[] t2 = t.Split(',');
 				return t2[0];
 			}
+#if DEBUG
 			catch (Exception ex)
 			{
 				System.Diagnostics.Debug.WriteLine(ex.Message);
-				return null;
 			}
+#else
+			catch { }
+#endif
+			return null;
 		}
 
 		private static int ExtractFormatIdFromUrl(string playlistUrl)
@@ -122,11 +128,15 @@ namespace YouTubeApiLib
 				if (!int.TryParse(t, out int res)) { res = 0; }
 				return res;
 			}
+#if DEBUG
 			catch (Exception ex)
 			{
 				System.Diagnostics.Debug.WriteLine(ex.Message);
-				return 0;
 			}
+#else
+			catch { }
+#endif
+			return 0;
 		}
 	}
 }

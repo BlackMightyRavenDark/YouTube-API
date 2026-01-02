@@ -76,7 +76,9 @@ namespace YouTubeApiLib
 				string mimeType = jFormat.Value<string>("mimeType");
 				if (string.IsNullOrEmpty(mimeType) || string.IsNullOrWhiteSpace(mimeType))
 				{
+#if DEBUG
 					System.Diagnostics.Debug.WriteLine("The \"mimeType\" field read error!");
+#endif
 					continue;
 				}
 
@@ -90,10 +92,12 @@ namespace YouTubeApiLib
 					YouTubeMediaTrack track = ParseMediaTrackItem(jFormat, mimeType, "audio");
 					if (track != null) { yield return track; }
 				}
+#if DEBUG
 				else
 				{
 					System.Diagnostics.Debug.WriteLine("Warning! Unknown MIME type!");
 				}
+#endif
 			}
 		}
 

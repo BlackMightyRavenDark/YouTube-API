@@ -42,7 +42,9 @@ namespace YouTubeApiLib
 				JArray jaOnResponseReceivedActions = ChannelTabPageResponse?.Value<JArray>("onResponseReceivedActions");
 				if (jaOnResponseReceivedActions == null || jaOnResponseReceivedActions.Count == 0)
 				{
+#if DEBUG
 					System.Diagnostics.Debug.WriteLine($"{this}: \"contents\" or \"onResponseReceivedActions\" not found!");
+#endif
 					return null;
 				}
 				return (jaOnResponseReceivedActions[0] as JObject).Value<JObject>("appendContinuationItemsAction")?.Value<JArray>("continuationItems");
@@ -50,43 +52,57 @@ namespace YouTubeApiLib
 			j = j.Value<JObject>("twoColumnBrowseResultsRenderer");
 			if (j == null)
 			{
+#if DEBUG
 				System.Diagnostics.Debug.WriteLine($"{this}: \"twoColumnBrowseResultsRenderer\" not found!");
+#endif
 				return null;
 			}
 			JArray jaTabs = j.Value<JArray>("tabs");
 			if (jaTabs == null || jaTabs.Count == 0)
 			{
+#if DEBUG
 				System.Diagnostics.Debug.WriteLine($"{this}: Tabs not found!");
+#endif
 				return null;
 			}
 			YouTubeChannelTab selectedTab = YouTubeChannel.FindSelectedTab(jaTabs, Channel);
 			if (selectedTab == null)
 			{
+#if DEBUG
 				System.Diagnostics.Debug.WriteLine($"{this}: No selected tab found!");
+#endif
 				return null;
 			}
 			j = selectedTab.Data.Value<JObject>("tabRenderer");
 			if (j == null)
 			{
+#if DEBUG
 				System.Diagnostics.Debug.WriteLine($"{this}: \"tabRenderer\" not found!");
+#endif
 				return null;
 			}
 			j = j.Value<JObject>("content");
 			if (j == null)
 			{
+#if DEBUG
 				System.Diagnostics.Debug.WriteLine($"{this}: \"content\" not found!");
+#endif
 				return null;
 			}
 			j = j.Value<JObject>("richGridRenderer");
 			if (j == null)
 			{
+#if DEBUG
 				System.Diagnostics.Debug.WriteLine($"{this}: \"richGridRenderer\" not found!");
+#endif
 				return null;
 			}
 			JArray ja = j.Value<JArray>("contents");
 			if (ja == null || ja.Count == 0)
 			{
+#if DEBUG
 				System.Diagnostics.Debug.WriteLine($"{this}: \"contents\" not found or empty!");
+#endif
 				return null;
 			}
 			return ja;

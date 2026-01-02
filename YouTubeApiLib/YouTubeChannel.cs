@@ -70,19 +70,25 @@ namespace YouTubeApiLib
 			JObject j = channelTabResponse.Value<JObject>("contents");
 			if (j == null)
 			{
+#if DEBUG
 				System.Diagnostics.Debug.WriteLine("\"contents\" not found!");
+#endif
 				yield break;
 			}
 			j = j.Value<JObject>("twoColumnBrowseResultsRenderer");
 			if (j == null)
 			{
+#if DEBUG
 				System.Diagnostics.Debug.WriteLine("\"twoColumnBrowseResultsRenderer\" not found!");
+#endif
 				yield break;
 			}
 			JArray jaTabs = j.Value<JArray>("tabs");
 			if (jaTabs == null || jaTabs.Count == 0)
 			{
+#if DEBUG
 				System.Diagnostics.Debug.WriteLine("Tabs is not found!");
+#endif
 				yield break;
 			}
 

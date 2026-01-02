@@ -89,7 +89,9 @@ namespace YouTubeApiLib
 							XmlNode nodeBaseUrl = node.SelectSingleNode("./*[local-name()='BaseURL']");
 							if (nodeBaseUrl == null)
 							{
+#if DEBUG
 								System.Diagnostics.Debug.WriteLine("ERROR! The \"nodeBaseUrl\" is NULL!");
+#endif
 								continue;
 							}
 							string baseUrl = nodeBaseUrl.InnerText;
@@ -97,7 +99,9 @@ namespace YouTubeApiLib
 							XmlNode nodeSegmentList = node.SelectSingleNode("./*[local-name()='SegmentList']");
 							if (nodeSegmentList == null)
 							{
+#if DEBUG
 								System.Diagnostics.Debug.WriteLine("ERROR! The \"nodeSegmentList\" is NULL!");
+#endif
 								continue;
 							}
 
@@ -112,10 +116,12 @@ namespace YouTubeApiLib
 									dashChunkUrls.Add(attrSourceUrl.Value);
 								}
 							}
+#if DEBUG
 							else
 							{
 								System.Diagnostics.Debug.WriteLine("Warning! The \"nodeInitialization\" is NULL! The first track chunk may be lost!");
 							}
+#endif
 							foreach (XmlNode nodeSegment in nodeSegmentList)
 							{
 								if (nodeSegment.Name == "SegmentURL")
@@ -190,7 +196,9 @@ namespace YouTubeApiLib
 							XmlNode nodeBaseUrl = node.SelectSingleNode("./*[local-name()='BaseURL']");
 							if (nodeBaseUrl == null)
 							{
+#if DEBUG
 								System.Diagnostics.Debug.WriteLine("ERROR! The \"nodeBaseUrl\" is NULL!");
+#endif
 								continue;
 							}
 							string baseUrl = nodeBaseUrl.InnerText;
@@ -198,7 +206,9 @@ namespace YouTubeApiLib
 							XmlNode nodeSegmentList = node.SelectSingleNode("./*[local-name()='SegmentList']");
 							if (nodeSegmentList == null)
 							{
+#if DEBUG
 								System.Diagnostics.Debug.WriteLine("ERROR! The \"nodeSegmentList\" is NULL!");
+#endif
 								continue;
 							}
 
@@ -213,11 +223,12 @@ namespace YouTubeApiLib
 									dashChunkUrls.Add(attrSourceUrl.Value);
 								}
 							}
+#if DEBUG
 							else
 							{
 								System.Diagnostics.Debug.WriteLine("Warning! The \"nodeInitialization\" is NULL! The first track chunk may be lost!");
 							}
-
+#endif
 							foreach (XmlNode nodeSegment in nodeSegmentList)
 							{
 								if (nodeSegment.Name == "SegmentURL")

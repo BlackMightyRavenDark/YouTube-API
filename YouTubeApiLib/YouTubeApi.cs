@@ -111,11 +111,16 @@ namespace YouTubeApiLib
 			{
 				_clients[clientId] = client;
 				return true;
-			} catch (System.Exception ex)
+			}
+#if DEBUG
+			catch (System.Exception ex)
 			{
 				System.Diagnostics.Debug.WriteLine(ex.Message);
-				return false;
 			}
+#else
+			catch { }
+#endif
+			return false;
 		}
 
 		public static bool RemoveYouTubeClient(string clientId)

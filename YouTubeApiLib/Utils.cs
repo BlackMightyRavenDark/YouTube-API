@@ -646,11 +646,14 @@ namespace YouTubeApiLib
 					}
 				}
 			}
+#if DEBUG
 			catch (Exception ex)
 			{
 				System.Diagnostics.Debug.WriteLine(ex.Message);
 			}
-
+#else
+			catch { }
+#endif
 			return null;
 		}
 
@@ -693,11 +696,16 @@ namespace YouTubeApiLib
 			{
 				uri = new Uri(url);
 			}
+#if DEBUG
 			catch (Exception ex)
 			{
-				//подразумевается, что юзер ввёл ID видео, а не ссылку.
 				System.Diagnostics.Debug.WriteLine(ex.Message);
+#else
+			catch
+			{
+				//подразумевается, что юзер ввёл ID видео, а не ссылку.
 				return new YouTubeVideoId(url);
+#endif
 			}
 
 			if (!uri.Host.EndsWith("youtube.com", StringComparison.OrdinalIgnoreCase) &&

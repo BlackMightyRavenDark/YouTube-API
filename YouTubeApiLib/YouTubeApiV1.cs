@@ -28,7 +28,9 @@ namespace YouTubeApiLib
 			}
 			catch (System.Exception ex)
 			{
+#if DEBUG
 				System.Diagnostics.Debug.WriteLine(ex.Message);
+#endif
 				response = ex.Message;
 				return ex.HResult;
 			}
