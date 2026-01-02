@@ -533,7 +533,6 @@ namespace YouTubeApiLib
 			}
 		}
 
-
 		public static int YouTubeHttpPost(string url, byte[] body,
 			WebHeaderCollection headers, CookieContainer cookies, IWebProxy proxy,
 			out string responseString)
