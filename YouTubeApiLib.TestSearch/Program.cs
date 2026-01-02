@@ -10,21 +10,21 @@ namespace YouTubeApiLib.TestSearch
 			Console.WriteLine($"Searching for \"{searchQuery}\"... Please wait!");
 
 			YouTubeApi api = new YouTubeApi();
-			YouTubeApiV1SearchResults searchResults =
+			YouTubeApiV1SearchResult searchResult =
 				api.Search(searchQuery, null, YouTubeApiV1SearchResultFilters.Video);
-			if (searchResults == null || searchResults.RawData == null)
+			if (searchResult == null || searchResult.RawData == null)
 			{
 				Console.WriteLine("Error! The search result object is NULL!");
 			}
-			else if (searchResults.ErrorCode != 200)
+			else if (searchResult.ErrorCode != 200)
 			{
-				Console.WriteLine($"There is error with code {searchResults.ErrorCode}!");
+				Console.WriteLine($"There is error with code {searchResult.ErrorCode}!");
 			}
 			else
 			{
 				// Внимание! Сырые данные слишком длинные для вывода в консоль и могут быть обрезаны!
 				// TODO: Написать могучие анализаторы для этих данных.
-				Console.WriteLine(searchResults.RawData.ToString());
+				Console.WriteLine(searchResult.RawData.ToString());
 			}
 
 			Console.ReadLine();

@@ -270,12 +270,12 @@ namespace YouTubeApiLib
 			return new YouTubeChannelTabResult(null, errorCode);
 		}
 
-		internal static YouTubeApiV1SearchResults SearchYouTube(
+		internal static YouTubeApiV1SearchResult SearchYouTube(
 			string searchQuery, string continuationToken,
 			YouTubeApiV1SearchResultFilter searchResultFilter)
 		{
 			IYouTubeSearcher searcher = new YouTubeSearcherV1(searchQuery, continuationToken, searchResultFilter);
-			return (YouTubeApiV1SearchResults)searcher.Search();
+			return (YouTubeApiV1SearchResult)searcher.Search();
 		}
 	}
 }

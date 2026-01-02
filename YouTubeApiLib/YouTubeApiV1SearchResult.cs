@@ -1,7 +1,7 @@
 ﻿
 namespace YouTubeApiLib
 {
-	public class YouTubeApiV1SearchResults
+	public class YouTubeApiV1SearchResult
 	{
 		public string RawData { get; }
 		public YouTubeApiV1SearchResultFilter UsedFilter { get; }
@@ -9,7 +9,7 @@ namespace YouTubeApiLib
 		public bool IsContinuationItem { get; }
 		public int ErrorCode { get; }
 
-		public YouTubeApiV1SearchResults(
+		public YouTubeApiV1SearchResult(
 			string rawData,
 			YouTubeApiV1SearchResultFilter usedFilter,
 			string searchQuery,

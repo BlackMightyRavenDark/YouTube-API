@@ -26,10 +26,10 @@ namespace YouTubeApiLib
 			if (errorCode == 200)
 			{
 				bool isContinuationTokenUsed = !string.IsNullOrEmpty(ContinuationToken) && !string.IsNullOrWhiteSpace(ContinuationToken);
-				return new YouTubeApiV1SearchResults(response, SearchFilter, SearchQuery, isContinuationTokenUsed, errorCode);
+				return new YouTubeApiV1SearchResult(response, SearchFilter, SearchQuery, isContinuationTokenUsed, errorCode);
 			}
 
-			return new YouTubeApiV1SearchResults(null, SearchFilter, SearchQuery, false, errorCode);
+			return new YouTubeApiV1SearchResult(null, SearchFilter, SearchQuery, false, errorCode);
 		}
 	}
 }
