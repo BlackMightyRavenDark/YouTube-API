@@ -706,6 +706,7 @@ namespace YouTubeApiLib
 				//подразумевается, что юзер ввёл ID видео, а не ссылку.
 				return new YouTubeVideoId(url);
 #endif
+				return new YouTubeVideoId(url);
 			}
 
 			if (!uri.Host.EndsWith("youtube.com", StringComparison.OrdinalIgnoreCase) &&
