@@ -377,8 +377,12 @@ namespace YouTubeApiLib
 		private bool IsTranslatedAudioTrackPresent()
 		{
 			var tracks = GetAllMediaTracks();
-			return tracks.Any(track => track is YouTubeMediaTrackAudio &&
-				!(bool)(track as YouTubeMediaTrackAudio).Language?.IsDefault);
+			return tracks.Any(track =>
+			{
+				YouTubeAudioTrackLanguage language = track is YouTubeMediaTrackAudio ?
+					(track as YouTubeMediaTrackAudio).Language : null;
+				return language != null && !language.IsDefault;
+			});
 		}
 	}
 }
