@@ -155,6 +155,7 @@ namespace YouTubeApiLib.ConsoleTest
 											{
 												string languageString = $"{audioTrack.Language.Id} | {audioTrack.Language.DisplayName}";
 												if (audioTrack.Language.IsDefault) { languageString += " | DEFAULT"; }
+												if (audioTrack.Language.IsOriginal) { languageString += " | ORIGINAL"; }
 												info += $"{Environment.NewLine}Language: {languageString}";
 											}
 										}

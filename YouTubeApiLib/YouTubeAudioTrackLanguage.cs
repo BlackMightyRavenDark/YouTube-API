@@ -11,15 +11,21 @@ namespace YouTubeApiLib
 		public string Id { get; }
 
 		/// <summary>
-		/// Язык оригинала.
+		/// Дорожка по-умолчанию.
 		/// </summary>
 		public bool IsDefault { get; }
 
-		public YouTubeAudioTrackLanguage(string displayName, string id, bool isDefault)
+		/// <summary>
+		/// Язык оригинала.
+		/// </summary>
+		public bool IsOriginal { get; }
+
+		public YouTubeAudioTrackLanguage(string displayName, string id, bool isDefault, bool isOriginal)
 		{
 			DisplayName = displayName;
 			Id = id;
 			IsDefault = isDefault;
+			IsOriginal = isOriginal;
 		}
 	}
 }

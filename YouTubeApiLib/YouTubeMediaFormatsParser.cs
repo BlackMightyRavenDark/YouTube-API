@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using MultiThreadedDownloaderLib;
 using Newtonsoft.Json.Linq;
-using MultiThreadedDownloaderLib;
+using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace YouTubeApiLib
 {
@@ -183,11 +184,15 @@ namespace YouTubeApiLib
 						if (jFormatItem.ContainsKey("audioTrack"))
 						{
 							JObject j = jFormatItem.Value<JObject>("audioTrack");
+							string trackDisplayName = j.Value<string>("displayName");
+							bool isOriginalTrack = !string.IsNullOrEmpty(trackDisplayName) && !string.IsNullOrWhiteSpace(trackDisplayName) &&
+								(trackDisplayName.Contains("original") || trackDisplayName.Contains("оригинал"));
 							language = new YouTubeAudioTrackLanguage(
-								j.Value<string>("displayName"),
+								trackDisplayName,
 								j.Value<string>("id"),
-								j.Value<bool>("audioIsDefault"));
-						}
+								j.Value<bool>("audioIsDefault"),
+								isOriginalTrack);
+					}
 
 						return new YouTubeMediaTrackAudio(
 							formatId, bitrate, averageBitrate, lastModified, contentLength,

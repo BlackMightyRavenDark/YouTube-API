@@ -379,12 +379,10 @@ namespace YouTubeApiLib
 			var tracks = GetAllMediaTracks();
 			return tracks.Any(track =>
 			{
-				YouTubeAudioTrackLanguage language = track is YouTubeMediaTrackAudio ?
-					(track as YouTubeMediaTrackAudio).Language : null;
-				if (language == null) { return false; }
-				string name = language.DisplayName?.ToLower();
-				return !string.IsNullOrEmpty(name) && !string.IsNullOrWhiteSpace(name) &&
-					!name.Contains("original") && !name.Contains("оригинал");
+				if (!(track is YouTubeMediaTrackAudio)) { return false; }
+				YouTubeMediaTrackAudio trackAudio = track as YouTubeMediaTrackAudio;
+				if (trackAudio?.Language == null) { return false; }
+				return !trackAudio.Language.IsOriginal;
 			});
 		}
 	}
