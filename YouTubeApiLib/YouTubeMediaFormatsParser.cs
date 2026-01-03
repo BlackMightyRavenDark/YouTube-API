@@ -184,15 +184,11 @@ namespace YouTubeApiLib
 						if (jFormatItem.ContainsKey("audioTrack"))
 						{
 							JObject j = jFormatItem.Value<JObject>("audioTrack");
-							string trackDisplayName = j.Value<string>("displayName");
-							bool isOriginalTrack = !string.IsNullOrEmpty(trackDisplayName) && !string.IsNullOrWhiteSpace(trackDisplayName) &&
-								(trackDisplayName.Contains("original") || trackDisplayName.Contains("оригинал"));
 							language = new YouTubeAudioTrackLanguage(
-								trackDisplayName,
+								j.Value<string>("displayName"),
 								j.Value<string>("id"),
-								j.Value<bool>("audioIsDefault"),
-								isOriginalTrack);
-					}
+								j.Value<bool>("audioIsDefault"));
+						}
 
 						return new YouTubeMediaTrackAudio(
 							formatId, bitrate, averageBitrate, lastModified, contentLength,

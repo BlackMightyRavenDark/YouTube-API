@@ -20,12 +20,13 @@ namespace YouTubeApiLib
 		/// </summary>
 		public bool IsOriginal { get; }
 
-		public YouTubeAudioTrackLanguage(string displayName, string id, bool isDefault, bool isOriginal)
+		public YouTubeAudioTrackLanguage(string displayName, string id, bool isDefault)
 		{
 			DisplayName = displayName;
 			Id = id;
 			IsDefault = isDefault;
-			IsOriginal = isOriginal;
+			IsOriginal = !string.IsNullOrEmpty(displayName) && !string.IsNullOrWhiteSpace(displayName) &&
+				(displayName.Contains("original") || displayName.Contains("оригинал"));
 		}
 	}
 }
