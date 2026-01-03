@@ -1,6 +1,7 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using MultiThreadedDownloaderLib;
+using System.Linq;
 
 namespace YouTubeApiLib
 {
@@ -71,7 +72,7 @@ namespace YouTubeApiLib
 
 		private static IEnumerable<YouTubeMediaTrack> ParseFormatList(JArray jaFormats, bool isAdaptive)
 		{
-			foreach (JObject jFormat in jaFormats)
+			foreach (JObject jFormat in jaFormats.Cast<JObject>())
 			{
 				string mimeType = jFormat.Value<string>("mimeType");
 				if (string.IsNullOrEmpty(mimeType) || string.IsNullOrWhiteSpace(mimeType))
@@ -176,8 +177,7 @@ namespace YouTubeApiLib
 					{
 						string fileExtension = !string.IsNullOrEmpty(mimeExt) && !string.IsNullOrWhiteSpace(mimeExt) ?
 							(mimeExt.ToLower() == "mp4" ? "m4a" : "weba") : "dat";
-						JToken jtDrc = jFormatItem.Value<JToken>("isDrc");
-						bool isDrc = jtDrc != null && jtDrc.Value<bool>();
+						bool isDrc = jFormatItem.Value<bool>("isDrc");
 						double loudnessDb = jFormatItem.Value<double>("loudnessDb");
 						YouTubeAudioTrackLanguage language = null;
 						if (jFormatItem.ContainsKey("audioTrack"))
