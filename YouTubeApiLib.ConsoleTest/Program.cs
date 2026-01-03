@@ -94,11 +94,12 @@ namespace YouTubeApiLib.ConsoleTest
 
 						if (video.IsPlayable)
 						{
-							Console.Write("Receiving download URLs...");
+							Console.WriteLine("Receiving download URLs...");
 							IYouTubeClient client = new YouTubeClientAndroidSdkless();
 							video.UpdateMediaFormats(client);
 							if (video.MediaTracks.Count > 0)
 							{
+								Console.WriteLine($"Is multilingual video: {video.IsMultilingual}");
 								foreach (var dictItem in video.MediaTracks)
 								{
 									Console.WriteLine("");
