@@ -1,7 +1,6 @@
-﻿using MultiThreadedDownloaderLib;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
+using MultiThreadedDownloaderLib;
 
 namespace YouTubeApiLib
 {
