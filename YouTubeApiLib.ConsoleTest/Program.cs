@@ -33,10 +33,11 @@ namespace YouTubeApiLib.ConsoleTest
 
 			if (videoId != null)
 			{
-				IYouTubeClient client = new YouTubeClientAndroidSdkless();
-				YouTubeVideo video = videoId.GetVideo(client);
+				YouTubeVideo video = videoId.GetVideo();
 				if (video != null)
 				{
+					// Выводимая информация может быть неточной, потому что API ютуба иногда выдаёт неверные данные!
+
 					if (video.IsInfoAvailable)
 					{
 						Console.WriteLine($"Title: {video.Title}");
@@ -90,136 +91,135 @@ namespace YouTubeApiLib.ConsoleTest
 						{
 							Console.WriteLine("null");
 						}
-					}
-					else
-					{
-						Console.WriteLine("Video info is unavailable!");
-					}
 
-					Console.Write("Downloadable formats: ");
-					if (video.IsPlayable)
-					{
-						if (video.MediaTracks.Count > 0)
+						if (video.IsPlayable)
 						{
-							foreach (var dictItem in video.MediaTracks)
+							Console.Write("Receiving download URLs...");
+							IYouTubeClient client = new YouTubeClientAndroidSdkless();
+							video.UpdateMediaFormats(client);
+							if (video.MediaTracks.Count > 0)
 							{
-								// Выводимая информация может быть неточной, потому что API ютуба иногда выдаёт неверные данные!
-
-								Console.WriteLine("");
-								if (dictItem.Value.Client is YouTubeClientWebPage)
+								foreach (var dictItem in video.MediaTracks)
 								{
-									Console.WriteLine("Warning! Download URLs from the video web page are broken!");
-								}
+									Console.WriteLine("");
+									if (dictItem.Value.Client is YouTubeClientWebPage)
+									{
+										Console.WriteLine("Warning! Download URLs from the video web page are broken!");
+									}
 
-								string clientName = dictItem.Value.Client?.DisplayName ?? "unknown";
-								Console.WriteLine($"Track list for client [{clientName}]:");
-								foreach (YouTubeMediaTrack track in dictItem.Value.Tracks)
-								{
-									string info;
-									if (track.GetType() == typeof(YouTubeMediaTrackVideo))
+									string clientName = dictItem.Value.Client?.DisplayName ?? "unknown";
+									Console.WriteLine($"Track list for client [{clientName}]:");
+									foreach (YouTubeMediaTrack track in dictItem.Value.Tracks)
 									{
-										YouTubeMediaTrackVideo videoTrack = track as YouTubeMediaTrackVideo;
-										string trackType = videoTrack.IsDashManifestPresent ? "DASH VIDEO" : "VIDEO";
-										int bitrate = videoTrack.AverageBitrate > 0 ? videoTrack.AverageBitrate : videoTrack.Bitrate;
-										info = $"{trackType} | ID {videoTrack.FormatId} | {videoTrack.VideoWidth}x{videoTrack.VideoHeight} | " +
-											$"{videoTrack.FrameRate} fps | {videoTrack.FileExtension}";
-										if (bitrate > 0)
+										string info;
+										if (track.GetType() == typeof(YouTubeMediaTrackVideo))
 										{
-											info += $" | ~{bitrate / 1024} kb/s";
+											YouTubeMediaTrackVideo videoTrack = track as YouTubeMediaTrackVideo;
+											string trackType = videoTrack.IsDashManifestPresent ? "DASH VIDEO" : "VIDEO";
+											int bitrate = videoTrack.AverageBitrate > 0 ? videoTrack.AverageBitrate : videoTrack.Bitrate;
+											info = $"{trackType} | ID {videoTrack.FormatId} | {videoTrack.VideoWidth}x{videoTrack.VideoHeight} | " +
+												$"{videoTrack.FrameRate} fps | {videoTrack.FileExtension}";
+											if (bitrate > 0)
+											{
+												info += $" | ~{bitrate / 1024} kb/s";
+											}
+											if (videoTrack.ContentLength > 0L)
+											{
+												info += $" | {videoTrack.ContentLength} bytes";
+											}
 										}
-										if (videoTrack.ContentLength > 0L)
+										else if (track.GetType() == typeof(YouTubeMediaTrackHlsStream))
 										{
-											info += $" | {videoTrack.ContentLength} bytes";
+											YouTubeMediaTrackHlsStream hls = track as YouTubeMediaTrackHlsStream;
+											info = $"HLS | ID {hls.FormatId} | {hls.VideoWidth}x{hls.VideoHeight} | " +
+												$"{hls.FrameRate} fps | {hls.FileExtension}\nPlaylist URL: {hls.FileUrl}";
 										}
-									}
-									else if (track.GetType() == typeof(YouTubeMediaTrackHlsStream))
-									{
-										YouTubeMediaTrackHlsStream hls = track as YouTubeMediaTrackHlsStream;
-										info = $"HLS | ID {hls.FormatId} | {hls.VideoWidth}x{hls.VideoHeight} | " +
-											$"{hls.FrameRate} fps | {hls.FileExtension}\nPlaylist URL: {hls.FileUrl}";
-									}
-									else if (track.GetType() == typeof(YouTubeMediaTrackAudio))
-									{
-										YouTubeMediaTrackAudio audioTrack = track as YouTubeMediaTrackAudio;
-										string trackType = audioTrack.IsDashManifestPresent ? "DASH AUDIO" : "AUDIO";
-										string formatIdString = audioTrack.IsDynamicRangeCompression ? $"{audioTrack.FormatId}-DRC" : audioTrack.FormatId.ToString();
-										int bitrate = audioTrack.AverageBitrate > 0 ? audioTrack.AverageBitrate : audioTrack.Bitrate;
-										info = $"{trackType} | ID {formatIdString} | {audioTrack.SampleRate} Hz | " +
-											$"{audioTrack.ChannelCount} ch | {audioTrack.AudioQuality} | {audioTrack.FileExtension}";
-										if (bitrate > 0)
+										else if (track.GetType() == typeof(YouTubeMediaTrackAudio))
 										{
-											info += $" | ~{bitrate / 1024} kb/s";
+											YouTubeMediaTrackAudio audioTrack = track as YouTubeMediaTrackAudio;
+											string trackType = audioTrack.IsDashManifestPresent ? "DASH AUDIO" : "AUDIO";
+											string formatIdString = audioTrack.IsDynamicRangeCompression ? $"{audioTrack.FormatId}-DRC" : audioTrack.FormatId.ToString();
+											int bitrate = audioTrack.AverageBitrate > 0 ? audioTrack.AverageBitrate : audioTrack.Bitrate;
+											info = $"{trackType} | ID {formatIdString} | {audioTrack.SampleRate} Hz | " +
+												$"{audioTrack.ChannelCount} ch | {audioTrack.AudioQuality} | {audioTrack.FileExtension}";
+											if (bitrate > 0)
+											{
+												info += $" | ~{bitrate / 1024} kb/s";
+											}
+											if (audioTrack.ContentLength > 0L)
+											{
+												info += $" | {audioTrack.ContentLength} bytes";
+											}
+											if (audioTrack.Language != null)
+											{
+												string languageString = $"{audioTrack.Language.Id} | {audioTrack.Language.DisplayName}";
+												if (audioTrack.Language.IsDefault) { languageString += " | DEFAULT"; }
+												info += $"{Environment.NewLine}Language: {languageString}";
+											}
 										}
-										if (audioTrack.ContentLength > 0L)
+										else if (track.GetType() == typeof(YouTubeMediaTrackContainer))
 										{
-											info += $" | {audioTrack.ContentLength} bytes";
+											YouTubeMediaTrackContainer container = track as YouTubeMediaTrackContainer;
+											info = $"CONTAINER | ID {container.FormatId} | {container.VideoWidth}x{container.VideoHeight} | " +
+												$"{container.VideoFrameRate} fps | {container.FileExtension}";
 										}
-										if (audioTrack.Language != null)
+										else
 										{
-											string languageString = $"{audioTrack.Language.Id} | {audioTrack.Language.DisplayName}";
-											if (audioTrack.Language.IsDefault) { languageString += " | DEFAULT"; }
-											info += $"{Environment.NewLine}Language: {languageString}";
+											Console.WriteLine("ERROR! Unknown track type!");
+											continue;
 										}
-									}
-									else if (track.GetType() == typeof(YouTubeMediaTrackContainer))
-									{
-										YouTubeMediaTrackContainer container = track as YouTubeMediaTrackContainer;
-										info = $"CONTAINER | ID {container.FormatId} | {container.VideoWidth}x{container.VideoHeight} | " +
-											$"{container.VideoFrameRate} fps | {container.FileExtension}";
-									}
-									else
-									{
-										Console.WriteLine("ERROR! Unknown track type!");
-										continue;
-									}
-									Console.WriteLine(info);
-									if (track.IsDashManifestPresent)
-									{
-										string dashChunkCountString = track.DashUrls != null ? track.DashUrls.Count.ToString() : "null";
-										Console.WriteLine($"DASH chunk URL count: {dashChunkCountString}");
-									}
-									else if (track.GetType() != typeof(YouTubeMediaTrackHlsStream))
-									{
-										string url = track.FileUrl.ToString();
-										if (string.IsNullOrEmpty(url) || string.IsNullOrWhiteSpace(url)) { url = "null"; }
-										Console.WriteLine($"URL: {url}");
+										Console.WriteLine(info);
+										if (track.IsDashManifestPresent)
+										{
+											string dashChunkCountString = track.DashUrls != null ? track.DashUrls.Count.ToString() : "null";
+											Console.WriteLine($"DASH chunk URL count: {dashChunkCountString}");
+										}
+										else if (track.GetType() != typeof(YouTubeMediaTrackHlsStream))
+										{
+											string url = track.FileUrl.ToString();
+											if (string.IsNullOrEmpty(url) || string.IsNullOrWhiteSpace(url)) { url = "null"; }
+											Console.WriteLine($"URL: {url}");
 
-										if (track.FileUrl.SplitUrl() && track.FileUrl.QueryUrl.ContainsKey("n"))
-										{
-											Console.WriteLine($"'n'-param: {track.FileUrl.QueryUrl["n"]}");
+											if (track.FileUrl.SplitUrl() && track.FileUrl.QueryUrl.ContainsKey("n"))
+											{
+												Console.WriteLine($"'n'-param: {track.FileUrl.QueryUrl["n"]}");
+											}
 										}
 									}
+									YouTubeConfig youTubeConfig = dictItem.Value.UrlDecryptionData?.VideoWebPage.ExtractYouTubeConfig();
+									string playerUrl = youTubeConfig != null ? youTubeConfig.PlayerUrl : "<Not available>";
+									Console.WriteLine($"Player URL: {playerUrl}");
 								}
-								YouTubeConfig youTubeConfig = dictItem.Value.UrlDecryptionData?.VideoWebPage.ExtractYouTubeConfig();
-								string playerUrl = youTubeConfig != null ? youTubeConfig.PlayerUrl : "<Not available>";
-								Console.WriteLine($"Player URL: {playerUrl}");
+							}
+							else
+							{
+								Console.WriteLine("ERROR! No download URLs found!");
 							}
 						}
 						else
 						{
-							Console.WriteLine("null or empty");
+							Console.WriteLine("The video is unplayable!");
+							Console.WriteLine($"Is private: {video.Status.IsPrivate}");
+							Console.WriteLine($"Is adult: {video.Status.IsAdult}");
+							Console.WriteLine($"Is login required: {video.Status.IsLoginRequired}");
+							Console.WriteLine($"Is \"you're bot\" warning: {video.Status.IsBotWarning}");
+							Console.WriteLine($"Status: {video.Status.Status}");
+							Console.WriteLine($"Reason: {video.Status.Reason}");
+							if (!string.IsNullOrEmpty(video.Status.ReasonDetails))
+							{
+								Console.WriteLine($"Reason details: {video.Status.ReasonDetails}");
+							}
+
+							string thumbnailUrl =
+								string.IsNullOrEmpty(video.Status.ThumbnailUrl) ||
+								string.IsNullOrWhiteSpace(video.Status.ThumbnailUrl) ?
+								"null or empty" : video.Status.ThumbnailUrl;
+							Console.WriteLine($"Thumbnail URL: {thumbnailUrl}");
 						}
 					}
 					else
 					{
-						Console.WriteLine("Not found!");
-						Console.WriteLine($"Is playable: {video.Status.IsPlayable}");
-						Console.WriteLine($"Is private: {video.Status.IsPrivate}");
-						Console.WriteLine($"Is adult: {video.Status.IsAdult}");
-						Console.WriteLine($"Is login required: {video.Status.IsLoginRequired}");
-						Console.WriteLine($"Is \"you're bot\" warning: {video.Status.IsBotWarning}");
-						Console.WriteLine($"Status: {video.Status.Status}");
-						Console.WriteLine($"Reason: {video.Status.Reason}");
-						if (!string.IsNullOrEmpty(video.Status.ReasonDetails))
-						{
-							Console.WriteLine($"Reason details: {video.Status.ReasonDetails}");
-						}
-
-						string thumbnailUrl =
-							string.IsNullOrEmpty(video.Status.ThumbnailUrl) ||
-							string.IsNullOrWhiteSpace(video.Status.ThumbnailUrl) ?
-							"null or empty" : video.Status.ThumbnailUrl;
-						Console.WriteLine($"Thumbnail URL: {thumbnailUrl}");
+						Console.WriteLine("Video info is unavailable!");
 					}
 
 					Console.Write("Type 'Y' to print full raw data or just press ENTER to exit...");
