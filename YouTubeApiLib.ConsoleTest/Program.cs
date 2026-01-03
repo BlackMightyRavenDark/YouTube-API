@@ -19,9 +19,9 @@ namespace YouTubeApiLib.ConsoleTest
 			// 2160p | HDR | 60 fps | DRC audio | 1253582837 bytes
 			//string videoUrl = "https://www.youtube.com/watch?v=H3_M9KASsHY";
 
-			// Moving to Phoenix Arizona?
-			// 1080p | 24 fps | Multilingual | 232686490 bytes
-			//string videoUrl = "https://www.youtube.com/watch?v=pXyRINEG044";
+			// My Epic Plans for Canadian Summer 2025
+			// 2160p | 24 fps | Multilingual | 819361195 bytes
+			//string videoUrl = "https://www.youtube.com/watch?v=aVuMYRMzg2Y";
 
 			// date night what's in my bag, removing trees, and celebrating mothers everywhere ep. 147
 			// 18+ | 1080p | 60 fps | 951661536 bytes
