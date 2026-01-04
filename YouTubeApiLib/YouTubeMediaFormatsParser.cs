@@ -186,7 +186,8 @@ namespace YouTubeApiLib
 							language = new YouTubeAudioTrackLanguage(
 								j.Value<string>("displayName"),
 								j.Value<string>("id"),
-								j.Value<bool>("audioIsDefault"));
+								j.Value<bool>("audioIsDefault"),
+								j.Value<bool>("isAutoDubbed"));
 						}
 
 						return new YouTubeMediaTrackAudio(
