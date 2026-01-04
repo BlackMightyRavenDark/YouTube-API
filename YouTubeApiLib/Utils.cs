@@ -168,7 +168,7 @@ namespace YouTubeApiLib
 		{
 			string videoTitle = null;
 			string videoId = null;
-			TimeSpan videoLength = TimeSpan.Zero;
+			TimeSpan videoDuration = TimeSpan.Zero;
 			string ownerChannelTitle = null;
 			string ownerChannelId = null;
 			int viewCount = 0;
@@ -192,7 +192,7 @@ namespace YouTubeApiLib
 				videoId = simplifiedVideoInfo.Info.Value<string>("id");
 				if (int.TryParse(simplifiedVideoInfo.Info.Value<string>("lengthSeconds"), out int lengthSeconds))
 				{
-					videoLength = TimeSpan.FromSeconds(lengthSeconds);
+					videoDuration = TimeSpan.FromSeconds(lengthSeconds);
 				}
 				ownerChannelTitle = simplifiedVideoInfo.Info.Value<string>("ownerChannelTitle");
 				ownerChannelId = simplifiedVideoInfo.Info.Value<string>("ownerChannelId");
@@ -235,7 +235,7 @@ namespace YouTubeApiLib
 			string descr = !string.IsNullOrEmpty(description) ? description : shortDescription;
 
 			YouTubeVideo youTubeVideo = new YouTubeVideo(
-				videoTitle, videoId, videoLength, dateUploaded, datePublished, ownerChannelTitle,
+				videoTitle, videoId, videoDuration, dateUploaded, datePublished, ownerChannelTitle,
 				ownerChannelId, descr, viewCount, category, isShort, isPrivate, isUnlisted,
 				isFamilySafe, isLiveContent, videoDetails, videoThumbnails,
 				rawVideoInfo, simplifiedVideoInfo, videoStatus);

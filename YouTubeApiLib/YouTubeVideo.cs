@@ -13,7 +13,7 @@ namespace YouTubeApiLib
 		public string Url { get; }
 		public DateTime DateUploaded { get; }
 		public DateTime DatePublished { get; }
-		public TimeSpan Length { get; }
+		public TimeSpan Duration { get; }
 		public string OwnerChannelTitle { get; }
 		public string OwnerChannelId { get; }
 		public string Description { get; }
@@ -57,7 +57,7 @@ namespace YouTubeApiLib
 		public YouTubeVideo(
 			string title,
 			string id,
-			TimeSpan length,
+			TimeSpan duration,
 			DateTime dateUploaded,
 			DateTime datePublished,
 			string ownerChannelTitle,
@@ -80,7 +80,7 @@ namespace YouTubeApiLib
 			Id = id;
 			Url = !string.IsNullOrEmpty(id) && !string.IsNullOrWhiteSpace(id) ?
 				Utils.GetYouTubeVideoUrl(id) : null;
-			Length = length;
+			Duration = duration;
 			DateUploaded = dateUploaded;
 			DatePublished = datePublished;
 			OwnerChannelTitle = ownerChannelTitle;

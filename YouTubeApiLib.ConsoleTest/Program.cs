@@ -48,9 +48,9 @@ namespace YouTubeApiLib.ConsoleTest
 							Console.WriteLine($"Uploaded: {DateTimeToString(video.DateUploaded)}");
 							Console.WriteLine($"Published: {DateTimeToString(video.DatePublished)}");
 						}
-						if (video.Length > TimeSpan.Zero)
+						if (video.Duration > TimeSpan.Zero)
 						{
-							Console.WriteLine($"Length: {video.Length}");
+							Console.WriteLine($"Duration: {video.Duration}");
 						}
 						Console.WriteLine($"Channel title: {video.OwnerChannelTitle}");
 						Console.WriteLine($"Channel ID: {video.OwnerChannelId}");

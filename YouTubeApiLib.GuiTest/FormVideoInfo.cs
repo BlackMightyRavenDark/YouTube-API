@@ -19,7 +19,7 @@ namespace YouTubeApiLib.GuiTest
 				$"Ссылка на видео: {video.Url}\r\n" +
 				$"Дата загрузки: {video.DateUploaded:dd.MM.yyyy}\r\n" +
 				$"Дата публикации: {video.DatePublished:dd.MM.yyyy}\r\n" +
-				$"Продолжительность видео: {video.Length:h':'mm':'ss}\r\n" +
+				$"Продолжительность видео: {video.Duration:h':'mm':'ss}\r\n" +
 				$"Название канала: {video.OwnerChannelTitle}\r\n" +
 				$"ID канала: {video.OwnerChannelId}\r\n" +
 				$"Описание видео: {video.Description}\r\n" +
