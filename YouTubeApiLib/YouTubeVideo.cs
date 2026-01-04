@@ -201,8 +201,8 @@ namespace YouTubeApiLib
 
 		public static YouTubeVideo GetByWebPage(string videoWebPageCode, FileDownloader downloader = null)
 		{
-			YouTubeVideoWebPageResult videoWebPageResult = YouTubeVideoWebPage.FromCode(videoWebPageCode);
-			return videoWebPageResult.ErrorCode == 200 ? videoWebPageResult.VideoWebPage.GetVideo(downloader) : null;
+			YouTubeVideoWebPage videoWebPage = YouTubeVideoWebPage.MakeFromCode(videoWebPageCode);
+			return GetByWebPage(videoWebPage, downloader);
 		}
 
 		public string GetUrl(int seekToSecond = 0)
