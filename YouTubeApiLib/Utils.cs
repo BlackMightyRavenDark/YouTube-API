@@ -28,20 +28,6 @@ namespace YouTubeApiLib
 			return GetYouTubeVideoUrl(videoId, seconds);
 		}
 
-		internal static YouTubeVideo GetVideoFromWebPage(YouTubeVideoWebPage webPage)
-		{
-			YouTubeRawVideoInfoResult rawVideoInfoResult = ExtractRawVideoInfoFromWebPage(webPage);
-			if (rawVideoInfoResult.ErrorCode == 200)
-			{
-				YouTubeSimplifiedVideoInfoResult simplifiedVideoInfoResult = rawVideoInfoResult.RawVideoInfo.Simplify();
-				if (simplifiedVideoInfoResult.ErrorCode == 200)
-				{
-					return MakeYouTubeVideo(rawVideoInfoResult.RawVideoInfo, simplifiedVideoInfoResult.SimplifiedVideoInfo);
-				}
-			}
-			return null;
-		}
-
 		internal static YouTubeRawVideoInfoResult GetRawVideoInfo(
 			string videoId, IYouTubeClient client)
 		{

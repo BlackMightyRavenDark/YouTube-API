@@ -196,13 +196,13 @@ namespace YouTubeApiLib
 
 		public static YouTubeVideo GetByWebPage(YouTubeVideoWebPage videoWebPage)
 		{
-			return Utils.GetVideoFromWebPage(videoWebPage);
+			return videoWebPage.GetVideo();
 		}
 
 		public static YouTubeVideo GetByWebPage(string videoWebPageCode)
 		{
 			YouTubeVideoWebPageResult videoWebPageResult = YouTubeVideoWebPage.FromCode(videoWebPageCode);
-			return videoWebPageResult.ErrorCode == 200 ? Utils.GetVideoFromWebPage(videoWebPageResult.VideoWebPage) : null;
+			return videoWebPageResult.ErrorCode == 200 ? videoWebPageResult.VideoWebPage.GetVideo() : null;
 		}
 
 		public string GetUrl(int seekToSecond = 0)
