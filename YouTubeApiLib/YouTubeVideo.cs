@@ -194,15 +194,15 @@ namespace YouTubeApiLib
 			return GetById(videoId, null, downloader);
 		}
 
-		public static YouTubeVideo GetByWebPage(YouTubeVideoWebPage videoWebPage)
+		public static YouTubeVideo GetByWebPage(YouTubeVideoWebPage videoWebPage, FileDownloader downloader = null)
 		{
-			return videoWebPage.GetVideo();
+			return videoWebPage.GetVideo(downloader);
 		}
 
-		public static YouTubeVideo GetByWebPage(string videoWebPageCode)
+		public static YouTubeVideo GetByWebPage(string videoWebPageCode, FileDownloader downloader = null)
 		{
 			YouTubeVideoWebPageResult videoWebPageResult = YouTubeVideoWebPage.FromCode(videoWebPageCode);
-			return videoWebPageResult.ErrorCode == 200 ? videoWebPageResult.VideoWebPage.GetVideo() : null;
+			return videoWebPageResult.ErrorCode == 200 ? videoWebPageResult.VideoWebPage.GetVideo(downloader) : null;
 		}
 
 		public string GetUrl(int seekToSecond = 0)
