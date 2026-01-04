@@ -816,7 +816,7 @@ namespace YouTubeApiLib
 		public static bool ParseMicroformatDate(string dateString, out DateTime dateTime)
 		{
 			if (DateTime.TryParseExact(dateString, "yyyy-MM-ddTHH:mm:ssZ",
-				null, DateTimeStyles.AssumeLocal, out dateTime))
+				null, DateTimeStyles.AdjustToUniversal, out dateTime))
 			{
 				return true;
 			}
@@ -857,11 +857,11 @@ namespace YouTubeApiLib
 		{
 			string published = jSimplifiedVideoInfo.Value<string>("datePublished");
 			if (!DateTime.TryParseExact(published, "yyyy-MM-ddTHH:mm:ssZ",
-				null, DateTimeStyles.AssumeLocal, out publishDate))
+				null, DateTimeStyles.AdjustToUniversal, out publishDate))
 			{
 				string startTimestamp = jSimplifiedVideoInfo.Value<string>("startTimestamp");
 				if (!DateTime.TryParseExact(startTimestamp, "yyyy-MM-ddTHH:mm:ssZ",
-					null, DateTimeStyles.AssumeLocal, out publishDate))
+					null, DateTimeStyles.AdjustToUniversal, out publishDate))
 				{
 					if (!DateTime.TryParseExact(published, "yyyy-MM-dd",
 						null, DateTimeStyles.AssumeLocal, out publishDate))
@@ -873,9 +873,6 @@ namespace YouTubeApiLib
 
 			string uploaded = jSimplifiedVideoInfo.Value<string>("dateUploaded");
 			ParseMicroformatDate(uploaded, out uploadDate);
-
-			if (publishDate < DateTime.MaxValue) { publishDate = publishDate.ToUniversalTime(); }
-			if (uploadDate < DateTime.MaxValue) { uploadDate = uploadDate.ToUniversalTime(); }
 		}
 
 		public static string ToUtcString(this DateTime dateTime)
