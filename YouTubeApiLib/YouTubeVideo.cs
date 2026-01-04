@@ -47,7 +47,7 @@ namespace YouTubeApiLib
 		public string HlsManifestUrl { get; private set; }
 		public YouTubeVideoDetails Details { get; private set; }
 		public List<YouTubeVideoThumbnail> Thumbnails { get; }
-		public Dictionary<string, YouTubeMediaFormatList> MediaTracks { get; private set; }
+		public Dictionary<string, YouTubeMediaFormatList> MediaTracks { get; }
 		public YouTubeRawVideoInfo RawInfo { get; private set; }
 		public YouTubeSimplifiedVideoInfo SimplifiedInfo { get; }
 		public YouTubeVideoPlayabilityStatus Status { get; }
@@ -285,7 +285,7 @@ namespace YouTubeApiLib
 
 		public void ClearMediaFormatList()
 		{
-			MediaTracks?.Clear();
+			MediaTracks.Clear();
 			IsMultilingual = false;
 		}
 
