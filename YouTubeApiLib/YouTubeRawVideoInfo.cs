@@ -29,29 +29,33 @@ namespace YouTubeApiLib
 			UrlDecryptionData = urlDecryptionData;
 		}
 
-		public static YouTubeRawVideoInfoResult Get(YouTubeVideoId videoId, IYouTubeClient client)
+		public static YouTubeRawVideoInfoResult Get(string videoId, IYouTubeClient client = null)
 		{
-			return videoId != null && client != null ? GetRawVideoInfo(videoId.Id, client) :
-				new YouTubeRawVideoInfoResult(null, 400);
-		}
+			if (client == null) {
+				client = YouTubeApi.GetYouTubeClient(YouTubeApi.GetDefaultYouTubeClientId());
+				if (client == null) { return new YouTubeRawVideoInfoResult(null, 400); }
+			}
 
-		public static YouTubeRawVideoInfoResult Get(string videoId, IYouTubeClient client)
-		{
 			int errorCode = client.GetRawVideoInfo(videoId, out YouTubeRawVideoInfo rawVideoInfo, out _);
 			return new YouTubeRawVideoInfoResult(rawVideoInfo, errorCode);
 		}
 
-		public static YouTubeRawVideoInfoResult Get(YouTubeVideoId videoId, FileDownloader downloader = null)
+		public static YouTubeRawVideoInfoResult Get(YouTubeVideoId videoId, IYouTubeClient client)
 		{
-			return Get(videoId.Id, downloader);
+			return Get(videoId.Id, client);
 		}
 
-		public static YouTubeRawVideoInfoResult Get(string videoId, FileDownloader downloader = null)
+		public static YouTubeRawVideoInfoResult Get(string videoId, FileDownloader downloader)
 		{
 			IYouTubeClient client = YouTubeApi.GetYouTubeClient(YouTubeApi.GetDefaultYouTubeClientId());
 			if (client == null) { return new YouTubeRawVideoInfoResult(null, 400); }
 			client.Downloader = downloader;
 			return Get(videoId, client);
+		}
+
+		public static YouTubeRawVideoInfoResult Get(YouTubeVideoId videoId, FileDownloader downloader)
+		{
+			return Get(videoId.Id, downloader);
 		}
 
 		public static YouTubeRawVideoInfo MakeFromRaw(string rawData, IYouTubeClient client,

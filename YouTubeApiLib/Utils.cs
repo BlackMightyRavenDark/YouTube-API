@@ -28,13 +28,6 @@ namespace YouTubeApiLib
 			return GetYouTubeVideoUrl(videoId, seconds);
 		}
 
-		internal static YouTubeRawVideoInfoResult GetRawVideoInfo(
-			string videoId, IYouTubeClient client)
-		{
-			int errorCode = client.GetRawVideoInfo(videoId, out YouTubeRawVideoInfo rawVideoInfo, out _);
-			return new YouTubeRawVideoInfoResult(rawVideoInfo, errorCode);
-		}
-
 		internal static YouTubeSimplifiedVideoInfoResult GetSimplifiedVideoInfo(string videoId, IYouTubeClient client)
 		{
 			YouTubeRawVideoInfoResult rawVideoInfoResult = client.GetRawVideoInfo(new YouTubeVideoId(videoId), out _);
