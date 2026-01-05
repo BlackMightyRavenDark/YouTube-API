@@ -32,11 +32,6 @@ namespace YouTubeApiLib
 			return YouTubeVideo.GetByWebPage(webPageCode);
 		}
 
-		public YouTubeSimplifiedVideoInfoResult GetSimplifiedVideoInfo(string videoId, IYouTubeClient client)
-		{
-			return Utils.GetSimplifiedVideoInfo(videoId, client);
-		}
-
 		/// <summary>
 		/// Получить упрощённый список видео из вкладки со страницы канала, используя API YouTube V1.
 		/// </summary>
