@@ -49,7 +49,12 @@ namespace YouTubeApiLib
 		public List<YouTubeVideoThumbnail> Thumbnails { get; }
 		public Dictionary<string, YouTubeMediaFormatList> MediaTracks { get; }
 		public YouTubeRawVideoInfo RawInfo { get; private set; }
-		public YouTubeSimplifiedVideoInfo SimplifiedInfo { get; }
+
+		/// <summary>
+		/// Информация, на основе которой был создан этот объект.
+		/// </summary>
+		public YouTubeSimplifiedVideoInfo InitialSimplifiedInfo { get; }
+
 		public YouTubeVideoPlayabilityStatus Status { get; }
 		public bool IsInfoAvailable => GetIsInfoAvailable();
 		public bool IsPlayable => GetIsPlayable();
@@ -97,7 +102,7 @@ namespace YouTubeApiLib
 			Thumbnails = thumbnails;
 			MediaTracks = new Dictionary<string, YouTubeMediaFormatList>();
 			RawInfo = rawInfo;
-			SimplifiedInfo = simplifiedInfo;
+			InitialSimplifiedInfo = simplifiedInfo;
 			Status = status;
 
 			UpdateStates();
@@ -292,7 +297,7 @@ namespace YouTubeApiLib
 		private bool GetIsInfoAvailable()
 		{
 			return RawInfo?.VideoDetails != null &&
-				(SimplifiedInfo.IsVideoInfoAvailable || SimplifiedInfo.IsMicroformatInfoAvailable);
+				(InitialSimplifiedInfo.IsVideoInfoAvailable || InitialSimplifiedInfo.IsMicroformatInfoAvailable);
 		}
 
 		private bool GetIsPlayable()
