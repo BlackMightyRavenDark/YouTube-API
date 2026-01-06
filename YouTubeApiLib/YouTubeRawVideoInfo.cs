@@ -92,7 +92,8 @@ namespace YouTubeApiLib
 				JObject jPlayabilityStatus = new JObject()
 				{
 					["is_playable"] = playabilityStatus.IsPlayable,
-					["status"] = playabilityStatus.Status
+					["status"] = playabilityStatus.Status,
+					["is_playable_in_embed"] = playabilityStatus.IsPlayableInEmbed
 				};
 				jSimplifiedVideoInfo["playability_status"] = jPlayabilityStatus;
 			}

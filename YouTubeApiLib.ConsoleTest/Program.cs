@@ -64,6 +64,7 @@ namespace YouTubeApiLib.ConsoleTest
 						Console.WriteLine($"Private: {video.IsPrivate}");
 						Console.WriteLine($"Unlisted: {video.IsUnlisted}");
 						Console.WriteLine($"Family safe: {video.IsFamilySafe}");
+						Console.WriteLine($"Playable in embed: {video.Status != null && video.Status.IsPlayableInEmbed}");
 						Console.WriteLine($"Live content: {video.IsLiveContent}");
 						if (video.IsLiveContent)
 						{

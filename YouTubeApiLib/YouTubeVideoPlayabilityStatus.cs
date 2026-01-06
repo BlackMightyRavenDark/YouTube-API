@@ -9,6 +9,7 @@ namespace YouTubeApiLib
 		public string ReasonDetails { get; }
 		public string ThumbnailUrl { get; }
 		public bool IsPlayable { get; }
+		public bool IsPlayableInEmbed { get; }
 		public bool IsPrivate { get; }
 		public bool IsAdult { get; }
 		public bool IsLoginRequired { get; }
@@ -17,11 +18,13 @@ namespace YouTubeApiLib
 		public string RawInfo { get; }
 
 		public YouTubeVideoPlayabilityStatus(string status, string reason, string reasonDetails,
+			bool isPlayableInEmbed,
 			string thumbnailUrl, int errorCode, string rawInfo)
 		{
 			Status = status;
 			Reason = reason;
 			ReasonDetails = reasonDetails;
+			IsPlayableInEmbed = isPlayableInEmbed;
 			ThumbnailUrl = thumbnailUrl;
 			ErrorCode = errorCode;
 			RawInfo = rawInfo;
@@ -33,15 +36,16 @@ namespace YouTubeApiLib
 		}
 
 		public YouTubeVideoPlayabilityStatus(int errorCode)
-			: this(null, null, null, null, errorCode, null) { }
+			: this(null, null, null, false, null, errorCode, null) { }
 
 		public static YouTubeVideoPlayabilityStatus Parse(JObject jPlayabilityStatus)
 		{
 			string status = jPlayabilityStatus.Value<string>("status");
 			string reason = null;
 			string reasonDetails = null;
-
 			string thumbnailUrl = null;
+			bool isPlayableInEmbed = jPlayabilityStatus.Value<bool>("playableInEmbed");
+
 			JObject jErrorScreen = jPlayabilityStatus.Value<JObject>("errorScreen");
 			if (jErrorScreen != null)
 			{
@@ -73,7 +77,7 @@ namespace YouTubeApiLib
 			}
 
 			int errorCode = status == "OK" ? 200 : 403;
-			return new YouTubeVideoPlayabilityStatus(status, reason, reasonDetails,
+			return new YouTubeVideoPlayabilityStatus(status, reason, reasonDetails, isPlayableInEmbed,
 				thumbnailUrl, errorCode, jPlayabilityStatus.ToString());
 		}
 
