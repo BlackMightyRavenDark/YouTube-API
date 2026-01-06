@@ -35,7 +35,7 @@ namespace YouTubeApiLib
 				SetWebPage(webPageResult.VideoWebPage);
 				YouTubeMediaTrackUrlDecryptionData urlDecryptionData = new YouTubeMediaTrackUrlDecryptionData(webPageResult.VideoWebPage);
 				string raw = Utils.ExtractRawVideoInfoFromWebPageCode(webPageResult.VideoWebPage.WebPageCode);
-				rawVideoInfo = new YouTubeRawVideoInfo(raw, this, urlDecryptionData);
+				rawVideoInfo = new YouTubeRawVideoInfo(raw, this, urlDecryptionData, System.DateTime.UtcNow);
 				return webPageResult.ErrorCode;
 			}
 			else

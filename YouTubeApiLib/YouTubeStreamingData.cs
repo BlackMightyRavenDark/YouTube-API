@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System;
+using Newtonsoft.Json.Linq;
 using MultiThreadedDownloaderLib;
 using static YouTubeApiLib.Utils;
 
@@ -13,16 +14,22 @@ namespace YouTubeApiLib
 		/// </summary>
 		public IYouTubeClient Client { get; }
 
+		/// <summary>
+		/// Дата и время получения данных.
+		/// </summary>
+		public DateTime DateReceived { get; }
+
 		public YouTubeMediaTrackUrlDecryptionData UrlDecryptionData { get; }
 
 		private JObject _parsedData = null;
 
 		public YouTubeStreamingData(string rawData, IYouTubeClient client,
-			YouTubeMediaTrackUrlDecryptionData urlDecryptionData)
+			YouTubeMediaTrackUrlDecryptionData urlDecryptionData, DateTime dateReceived)
 		{
 			RawData = rawData;
 			Client = client;
 			UrlDecryptionData = urlDecryptionData;
+			DateReceived = dateReceived;
 		}
 
 		public static YouTubeStreamingDataResult Get(YouTubeVideoId videoId, IYouTubeClient client)
@@ -53,7 +60,7 @@ namespace YouTubeApiLib
 		public static YouTubeStreamingData MakeFromRaw(string rawData, IYouTubeClient client,
 			YouTubeMediaTrackUrlDecryptionData urlDecryptionData = null)
 		{
-			return new YouTubeStreamingData(rawData, client, urlDecryptionData);
+			return new YouTubeStreamingData(rawData, client, urlDecryptionData, DateTime.UtcNow);
 		}
 
 		public static YouTubeStreamingData MakeFromRaw(string rawData)

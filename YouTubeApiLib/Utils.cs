@@ -28,116 +28,12 @@ namespace YouTubeApiLib
 			return GetYouTubeVideoUrl(videoId, seconds);
 		}
 
-		internal static YouTubeSimplifiedVideoInfoResult SimplifyRawVideoInfo(
-			YouTubeVideoDetails videoDetails, JObject microformat,
-			YouTubeStreamingData streamingData = null)
-		{
-			JObject jVideoDetails = videoDetails?.Parse();
-			JObject jMicroformatRenderer = microformat?.Value<JObject>("playerMicroformatRenderer");
-			JObject jSimplifiedVideoInfo = new JObject();
-
-			string videoId;
-			if (jVideoDetails != null)
-			{
-				jSimplifiedVideoInfo["title"] = jVideoDetails.Value<string>("title");
-				videoId = jVideoDetails.Value<string>("videoId");
-				jSimplifiedVideoInfo["id"] = videoId;
-				jSimplifiedVideoInfo["url"] = GetYouTubeVideoUrl(videoId);
-				if (int.TryParse(jVideoDetails.Value<string>("lengthSeconds"), out int lengthSeconds))
-				{
-					jSimplifiedVideoInfo["lengthSeconds"] = lengthSeconds;
-				}
-				jSimplifiedVideoInfo["ownerChannelTitle"] = jVideoDetails.Value<string>("author");
-				jSimplifiedVideoInfo["ownerChannelId"] = jVideoDetails.Value<string>("channelId");
-				if (!long.TryParse(jVideoDetails.Value<string>("viewCount"), out long viewCount))
-				{
-					viewCount = -1L;
-				}
-				jSimplifiedVideoInfo["viewCount"] = viewCount;
-				jSimplifiedVideoInfo["isPrivate"] = jVideoDetails.Value<bool>("isPrivate");
-				jSimplifiedVideoInfo["isLiveContent"] = jVideoDetails.Value<bool>("isLiveContent");
-				jSimplifiedVideoInfo["shortDescription"] = jVideoDetails.Value<string>("shortDescription");
-			}
-			else
-			{
-				videoId = null;
-			}
-
-			if (jMicroformatRenderer != null)
-			{
-				JObject jDescription = jMicroformatRenderer.Value<JObject>("description");
-				if (jDescription != null)
-				{
-					jSimplifiedVideoInfo["description"] = jDescription.Value<string>("simpleText");
-				}
-				bool isFamilySafe = jMicroformatRenderer.Value<bool>("isFamilySafe");
-				jSimplifiedVideoInfo["isFamilySafe"] = isFamilySafe;
-				bool isUnlisted = jMicroformatRenderer.Value<bool>("isUnlisted");
-				jSimplifiedVideoInfo["isUnlisted"] = isUnlisted;
-				bool isShort = jMicroformatRenderer.Value<bool>("isShortsEligible");
-				jSimplifiedVideoInfo["isShort"] = isShort;
-				jSimplifiedVideoInfo["category"] = jMicroformatRenderer.Value<string>("category");
-				{
-					string date = jMicroformatRenderer.Value<string>("publishDate");
-					jSimplifiedVideoInfo["datePublished"] = DateTimeStringToUtcString(date);
-				}
-				{
-					string date = jMicroformatRenderer.Value<string>("uploadDate");
-					jSimplifiedVideoInfo["dateUploaded"] = DateTimeStringToUtcString(date);
-				}
-
-				JObject jLiveBroadcastDetails = jMicroformatRenderer.Value<JObject>("liveBroadcastDetails");
-				if (jLiveBroadcastDetails != null)
-				{
-					{
-						string date = jLiveBroadcastDetails.Value<string>("startTimestamp");
-						jSimplifiedVideoInfo["startTimestamp"] = DateTimeStringToUtcString(date);
-					}
-					{
-						string date = jLiveBroadcastDetails.Value<string>("endTimestamp");
-						jSimplifiedVideoInfo["endTimestamp"] = DateTimeStringToUtcString(date);
-					}
-				}
-			}
-
-			var videoThumbnails = GetThumbnails(videoDetails, microformat, videoId).ToList();
-			if (videoThumbnails.Count > 0)
-			{
-				jSimplifiedVideoInfo["thumbnails"] = ThumbnailsToJson(videoThumbnails);
-			}
-
-			if (streamingData != null)
-			{
-				JObject jStreamingData = TryParseJson(streamingData.RawData);
-				if (jStreamingData != null)
-				{
-					jSimplifiedVideoInfo["streamingData"] = jStreamingData;
-				}
-			}
-
-			YouTubeSimplifiedVideoInfo simplifiedVideoInfo = new YouTubeSimplifiedVideoInfo(
-				jSimplifiedVideoInfo, jVideoDetails != null, jMicroformatRenderer != null);
-			return new YouTubeSimplifiedVideoInfoResult(simplifiedVideoInfo, 200);
-		}
-
-		internal static YouTubeSimplifiedVideoInfoResult SimplifyRawVideoInfo(YouTubeRawVideoInfo rawVideoInfo,
-			JObject customMicroformat)
-		{
-			YouTubeVideoDetails videoDetails = rawVideoInfo.VideoDetails;
-			JObject jMicroformat = customMicroformat ?? rawVideoInfo.Microformat;
-			YouTubeStreamingData streamingData = rawVideoInfo.StreamingData.Data;
-
-			return SimplifyRawVideoInfo(videoDetails, jMicroformat, streamingData);
-		}
-
-		internal static YouTubeSimplifiedVideoInfoResult SimplifyRawVideoInfo(YouTubeRawVideoInfo rawVideoInfo)
-		{
-			return SimplifyRawVideoInfo(rawVideoInfo, null);
-		}
-
 		/// <summary>
 		/// Создаёт объект класса "YouTubeVideo" из переданных аргументов.
 		/// </summary>
+		/// <param name="customSimplifiedVideoInfo">
+		/// Если не 'null', эти данные будут использованы вместо данных из "rawVideoInfo".
+		/// </param>
 		/// <param name="customStreamingData">
 		/// Если не 'null', эти данные будут использованы вместо "rawVideoInfo.StreamingData.Data".
 		/// </param>
@@ -146,7 +42,7 @@ namespace YouTubeApiLib
 		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
 		/// </param>
 		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo,
-			YouTubeSimplifiedVideoInfo simplifiedVideoInfo, YouTubeStreamingData customStreamingData,
+			YouTubeSimplifiedVideoInfo customSimplifiedVideoInfo, YouTubeStreamingData customStreamingData,
 			FileDownloader downloader = null)
 		{
 			string videoTitle = null;
@@ -169,35 +65,41 @@ namespace YouTubeApiLib
 
 			List<YouTubeVideoThumbnail> videoThumbnails = null;
 
-			if (simplifiedVideoInfo.IsVideoInfoAvailable)
+			YouTubeSimplifiedVideoInfo actualSimplifiedVideoInfo =
+				customSimplifiedVideoInfo ?? rawVideoInfo.Simplify(customStreamingData).SimplifiedVideoInfo;
+			if (actualSimplifiedVideoInfo.IsVideoInfoAvailable)
 			{
-				videoTitle = simplifiedVideoInfo.Info.Value<string>("title");
-				videoId = simplifiedVideoInfo.Info.Value<string>("id");
-				if (int.TryParse(simplifiedVideoInfo.Info.Value<string>("lengthSeconds"), out int lengthSeconds))
+				videoTitle = actualSimplifiedVideoInfo.Info.Value<string>("title");
+				videoId = actualSimplifiedVideoInfo.Info.Value<string>("id");
+				if (int.TryParse(actualSimplifiedVideoInfo.Info.Value<string>("length_seconds"), out int lengthSeconds))
 				{
 					videoDuration = TimeSpan.FromSeconds(lengthSeconds);
 				}
-				ownerChannelTitle = simplifiedVideoInfo.Info.Value<string>("ownerChannelTitle");
-				ownerChannelId = simplifiedVideoInfo.Info.Value<string>("ownerChannelId");
-				if (!int.TryParse(simplifiedVideoInfo.Info.Value<string>("viewCount"), out viewCount))
+				JObject jOwnerChannel = actualSimplifiedVideoInfo.Info.Value<JObject>("owner_channel");
+				if (jOwnerChannel != null)
+				{
+					ownerChannelTitle = jOwnerChannel.Value<string>("title");
+					ownerChannelId = jOwnerChannel.Value<string>("id");
+				}
+				if (!int.TryParse(actualSimplifiedVideoInfo.Info.Value<string>("view_count"), out viewCount))
 				{
 					viewCount = 0;
 				}
-				isPrivate = simplifiedVideoInfo.Info.Value<bool>("isPrivate");
-				isLiveContent = simplifiedVideoInfo.Info.Value<bool>("isLiveContent");
-				shortDescription = simplifiedVideoInfo.Info.Value<string>("shortDescription");
+				isPrivate = actualSimplifiedVideoInfo.Info.Value<bool>("is_private");
+				isLiveContent = actualSimplifiedVideoInfo.Info.Value<bool>("is_live_content");
+				shortDescription = actualSimplifiedVideoInfo.Info.Value<string>("short_description");
 			}
-			if (simplifiedVideoInfo.IsMicroformatInfoAvailable)
+			if (actualSimplifiedVideoInfo.IsMicroformatInfoAvailable)
 			{
-				description = simplifiedVideoInfo.Info.Value<string>("description");
-				isShort = simplifiedVideoInfo.Info.Value<bool>("isShort");
-				isFamilySafe = simplifiedVideoInfo.Info.Value<bool>("isFamilySafe");
-				isUnlisted = simplifiedVideoInfo.Info.Value<bool>("isUnlisted");
-				category = simplifiedVideoInfo.Info.Value<string>("category");
-				ExtractDatesFromMicroformat(simplifiedVideoInfo.Info, out dateUploaded, out datePublished);
+				description = actualSimplifiedVideoInfo.Info.Value<string>("description");
+				isShort = actualSimplifiedVideoInfo.Info.Value<bool>("is_short_format");
+				isFamilySafe = actualSimplifiedVideoInfo.Info.Value<bool>("is_family_safe");
+				isUnlisted = actualSimplifiedVideoInfo.Info.Value<bool>("is_unlisted");
+				category = actualSimplifiedVideoInfo.Info.Value<string>("category");
+				ExtractDatesFromMicroformat(actualSimplifiedVideoInfo.Info, out dateUploaded, out datePublished);
 			}
 
-			JArray jaThumbnails = simplifiedVideoInfo.Info.Value<JArray>("thumbnails");
+			JArray jaThumbnails = actualSimplifiedVideoInfo.Info.Value<JArray>("thumbnails");
 			if (jaThumbnails != null && jaThumbnails.Count > 0)
 			{
 				videoThumbnails = new List<YouTubeVideoThumbnail>();
@@ -221,7 +123,7 @@ namespace YouTubeApiLib
 				videoTitle, videoId, videoDuration, dateUploaded, datePublished, ownerChannelTitle,
 				ownerChannelId, descr, viewCount, category, isShort, isPrivate, isUnlisted,
 				isFamilySafe, isLiveContent, videoDetails, videoThumbnails,
-				rawVideoInfo, simplifiedVideoInfo, videoStatus);
+				rawVideoInfo, actualSimplifiedVideoInfo, videoStatus);
 
 			YouTubeStreamingData actualStreamingData = customStreamingData ?? rawVideoInfo.StreamingData?.Data;
 			YouTubeMediaFormatList mediaFormats = actualStreamingData?.Parse(downloader);
@@ -455,7 +357,7 @@ namespace YouTubeApiLib
 			}
 		}
 
-		private static JArray ThumbnailsToJson(IEnumerable<YouTubeVideoThumbnail> videoThumbnails)
+		internal static JArray ThumbnailsToJson(IEnumerable<YouTubeVideoThumbnail> videoThumbnails)
 		{
 			if (videoThumbnails == null)
 			{
@@ -565,7 +467,7 @@ namespace YouTubeApiLib
 				{
 					IYouTubeClient client = new YouTubeClientWebPage();
 					YouTubeMediaTrackUrlDecryptionData urlDecryptionData = new YouTubeMediaTrackUrlDecryptionData(webPage);
-					YouTubeRawVideoInfo youTubeRawVideoInfo = new YouTubeRawVideoInfo(rawVideoInfo, client, urlDecryptionData);
+					YouTubeRawVideoInfo youTubeRawVideoInfo = new YouTubeRawVideoInfo(rawVideoInfo, client, urlDecryptionData, DateTime.UtcNow);
 					return new YouTubeRawVideoInfoResult(youTubeRawVideoInfo, 200);
 				}
 				else
@@ -824,11 +726,11 @@ namespace YouTubeApiLib
 		public static void ExtractDatesFromMicroformat(
 			JObject jSimplifiedVideoInfo, out DateTime uploadDate, out DateTime publishDate)
 		{
-			string published = jSimplifiedVideoInfo.Value<string>("datePublished");
+			string published = jSimplifiedVideoInfo.Value<string>("date_publish");
 			if (!DateTime.TryParseExact(published, "yyyy-MM-ddTHH:mm:ssZ",
 				null, DateTimeStyles.AdjustToUniversal, out publishDate))
 			{
-				string startTimestamp = jSimplifiedVideoInfo.Value<string>("startTimestamp");
+				string startTimestamp = jSimplifiedVideoInfo.Value<string>("start_timestamp");
 				if (!DateTime.TryParseExact(startTimestamp, "yyyy-MM-ddTHH:mm:ssZ",
 					null, DateTimeStyles.AdjustToUniversal, out publishDate))
 				{
@@ -840,7 +742,7 @@ namespace YouTubeApiLib
 				}
 			}
 
-			string uploaded = jSimplifiedVideoInfo.Value<string>("dateUploaded");
+			string uploaded = jSimplifiedVideoInfo.Value<string>("date_upload");
 			ParseMicroformatDate(uploaded, out uploadDate);
 		}
 
@@ -850,15 +752,49 @@ namespace YouTubeApiLib
 			return $"{dt:yyyy-MM-dd\"T\"HH:mm:ss}Z";
 		}
 
-		internal static string DateTimeStringToUtcString(string s)
+		internal static string DateTimeStringToUtcString(string s, out DateTime dateTime)
 		{
 			if (!DateTime.TryParseExact(s, "MM/dd/yyyy HH:mm:ss",
-				null, DateTimeStyles.AssumeLocal, out DateTime dateTime))
+				null, DateTimeStyles.AssumeLocal, out dateTime))
 			{
 				return s;
 			}
 
 			return dateTime.ToUtcString();
+		}
+
+		internal static long ToUnixMilliseconds(this DateTime dateTime)
+		{
+			DateTime gmt = dateTime.Kind == DateTimeKind.Utc ? dateTime : dateTime.ToUniversalTime();
+			DateTimeOffset offset = new DateTimeOffset(gmt);
+			return offset.ToUnixTimeMilliseconds();
+		}
+
+		internal static long ToUnixTicks(this DateTime dateTime)
+		{
+			DateTime gmt = dateTime.Kind == DateTimeKind.Utc ? dateTime : dateTime.ToUniversalTime();
+			DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+			return (gmt - epoch).Ticks;
+		}
+
+		internal static string FormatVideoDuration(TimeSpan duration)
+		{
+			if (duration >= TimeSpan.FromHours(1))
+			{
+				return duration.ToString("h':'mm':'ss");
+			}
+			else if (duration >= TimeSpan.FromMinutes(1))
+			{
+				return duration.ToString("m':'ss");
+			}
+			else if (duration > TimeSpan.Zero)
+			{
+				return duration.ToString("\"0:\"ss");
+			}
+			else
+			{
+				return "0:00:00";
+			}
 		}
 
 		public static string UrlDecode(string inputString)
