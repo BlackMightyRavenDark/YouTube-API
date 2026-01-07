@@ -84,7 +84,7 @@ namespace YouTubeApiLib
 			YouTubeVideoPlayabilityStatus playabilityStatus = PlayabilityStatus;
 			YouTubeVideoDetails videoDetails = VideoDetails;
 			JObject jVideoDetails = VideoDetails?.Parse();
-			JObject jMicroformatRenderer = Microformat?.Value<JObject>("playerMicroformatRenderer");
+			JObject jMicroformatRenderer = (customMicroformat ?? Microformat)?.Value<JObject>("playerMicroformatRenderer");
 
 			JObject jSimplifiedVideoInfo = new JObject();
 			if (playabilityStatus != null)
