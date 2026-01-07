@@ -108,5 +108,26 @@ namespace YouTubeApiLib
 
 			return false;
 		}
+
+		public JObject ToJson()
+		{
+			JObject json = new JObject()
+			{
+				["status"] = string.IsNullOrWhiteSpace(Status) ? string.Empty : Status,
+				["reason"] = string.IsNullOrWhiteSpace(Reason) ? string.Empty : Reason,
+				["reason_details"] = string.IsNullOrWhiteSpace(ReasonDetails) ? string.Empty : ReasonDetails,
+				["is_playable"] = IsPlayable,
+				["is_playable_in_embed"] = IsPlayableInEmbed,
+				["is_private"] = IsPrivate,
+				["is_adult"] = IsAdult,
+				["is_login_required"] = IsLoginRequired,
+				["is_bot_warning"] = IsBotWarning
+			};
+			if (!string.IsNullOrEmpty(ThumbnailUrl))
+			{
+				json["thumbnail_url"] = ThumbnailUrl;
+			}
+			return json;
+		}
 	}
 }

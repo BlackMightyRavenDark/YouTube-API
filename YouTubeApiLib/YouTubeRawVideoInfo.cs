@@ -89,13 +89,7 @@ namespace YouTubeApiLib
 			JObject jSimplifiedVideoInfo = new JObject();
 			if (playabilityStatus != null)
 			{
-				JObject jPlayabilityStatus = new JObject()
-				{
-					["is_playable"] = playabilityStatus.IsPlayable,
-					["status"] = playabilityStatus.Status,
-					["is_playable_in_embed"] = playabilityStatus.IsPlayableInEmbed
-				};
-				jSimplifiedVideoInfo["playability_status"] = jPlayabilityStatus;
+				jSimplifiedVideoInfo["playability_status"] = playabilityStatus.ToJson();
 			}
 
 			string videoId;
