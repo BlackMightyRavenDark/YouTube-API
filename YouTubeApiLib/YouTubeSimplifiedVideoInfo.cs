@@ -15,5 +15,17 @@ namespace YouTubeApiLib
 			IsVideoInfoAvailable = isVideoInfoAvailable;
 			IsMicroformatInfoAvailable = isMicroformatInfoAvailable;
 		}
+
+		public static YouTubeSimplifiedVideoInfo MakeFromRaw(string rawJsonData, out string errorMessage)
+		{
+			// Искренне надеемся на то, что все необходимые данные в переданном JSON'е находятся на своих местах!
+			JObject json = Utils.TryParseJson(rawJsonData, out errorMessage);
+			return json != null ? new YouTubeSimplifiedVideoInfo(json, true, true) : null;
+		}
+
+		public static YouTubeSimplifiedVideoInfo MakeFromRaw(string rawJsonData)
+		{
+			return MakeFromRaw(rawJsonData, out _);
+		}
 	}
 }
