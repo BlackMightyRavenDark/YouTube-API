@@ -80,11 +80,11 @@ namespace YouTubeApiLib
 				Utils.ExtractYouTubeConfigFromWebPageCode(WebPageCode, VideoId?.Id) : null;
 		}
 
-		public YouTubeVideo GetVideo(FileDownloader downloader = null)
+		public YouTubeVideo GetVideo()
 		{
 			YouTubeRawVideoInfoResult rawVideoInfoResult = ExtractRawVideoInfo();
 			return rawVideoInfoResult.ErrorCode == 200 ?
-				rawVideoInfoResult.RawVideoInfo.ToVideo(downloader) : null;
+				rawVideoInfoResult.RawVideoInfo.ToVideo() : null;
 		}
 	}
 }

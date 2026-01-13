@@ -36,19 +36,19 @@ namespace YouTubeApiLib
 		public bool IsLiveContent { get; }
 
 		/// <summary>
-		/// Является ли данное видео прямой трансляцией (стримом) и находится ли она сейчас в эфире.
-		/// Внимание! Это значение может быть всегда положительным, даже если стрим был завершён какое-то время назад! Это глюк ютуба.
-		/// Лучше использовать метод 'UpdateIsLiveNow()'.
+		/// Указывает, является ли данное видео прямой трансляцией (стримом)
+		/// и находилась ли она в эфире в момент создания этого объекта.
+		/// Внимание! Это значение может быть всегда положительным,
+		/// даже если стрим был завершён какое-то время назад! Это глюк ютуба.
+		/// Для получения актуального значения, следует использовать метод 'UpdateIsLiveNow()'.
 		/// </summary>
 		public bool IsLiveNow => GetIsLiveNow();
 
 		public bool IsDashed { get; private set; }
 		public string DashManifestUrl { get; private set; }
 		public string HlsManifestUrl { get; private set; }
-		public YouTubeVideoDetails Details { get; private set; }
 		public List<YouTubeVideoThumbnail> Thumbnails { get; }
 		public Dictionary<string, YouTubeMediaFormatList> MediaTracks { get; }
-		public YouTubeRawVideoInfo RawInfo { get; private set; }
 
 		/// <summary>
 		/// Информация, на основе которой был создан этот объект.
@@ -75,9 +75,7 @@ namespace YouTubeApiLib
 			bool isUnlisted,
 			bool isFamilySafe,
 			bool isLiveContent,
-			YouTubeVideoDetails videoDetails,
 			List<YouTubeVideoThumbnail> thumbnails,
-			YouTubeRawVideoInfo rawInfo,
 			YouTubeSimplifiedVideoInfo simplifiedInfo,
 			YouTubeVideoPlayabilityStatus status)
 		{
@@ -98,20 +96,18 @@ namespace YouTubeApiLib
 			IsUnlisted = isUnlisted;
 			IsFamilySafe = isFamilySafe;
 			IsLiveContent = isLiveContent;
-			Details = videoDetails;
 			Thumbnails = thumbnails;
-			MediaTracks = new Dictionary<string, YouTubeMediaFormatList>();
-			RawInfo = rawInfo;
 			InitialSimplifiedInfo = simplifiedInfo;
 			Status = status;
 
-			UpdateStates();
+			MediaTracks = new Dictionary<string, YouTubeMediaFormatList>();
+			UpdateStates(InitialSimplifiedInfo?.RawVideoInfo);
 		}
 
 		public static YouTubeVideo CreateEmpty(YouTubeVideoPlayabilityStatus status)
 		{
 			return new YouTubeVideo(null, null, TimeSpan.Zero, DateTime.MaxValue, DateTime.MaxValue,
-				null, null, null, 0L, null, false, false, false, false, false, null, null, null, null, status);
+				null, null, null, 0L, null, false, false, false, false, false, null, null, status);
 		}
 
 		public static YouTubeVideo CreateEmpty()
@@ -145,7 +141,7 @@ namespace YouTubeApiLib
 			YouTubeRawVideoInfoResult rawVideoInfoResult = client.GetRawVideoInfo(videoId, out _);
 			if (rawVideoInfoResult.ErrorCode == 200)
 			{
-				return rawVideoInfoResult.RawVideoInfo.ToVideo(downloader);
+				return rawVideoInfoResult.RawVideoInfo.ToVideo();
 			}
 
 			return CreateEmpty(new YouTubeVideoPlayabilityStatus(404));
@@ -199,15 +195,15 @@ namespace YouTubeApiLib
 			return GetById(videoId, null, downloader);
 		}
 
-		public static YouTubeVideo GetByWebPage(YouTubeVideoWebPage videoWebPage, FileDownloader downloader = null)
+		public static YouTubeVideo GetByWebPage(YouTubeVideoWebPage videoWebPage)
 		{
-			return videoWebPage.GetVideo(downloader);
+			return videoWebPage.GetVideo();
 		}
 
-		public static YouTubeVideo GetByWebPage(string videoWebPageCode, FileDownloader downloader = null)
+		public static YouTubeVideo GetByWebPage(string videoWebPageCode)
 		{
 			YouTubeVideoWebPage videoWebPage = YouTubeVideoWebPage.MakeFromCode(videoWebPageCode);
-			return GetByWebPage(videoWebPage, downloader);
+			return GetByWebPage(videoWebPage);
 		}
 
 		public string GetUrl(int seekToSecond = 0)
@@ -245,7 +241,7 @@ namespace YouTubeApiLib
 						MediaTracks.Remove(clientName);
 					}
 
-					IsMultilingual = IsTranslatedAudioTrackPresent();
+					UpdateIsMultilingual();
 				}
 			}
 		}
@@ -253,8 +249,6 @@ namespace YouTubeApiLib
 		/// <summary>
 		/// Скачать заново и обновить список медиа-форматов и ссылок для скачивания.
 		/// Внимание! Текущий список и ссылки будут утеряны!
-		/// Текущая сырая информация (raw info) о видео будет обновлена в случае успешного вызова,
-		/// либо утеряна в случае неудачного вызова!
 		/// </summary>
 		/// <param name="client">
 		/// Клиент YouTube для получения информации о видео.
@@ -267,8 +261,7 @@ namespace YouTubeApiLib
 				MediaTracks.Remove(client.DisplayName);
 			}
 			YouTubeRawVideoInfoResult rawVideoInfoResult = YouTubeRawVideoInfo.Get(Id, client);
-			RawInfo = rawVideoInfoResult.RawVideoInfo;
-			UpdateStates();
+			UpdateStates(rawVideoInfoResult.RawVideoInfo);
 			if (rawVideoInfoResult.ErrorCode == 200)
 			{
 				UpdateMediaFormats(rawVideoInfoResult.RawVideoInfo);
@@ -296,7 +289,7 @@ namespace YouTubeApiLib
 
 		private bool GetIsInfoAvailable()
 		{
-			return RawInfo?.VideoDetails != null &&
+			return InitialSimplifiedInfo != null &&
 				(InitialSimplifiedInfo.IsVideoInfoAvailable || InitialSimplifiedInfo.IsMicroformatInfoAvailable);
 		}
 
@@ -305,19 +298,15 @@ namespace YouTubeApiLib
 			return Status != null && Status.IsPlayable;
 		}
 
-		public bool UpdateVideoDetails()
-		{
-			Details = Utils.GetVideoDetails(Id);
-			return Details != null;
-		}
-
 		private bool GetIsLiveNow()
 		{
-			JObject jDetails = Details?.Parse();
-			if (jDetails != null)
+			if (InitialSimplifiedInfo?.SimplifiedVideoInfo != null)
 			{
-				JToken jt = jDetails.Value<JToken>("isLive");
-				if (jt != null) { return jt.Value<bool>(); }
+				JObject jStream = InitialSimplifiedInfo.SimplifiedVideoInfo.Value<JObject>("live_stream_info");
+				if (jStream != null)
+				{
+					return jStream.Value<bool>("is_live_now");
+				}
 			}
 
 			return !string.IsNullOrEmpty(HlsManifestUrl);
@@ -347,13 +336,46 @@ namespace YouTubeApiLib
 
 		public YouTubeSimplifiedVideoInfo GetSimplifiedInfo()
 		{
-			YouTubeSimplifiedVideoInfoResult infoResult = RawInfo.Simplify();
-			return infoResult.ErrorCode == 200 ? infoResult.SimplifiedVideoInfo : null;
+			JObject json = Utils.TryParseJson(InitialSimplifiedInfo.SimplifiedVideoInfo.ToString());
+			if (json != null)
+			{
+				if (MediaTracks.Count > 0)
+				{
+					if (json.ContainsKey("download_urls")) { json.Remove("download_urls"); }
+					JArray jaDownloadUrls = new JArray();
+					foreach (var item in MediaTracks)
+					{
+						JObject jStreamingData = Utils.TryParseJson(item.Value.RawData);
+						JObject jClient = new JObject()
+						{
+							["client_id"] = item.Key,
+							["streaming_data"] = jStreamingData
+						};
+
+						if (item.Value.DateReceived < DateTime.MaxValue)
+						{
+							jClient["api_calling_date"] = item.Value.DateReceived;
+							jClient["api_calling_date_unix_ticks"] = item.Value.DateReceived.ToUnixTimeTicks();
+						}
+
+						jaDownloadUrls.Add(jClient);
+					}
+
+					if (jaDownloadUrls.Count > 0)
+					{
+						json["download_urls"] = jaDownloadUrls;
+					}
+				}
+
+				return new YouTubeSimplifiedVideoInfo(json, true, true, InitialSimplifiedInfo.RawVideoInfo);
+			}
+
+			return null;
 		}
 
-		private void UpdateStates()
+		private void UpdateStates(YouTubeRawVideoInfo rawVideoInfo)
 		{
-			YouTubeStreamingData streamingData = RawInfo?.StreamingData.Data;
+			YouTubeStreamingData streamingData = rawVideoInfo?.StreamingData.Data;
 			if (streamingData != null)
 			{
 				DashManifestUrl = streamingData.GetDashManifestUrl();
@@ -366,6 +388,14 @@ namespace YouTubeApiLib
 				IsDashed = false;
 				HlsManifestUrl = null;
 			}
+		}
+
+		/// <summary>
+		/// Обновить значение свойства "IsMultilingual".
+		/// </summary>
+		internal void UpdateIsMultilingual()
+		{
+			IsMultilingual = IsTranslatedAudioTrackPresent();
 		}
 
 		public IEnumerable<YouTubeMediaTrack> GetAllMediaTracks()

@@ -226,13 +226,15 @@ namespace YouTubeApiLib.ConsoleTest
 						Console.WriteLine("Video info is unavailable!");
 					}
 
-					Console.Write("Type 'Y' to print full raw data or just press ENTER to exit...");
-					string userAnswer = Console.ReadLine();
-					if (userAnswer == "y" || userAnswer == "Y")
+					if (video.InitialSimplifiedInfo.RawVideoInfo?.RawData != null)
 					{
-						Console.Write("Raw info: ");
-						Console.WriteLine(video.RawInfo != null ? $"\n{video.RawInfo}" : "null");
-						Console.ReadLine();
+						Console.Write("Type 'Y' to print full raw data or just press ENTER to exit...");
+						string userAnswer = Console.ReadLine();
+						if (userAnswer == "y" || userAnswer == "Y")
+						{
+							Console.WriteLine($"Raw info:\n{video.InitialSimplifiedInfo.RawVideoInfo.RawData}");
+							Console.ReadLine();
+						}
 					}
 				}
 				else

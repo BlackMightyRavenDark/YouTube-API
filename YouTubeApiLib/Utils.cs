@@ -14,6 +14,7 @@ namespace YouTubeApiLib
 	public static class Utils
 	{
 		public const string YOUTUBE_URL = "https://www.youtube.com";
+		private static readonly DateTime unixMinDateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
 		public static string GetYouTubeVideoUrl(string videoId, int seekToSecond = 0)
 		{
@@ -26,155 +27,6 @@ namespace YouTubeApiLib
 		{
 			int seconds = seekTo != null && seekTo > TimeSpan.Zero ? (int)seekTo.TotalSeconds : 0;
 			return GetYouTubeVideoUrl(videoId, seconds);
-		}
-
-		/// <summary>
-		/// Создаёт объект класса "YouTubeVideo" из переданных аргументов.
-		/// </summary>
-		/// <param name="customSimplifiedVideoInfo">
-		/// Если не 'null', эти данные будут использованы вместо данных из "rawVideoInfo".
-		/// </param>
-		/// <param name="customStreamingData">
-		/// Если не 'null', эти данные будут использованы вместо "rawVideoInfo.StreamingData.Data".
-		/// </param>
-		/// <param name="downloader">
-		/// Объект скачивателя, который будет использован для получения дополнительных данных (если это необходимо).
-		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
-		/// </param>
-		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo,
-			YouTubeSimplifiedVideoInfo customSimplifiedVideoInfo, YouTubeStreamingData customStreamingData,
-			FileDownloader downloader = null)
-		{
-			string videoTitle = null;
-			string videoId = null;
-			TimeSpan videoDuration = TimeSpan.Zero;
-			string ownerChannelTitle = null;
-			string ownerChannelId = null;
-			int viewCount = 0;
-			bool isPrivate = false;
-			bool isLiveContent = false;
-			string shortDescription = null;
-
-			string description = null;
-			bool isShort = false;
-			bool isFamilySafe = true;
-			bool isUnlisted = false;
-			string category = null;
-			DateTime datePublished = DateTime.MaxValue;
-			DateTime dateUploaded = DateTime.MaxValue;
-
-			List<YouTubeVideoThumbnail> videoThumbnails = null;
-
-			YouTubeSimplifiedVideoInfo actualSimplifiedVideoInfo =
-				customSimplifiedVideoInfo ?? rawVideoInfo.Simplify(customStreamingData).SimplifiedVideoInfo;
-			if (actualSimplifiedVideoInfo.IsVideoInfoAvailable)
-			{
-				videoTitle = actualSimplifiedVideoInfo.Info.Value<string>("title");
-				videoId = actualSimplifiedVideoInfo.Info.Value<string>("id");
-				if (int.TryParse(actualSimplifiedVideoInfo.Info.Value<string>("length_seconds"), out int lengthSeconds))
-				{
-					videoDuration = TimeSpan.FromSeconds(lengthSeconds);
-				}
-				JObject jOwnerChannel = actualSimplifiedVideoInfo.Info.Value<JObject>("owner_channel");
-				if (jOwnerChannel != null)
-				{
-					ownerChannelTitle = jOwnerChannel.Value<string>("title");
-					ownerChannelId = jOwnerChannel.Value<string>("id");
-				}
-				if (!int.TryParse(actualSimplifiedVideoInfo.Info.Value<string>("view_count"), out viewCount))
-				{
-					viewCount = 0;
-				}
-				isPrivate = actualSimplifiedVideoInfo.Info.Value<bool>("is_private");
-				isLiveContent = actualSimplifiedVideoInfo.Info.Value<bool>("is_live_content");
-				shortDescription = actualSimplifiedVideoInfo.Info.Value<string>("short_description");
-			}
-			if (actualSimplifiedVideoInfo.IsMicroformatInfoAvailable)
-			{
-				description = actualSimplifiedVideoInfo.Info.Value<string>("description");
-				isShort = actualSimplifiedVideoInfo.Info.Value<bool>("is_short_format");
-				isFamilySafe = actualSimplifiedVideoInfo.Info.Value<bool>("is_family_safe");
-				isUnlisted = actualSimplifiedVideoInfo.Info.Value<bool>("is_unlisted");
-				category = actualSimplifiedVideoInfo.Info.Value<string>("category");
-				ExtractDatesFromMicroformat(actualSimplifiedVideoInfo.Info, out dateUploaded, out datePublished);
-			}
-
-			JArray jaThumbnails = actualSimplifiedVideoInfo.Info.Value<JArray>("thumbnails");
-			if (jaThumbnails != null && jaThumbnails.Count > 0)
-			{
-				videoThumbnails = new List<YouTubeVideoThumbnail>();
-				foreach (JObject jThumbnail in jaThumbnails.Cast<JObject>())
-				{
-					ushort width = jThumbnail.Value<ushort>("width");
-					ushort height = jThumbnail.Value<ushort>("height");
-					string fileName = jThumbnail.Value<string>("fileName");
-					if (string.IsNullOrEmpty(fileName) || string.IsNullOrWhiteSpace(fileName)) { fileName = "unnamed.dat"; }
-					string url = jThumbnail.Value<string>("url");
-					videoThumbnails.Add(new YouTubeVideoThumbnail(width, height, fileName, url));
-				}
-			}
-
-			YouTubeVideoDetails videoDetails = rawVideoInfo.VideoDetails;
-			YouTubeVideoPlayabilityStatus videoStatus = rawVideoInfo.PlayabilityStatus;
-
-			string descr = !string.IsNullOrEmpty(description) ? description : shortDescription;
-
-			YouTubeVideo youTubeVideo = new YouTubeVideo(
-				videoTitle, videoId, videoDuration, dateUploaded, datePublished, ownerChannelTitle,
-				ownerChannelId, descr, viewCount, category, isShort, isPrivate, isUnlisted,
-				isFamilySafe, isLiveContent, videoDetails, videoThumbnails,
-				rawVideoInfo, actualSimplifiedVideoInfo, videoStatus);
-
-			YouTubeStreamingData actualStreamingData = customStreamingData ?? rawVideoInfo.StreamingData?.Data;
-			YouTubeMediaFormatList mediaFormats = actualStreamingData?.Parse(downloader);
-			if (mediaFormats != null)
-			{
-				string clientName = mediaFormats.Client?.DisplayName ?? "unknown";
-				youTubeVideo.MediaTracks[clientName] = mediaFormats;
-			}
-
-			return youTubeVideo;
-		}
-
-		/// <summary>
-		/// Создаёт объект класса "YouTubeVideo" из переданных аргументов.
-		/// </summary>
-		/// <param name="customMicroformat">
-		/// Если не 'null', эти данные будут использованы вместо "rawVideoInfo.Microformat".
-		/// </param>
-		/// <param name="downloader">
-		/// Объект скачивателя, который будет использован для получения дополнительных данных (если это необходимо).
-		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
-		/// </param>
-		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo, JObject customMicroformat,
-			FileDownloader downloader = null)
-		{
-			if (rawVideoInfo.PlayabilityStatus.IsLoginRequired || rawVideoInfo.PlayabilityStatus.IsBotWarning)
-			{
-				return YouTubeVideo.CreateEmpty(rawVideoInfo.PlayabilityStatus);
-			}
-
-			JObject actualMicroformat = customMicroformat ?? rawVideoInfo.Microformat;
-			YouTubeSimplifiedVideoInfoResult simplifiedVideoInfoResult = rawVideoInfo.Simplify(actualMicroformat);
-			if (simplifiedVideoInfoResult.ErrorCode != 200)
-			{
-				return YouTubeVideo.CreateEmpty(rawVideoInfo.PlayabilityStatus);
-			}
-
-			return MakeYouTubeVideo(rawVideoInfo, simplifiedVideoInfoResult.SimplifiedVideoInfo, downloader);
-		}
-
-		/// <summary>
-		/// Создаёт объект класса "YouTubeVideo" из переданных аргументов.
-		/// </summary>
-		/// <param name="downloader">
-		/// Объект скачивателя, который будет использован для получения дополнительных данных (если это необходимо).
-		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
-		/// </param>
-		public static YouTubeVideo MakeYouTubeVideo(YouTubeRawVideoInfo rawVideoInfo,
-			YouTubeSimplifiedVideoInfo simplifiedVideoInfo, FileDownloader downloader = null)
-		{
-			return MakeYouTubeVideo(rawVideoInfo, simplifiedVideoInfo, null, downloader);
 		}
 
 		public static YouTubeVideoDetails GetVideoDetails(string videoId, IYouTubeClient client)
@@ -726,24 +578,40 @@ namespace YouTubeApiLib
 		public static void ExtractDatesFromMicroformat(
 			JObject jSimplifiedVideoInfo, out DateTime uploadDate, out DateTime publishDate)
 		{
-			string published = jSimplifiedVideoInfo.Value<string>("date_publish");
-			if (!DateTime.TryParseExact(published, "yyyy-MM-ddTHH:mm:ssZ",
-				null, DateTimeStyles.AdjustToUniversal, out publishDate))
+			if (jSimplifiedVideoInfo.ContainsKey("date_publish_unix"))
 			{
-				string startTimestamp = jSimplifiedVideoInfo.Value<string>("start_timestamp");
-				if (!DateTime.TryParseExact(startTimestamp, "yyyy-MM-ddTHH:mm:ssZ",
+				long unixMilliseconds = jSimplifiedVideoInfo.Value<long>("date_publish_unix");
+				publishDate = UnixTimeMillisecondsToDateTime(unixMilliseconds);
+			}
+			else
+			{
+				string published = jSimplifiedVideoInfo.Value<string>("date_publish");
+				if (!DateTime.TryParseExact(published, "yyyy-MM-ddTHH:mm:ssZ",
 					null, DateTimeStyles.AdjustToUniversal, out publishDate))
 				{
-					if (!DateTime.TryParseExact(published, "yyyy-MM-dd",
-						null, DateTimeStyles.AssumeLocal, out publishDate))
+					string startTimestamp = jSimplifiedVideoInfo.Value<string>("start_timestamp");
+					if (!DateTime.TryParseExact(startTimestamp, "yyyy-MM-ddTHH:mm:ssZ",
+						null, DateTimeStyles.AdjustToUniversal, out publishDate))
 					{
-						publishDate = DateTime.MaxValue;
+						if (!DateTime.TryParseExact(published, "yyyy-MM-dd",
+							null, DateTimeStyles.AssumeLocal, out publishDate))
+						{
+							publishDate = DateTime.MaxValue;
+						}
 					}
 				}
 			}
 
-			string uploaded = jSimplifiedVideoInfo.Value<string>("date_upload");
-			ParseMicroformatDate(uploaded, out uploadDate);
+			if (jSimplifiedVideoInfo.ContainsKey("date_upload_unix"))
+			{
+				long unixMilliseconds = jSimplifiedVideoInfo.Value<long>("date_upload_unix");
+				uploadDate = UnixTimeMillisecondsToDateTime(unixMilliseconds);
+			}
+			else
+			{
+				string uploaded = jSimplifiedVideoInfo.Value<string>("date_upload");
+				ParseMicroformatDate(uploaded, out uploadDate);
+			}
 		}
 
 		public static string ToUtcString(this DateTime dateTime)
@@ -763,18 +631,27 @@ namespace YouTubeApiLib
 			return dateTime.ToUtcString();
 		}
 
-		internal static long ToUnixMilliseconds(this DateTime dateTime)
+		internal static long ToUnixTimeMilliseconds(this DateTime dateTime)
 		{
 			DateTime gmt = dateTime.Kind == DateTimeKind.Utc ? dateTime : dateTime.ToUniversalTime();
 			DateTimeOffset offset = new DateTimeOffset(gmt);
 			return offset.ToUnixTimeMilliseconds();
 		}
 
-		internal static long ToUnixTicks(this DateTime dateTime)
+		internal static long ToUnixTimeTicks(this DateTime dateTime)
 		{
 			DateTime gmt = dateTime.Kind == DateTimeKind.Utc ? dateTime : dateTime.ToUniversalTime();
-			DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-			return (gmt - epoch).Ticks;
+			return (gmt - unixMinDateTime).Ticks;
+		}
+
+		internal static DateTime UnixTimeMillisecondsToDateTime(long unixMillliseconds)
+		{
+			return new DateTime(unixMinDateTime.Ticks + unixMillliseconds * 10000, DateTimeKind.Utc);
+		}
+
+		internal static DateTime UnixTimeTicksToDateTime(long unixTicks)
+		{
+			return new DateTime(unixMinDateTime.Ticks + unixTicks, DateTimeKind.Utc);
 		}
 
 		internal static string FormatVideoDuration(TimeSpan duration)

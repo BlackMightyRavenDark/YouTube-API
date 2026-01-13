@@ -88,7 +88,7 @@ namespace YouTubeApiLib.ConsoleTest
 				int errorCode = Utils.YouTubeHttpPost(YouTubeApiV1.API_V1_PLAYER_URL, body.ToString(), headers, out string response);
 				if (errorCode == 200)
 				{
-					rawVideoInfo = YouTubeRawVideoInfo.MakeFromRaw(response, this);
+					rawVideoInfo = YouTubeRawVideoInfo.MakeFromRaw(response, this, System.DateTime.UtcNow);
 					errorMessage = null;
 					return 200;
 				}

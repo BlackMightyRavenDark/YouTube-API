@@ -67,7 +67,8 @@ namespace YouTubeApiLib
 				}
 			}
 
-			return new YouTubeMediaFormatList(mediaTracks, streamingData.Client, streamingData.UrlDecryptionData);
+			return new YouTubeMediaFormatList(mediaTracks, streamingData.Client, streamingData.DateReceived,
+				streamingData.UrlDecryptionData, streamingData.RawData);
 		}
 
 		private static IEnumerable<YouTubeMediaTrack> ParseFormatList(JArray jaFormats, bool isAdaptive)

@@ -68,9 +68,16 @@ namespace YouTubeApiLib
 		}
 
 		public static YouTubeRawVideoInfo MakeFromRaw(string rawData, IYouTubeClient client,
+			DateTime apiCallingDate,
 			YouTubeMediaTrackUrlDecryptionData urlDecryptionData = null)
 		{
-			return new YouTubeRawVideoInfo(rawData, client, urlDecryptionData, DateTime.UtcNow);
+			return new YouTubeRawVideoInfo(rawData, client, urlDecryptionData, apiCallingDate);
+		}
+
+		public static YouTubeRawVideoInfo MakeFromRaw(string rawData, IYouTubeClient client,
+			YouTubeMediaTrackUrlDecryptionData urlDecryptionData = null)
+		{
+			return MakeFromRaw(rawData, client, DateTime.MaxValue, urlDecryptionData);
 		}
 
 		public static YouTubeRawVideoInfo MakeFromRaw(string rawData)
@@ -78,13 +85,12 @@ namespace YouTubeApiLib
 			return MakeFromRaw(rawData, null);
 		}
 
-		public YouTubeSimplifiedVideoInfoResult Simplify(JObject customMicroformat,
-			YouTubeStreamingData customStreamingData)
+		public YouTubeSimplifiedVideoInfoResult Simplify(bool storeStreamingData = true)
 		{
 			YouTubeVideoPlayabilityStatus playabilityStatus = PlayabilityStatus;
 			YouTubeVideoDetails videoDetails = VideoDetails;
 			JObject jVideoDetails = VideoDetails?.Parse();
-			JObject jMicroformatRenderer = (customMicroformat ?? Microformat)?.Value<JObject>("playerMicroformatRenderer");
+			JObject jMicroformatRenderer = Microformat?.Value<JObject>("playerMicroformatRenderer");
 
 			JObject jSimplifiedVideoInfo = new JObject();
 			if (playabilityStatus != null)
@@ -144,12 +150,12 @@ namespace YouTubeApiLib
 				{
 					string date = jMicroformatRenderer.Value<string>("publishDate");
 					jSimplifiedVideoInfo["date_publish"] = DateTimeStringToUtcString(date, out DateTime dateTime);
-					jSimplifiedVideoInfo["date_publish_unix"] = dateTime.ToUnixMilliseconds();
+					jSimplifiedVideoInfo["date_publish_unix"] = dateTime.ToUnixTimeMilliseconds();
 				}
 				{
 					string date = jMicroformatRenderer.Value<string>("uploadDate");
 					jSimplifiedVideoInfo["date_upload"] = DateTimeStringToUtcString(date, out DateTime dateTime);
-					jSimplifiedVideoInfo["date_upload_unix"] = dateTime.ToUnixMilliseconds();
+					jSimplifiedVideoInfo["date_upload_unix"] = dateTime.ToUnixTimeMilliseconds();
 				}
 
 				JObject jLiveBroadcastDetails = jMicroformatRenderer.Value<JObject>("liveBroadcastDetails");
@@ -164,7 +170,7 @@ namespace YouTubeApiLib
 					{
 						string date = jLiveBroadcastDetails.Value<string>("startTimestamp");
 						jLive["start_timestamp"] = DateTimeStringToUtcString(date, out DateTime dateTime);
-						jLive["start_timestamp_unix"] = dateTime.ToUnixMilliseconds();
+						jLive["start_timestamp_unix"] = dateTime.ToUnixTimeMilliseconds();
 					}
 					if (!isLiveNow)
 					{
@@ -172,7 +178,7 @@ namespace YouTubeApiLib
 						if (!string.IsNullOrEmpty(date) && !string.IsNullOrWhiteSpace(date))
 						{
 							jLive["end_timestamp"] = DateTimeStringToUtcString(date, out DateTime dateTime);
-							jLive["end_timestamp_unix"] = dateTime.ToUnixMilliseconds();
+							jLive["end_timestamp_unix"] = dateTime.ToUnixTimeMilliseconds();
 						}
 					}
 
@@ -186,43 +192,35 @@ namespace YouTubeApiLib
 				jSimplifiedVideoInfo["thumbnails"] = ThumbnailsToJson(videoThumbnails);
 			}
 
-			JObject jDownloadUrls = new JObject()
+			if (storeStreamingData)
 			{
-				["client_id"] = Client?.DisplayName ?? "unknown"
-			};
-
-			YouTubeStreamingData streamingData = customStreamingData ?? StreamingData.Data;
-			if (streamingData != null)
-			{
-				JObject jStreamingData = TryParseJson(streamingData.RawData);
-				if (jStreamingData != null)
+				YouTubeStreamingData streamingData = StreamingData.Data;
+				if (streamingData != null)
 				{
-					jDownloadUrls["streaming_data"] = jStreamingData;
-					jDownloadUrls["api_calling_date"] = streamingData.DateReceived;
-					jDownloadUrls["api_calling_date_unix_ticks"] = streamingData.DateReceived.ToUnixTicks();
+					JObject jStreamingData = TryParseJson(streamingData.RawData);
+					if (jStreamingData != null)
+					{
+						JObject jClient = new JObject()
+						{
+							["client_id"] = Client?.DisplayName ?? "unknown",
+							["streaming_data"] = jStreamingData
+						};
+
+						if (streamingData.DateReceived < DateTime.MaxValue)
+						{
+							jClient["api_calling_date"] = streamingData.DateReceived;
+							jClient["api_calling_date_unix_ticks"] = streamingData.DateReceived.ToUnixTimeTicks();
+						}
+
+						JArray jaDownloadUrls = new JArray() { jClient };
+						jSimplifiedVideoInfo["download_urls"] = jaDownloadUrls;
+					}
 				}
 			}
 
-			jSimplifiedVideoInfo["download_urls"] = jDownloadUrls;
-
 			YouTubeSimplifiedVideoInfo simplifiedVideoInfo = new YouTubeSimplifiedVideoInfo(
-				jSimplifiedVideoInfo, jVideoDetails != null, jMicroformatRenderer != null);
+				jSimplifiedVideoInfo, jVideoDetails != null, jMicroformatRenderer != null, this);
 			return new YouTubeSimplifiedVideoInfoResult(simplifiedVideoInfo, 200);
-		}
-
-		public YouTubeSimplifiedVideoInfoResult Simplify(JObject customMicroformat)
-		{
-			return Simplify(customMicroformat, null);
-		}
-
-		public YouTubeSimplifiedVideoInfoResult Simplify(YouTubeStreamingData customStreamingData)
-		{
-			return Simplify(null, customStreamingData);
-		}
-
-		public YouTubeSimplifiedVideoInfoResult Simplify()
-		{
-			return Simplify(null, null);
 		}
 
 		private YouTubeVideoPlayabilityStatus ExtractPlayabilityStatus()
@@ -269,30 +267,12 @@ namespace YouTubeApiLib
 		}
 
 		/// <summary>
-		/// Создаёт объект класса "YouTubeVideo" из переданных аргументов.
+		/// Создаёт объект класса "YouTubeVideo".
 		/// </summary>
-		/// <param name="customMicroformat">
-		/// Если не 'null', эти данные будут использованы вместо текущих.
-		/// </param>
-		/// <param name="downloader">
-		/// Объект скачивателя, который будет использован для получения дополнительных данных (если это необходимо).
-		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
-		/// </param>
-		public YouTubeVideo ToVideo(JObject customMicroformat, FileDownloader downloader = null)
+		public YouTubeVideo ToVideo()
 		{
-			return MakeYouTubeVideo(this, customMicroformat, downloader);
-		}
-
-		/// <summary>
-		/// Создаёт объект класса "YouTubeVideo" из переданных аргументов.
-		/// </summary>
-		/// <param name="downloader">
-		/// Объект скачивателя, который будет использован для получения дополнительных данных (если это необходимо).
-		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
-		/// </param>
-		public YouTubeVideo ToVideo(FileDownloader downloader = null)
-		{
-			return ToVideo(null, downloader);
+			YouTubeSimplifiedVideoInfoResult simplified = Simplify();
+			return simplified.ErrorCode == 200 ? simplified.SimplifiedVideoInfo.ToVideo() : null;
 		}
 
 		public bool PreParse()

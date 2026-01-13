@@ -58,14 +58,20 @@ namespace YouTubeApiLib
 		}
 
 		public static YouTubeStreamingData MakeFromRaw(string rawData, IYouTubeClient client,
+			DateTime dateReceived,
 			YouTubeMediaTrackUrlDecryptionData urlDecryptionData = null)
 		{
-			return new YouTubeStreamingData(rawData, client, urlDecryptionData, DateTime.UtcNow);
+			return new YouTubeStreamingData(rawData, client, urlDecryptionData, dateReceived);
+		}
+
+		public static YouTubeStreamingData MakeFromRaw(string rawData, DateTime dateReceived)
+		{
+			return MakeFromRaw(rawData, null, dateReceived);
 		}
 
 		public static YouTubeStreamingData MakeFromRaw(string rawData)
 		{
-			return MakeFromRaw(rawData, null);
+			return MakeFromRaw(rawData, DateTime.UtcNow);
 		}
 
 		public YouTubeMediaFormatList Parse(FileDownloader downloader = null)

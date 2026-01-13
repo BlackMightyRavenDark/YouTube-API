@@ -35,6 +35,24 @@ namespace YouTubeApiLib
 			IsBotWarning = GetIsBotWarning();
 		}
 
+		public YouTubeVideoPlayabilityStatus(string status, string reason, string reasonDetails,
+			bool isPlayable, bool isPlayableInEmbed, bool isPrivate, bool isAdult,
+			bool isLoginRequired, bool isBotWarning, string thumbnailUrl, string rawInfo = null)
+		{
+			Status = status;
+			Reason = reason;
+			ReasonDetails = reasonDetails;
+			IsPlayable = isPlayable;
+			IsPlayableInEmbed = isPlayableInEmbed;
+			IsPrivate = isPrivate;
+			IsAdult = isAdult;
+			IsLoginRequired = isLoginRequired;
+			IsBotWarning = isBotWarning;
+			ThumbnailUrl = thumbnailUrl;
+			RawInfo = rawInfo;
+			ErrorCode = string.Compare(status, "OK", true) == 0 ? 200 : 403;
+		}
+
 		public YouTubeVideoPlayabilityStatus(int errorCode)
 			: this(null, null, null, false, null, errorCode, null) { }
 
@@ -128,6 +146,21 @@ namespace YouTubeApiLib
 				json["thumbnail_url"] = ThumbnailUrl;
 			}
 			return json;
+		}
+
+		public static YouTubeVideoPlayabilityStatus FromJson(JObject json)
+		{
+			return new YouTubeVideoPlayabilityStatus(
+				json.Value<string>("status"),
+				json.Value<string>("reason"),
+				json.Value<string>("reason_details"),
+				json.Value<bool>("is_playable"),
+				json.Value<bool>("is_playable_in_embed"),
+				json.Value<bool>("is_private"),
+				json.Value<bool>("is_adult"),
+				json.Value<bool>("is_login_required"),
+				json.Value<bool>("is_bot_warning"),
+				json.Value<string>("thumbnail_url"));
 		}
 	}
 }
