@@ -197,21 +197,9 @@ namespace YouTubeApiLib
 				YouTubeStreamingData streamingData = StreamingData.Data;
 				if (streamingData != null)
 				{
-					JObject jStreamingData = TryParseJson(streamingData.RawData);
-					if (jStreamingData != null)
+					JObject jClient = YouTubeSimplifiedVideoInfo.FormatApiClientJson(streamingData);
+					if (jClient != null)
 					{
-						JObject jClient = new JObject()
-						{
-							["client_id"] = Client?.DisplayName ?? "unknown",
-							["streaming_data"] = jStreamingData
-						};
-
-						if (streamingData.DateReceived < DateTime.MaxValue)
-						{
-							jClient["api_calling_date"] = streamingData.DateReceived;
-							jClient["api_calling_date_unix_ticks"] = streamingData.DateReceived.ToUnixTimeTicks();
-						}
-
 						JArray jaDownloadUrls = new JArray() { jClient };
 						jSimplifiedVideoInfo["download_urls"] = jaDownloadUrls;
 					}

@@ -345,20 +345,9 @@ namespace YouTubeApiLib
 					JArray jaDownloadUrls = new JArray();
 					foreach (var item in MediaTracks)
 					{
-						JObject jStreamingData = Utils.TryParseJson(item.Value.RawData);
-						JObject jClient = new JObject()
-						{
-							["client_id"] = item.Key,
-							["streaming_data"] = jStreamingData
-						};
-
-						if (item.Value.DateReceived < DateTime.MaxValue)
-						{
-							jClient["api_calling_date"] = item.Value.DateReceived;
-							jClient["api_calling_date_unix_ticks"] = item.Value.DateReceived.ToUnixTimeTicks();
-						}
-
-						jaDownloadUrls.Add(jClient);
+						JObject jClient = YouTubeSimplifiedVideoInfo.FormatApiClientJson(
+							item.Value.RawData, item.Value.DateReceived, item.Value.Client?.DisplayName);
+						if (jClient != null) { jaDownloadUrls.Add(jClient); }
 					}
 
 					if (jaDownloadUrls.Count > 0)

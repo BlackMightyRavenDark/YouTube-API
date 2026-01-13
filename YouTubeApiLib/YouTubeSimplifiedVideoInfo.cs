@@ -157,6 +157,32 @@ namespace YouTubeApiLib
 			return youTubeVideo;
 		}
 
+		internal static JObject FormatApiClientJson(string streamingDataRaw, DateTime dateReceived, string apiClientId)
+		{
+			JObject jStreamingData = Utils.TryParseJson(streamingDataRaw);
+			if (jStreamingData == null) { return null; }
+
+			string actualClientId = string.IsNullOrEmpty(apiClientId) || string.IsNullOrWhiteSpace(apiClientId) ? "unknown" : apiClientId;
+			JObject jClient = new JObject()
+			{
+				["client_id"] = actualClientId,
+				["streaming_data"] = jStreamingData
+			};
+
+			if (dateReceived < DateTime.MaxValue)
+			{
+				jClient["api_calling_date"] = dateReceived;
+				jClient["api_calling_date_unix_ticks"] = dateReceived.ToUnixTimeTicks();
+			}
+
+			return jClient;
+		}
+
+		internal static JObject FormatApiClientJson(YouTubeStreamingData streamingData)
+		{
+			return FormatApiClientJson(streamingData.RawData, streamingData.DateReceived, streamingData.Client?.DisplayName);
+		}
+
 		private static DateTime ExtractApiCallingDate(JObject json)
 		{
 			long unixTicks = json.Value<long>("api_calling_date_unix_ticks");
