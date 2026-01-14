@@ -80,17 +80,20 @@ namespace YouTubeApiLib
 			return null;
 		}
 
-		internal static IEnumerable<YouTubeVideoThumbnail> GetThumbnails(
+		internal static List<YouTubeVideoThumbnail> GetThumbnails(
 			YouTubeVideoDetails videoDetails, JObject jMicroformat, string videoId = null)
 		{
 			var microformatThumbnails = ExtractThumbnailsFromMicroformat(jMicroformat);
-			var videoDetailsThumbnails = ExtractThumbnails(videoDetails.Parse().Value<JObject>("thumbnail")?.Value<JArray>("thumbnails"));
-			List<YouTubeVideoThumbnail> thumbnails = new List<YouTubeVideoThumbnail>();
-			if (microformatThumbnails == null && videoDetailsThumbnails == null &&
-				microformatThumbnails.Count() <= 0 && videoDetailsThumbnails.Count() <= 0)
+			var videoDetailsThumbnails = videoDetails != null ? ExtractThumbnails(videoDetails.Parse().Value<JObject>("thumbnail")?.Value<JArray>("thumbnails")) : null;
+
+			if ((microformatThumbnails == null && videoDetailsThumbnails == null) ||
+				(microformatThumbnails != null && microformatThumbnails.Count() <= 0 &&
+				videoDetailsThumbnails != null && videoDetailsThumbnails.Count() <= 0))
 			{
-				return thumbnails;
+				return null;
 			}
+
+			List<YouTubeVideoThumbnail> thumbnails = new List<YouTubeVideoThumbnail>();
 
 			if (microformatThumbnails != null) { thumbnails.AddRange(microformatThumbnails); }
 			if (videoDetailsThumbnails != null)
@@ -133,7 +136,7 @@ namespace YouTubeApiLib
 				}
 			}
 
-			if (!string.IsNullOrEmpty(videoId))
+			if (!string.IsNullOrEmpty(videoId) && !string.IsNullOrWhiteSpace(videoId))
 			{
 				// Добавляем в список стандартные ссылки (на всякий случай).
 				// Однако, для некоторых видео они могут не работать!

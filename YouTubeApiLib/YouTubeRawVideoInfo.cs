@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using MultiThreadedDownloaderLib;
 using static YouTubeApiLib.Utils;
@@ -186,8 +186,8 @@ namespace YouTubeApiLib
 				}
 			}
 
-			var videoThumbnails = GetThumbnails(videoDetails, Microformat, videoId).ToList();
-			if (videoThumbnails.Count > 0)
+			List<YouTubeVideoThumbnail> videoThumbnails = GetThumbnails(videoDetails, Microformat, videoId);
+			if (videoThumbnails != null && videoThumbnails.Count > 0)
 			{
 				jSimplifiedVideoInfo["thumbnails"] = ThumbnailsToJson(videoThumbnails);
 			}
