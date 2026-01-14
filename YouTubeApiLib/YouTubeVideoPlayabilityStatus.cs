@@ -59,7 +59,7 @@ namespace YouTubeApiLib
 		public static YouTubeVideoPlayabilityStatus Parse(JObject jPlayabilityStatus)
 		{
 			string status = jPlayabilityStatus.Value<string>("status");
-			string reason = null;
+			string reason = jPlayabilityStatus.Value<string>("reason");
 			string reasonDetails = null;
 			string thumbnailUrl = null;
 			bool isPlayableInEmbed = jPlayabilityStatus.Value<bool>("playableInEmbed");
@@ -70,8 +70,16 @@ namespace YouTubeApiLib
 				JObject jPlayerErrorMessageRenderer = jErrorScreen.Value<JObject>("playerErrorMessageRenderer");
 				if (jPlayerErrorMessageRenderer != null)
 				{
-					reason = jPlayerErrorMessageRenderer.Value<JObject>("reason")?.Value<string>("simpleText");
-					reasonDetails = jPlayerErrorMessageRenderer.Value<JObject>("subreason")?.Value<string>("simpleText");
+					if (string.IsNullOrEmpty(reason) || string.IsNullOrWhiteSpace(reason))
+					{
+						reason = jPlayerErrorMessageRenderer.Value<JObject>("reason")?.Value<string>("simpleText");
+					}
+
+					JArray jRuns = jPlayerErrorMessageRenderer.Value<JObject>("subreason")?.Value<JArray>("runs");
+					if (jRuns != null && jRuns.Count > 0)
+					{
+						reasonDetails = jRuns[0].Value<string>("text");
+					}
 
 					JArray jaThumbnails = jPlayerErrorMessageRenderer.Value<JObject>("thumbnail")?.Value<JArray>("thumbnails");
 					if (jaThumbnails != null && jaThumbnails.Count > 0)
