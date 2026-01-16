@@ -23,7 +23,7 @@ namespace YouTubeApiLib
 			{
 				["width"] = Width,
 				["height"] = Height,
-				["fileName"] = FileName,
+				["file_name"] = FileName,
 				["url"] = Url
 			};
 			return json;

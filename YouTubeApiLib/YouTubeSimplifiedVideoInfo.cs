@@ -111,9 +111,12 @@ namespace YouTubeApiLib
 				{
 					ushort width = jThumbnail.Value<ushort>("width");
 					ushort height = jThumbnail.Value<ushort>("height");
-					string fileName = jThumbnail.Value<string>("fileName");
-					if (string.IsNullOrEmpty(fileName) || string.IsNullOrWhiteSpace(fileName)) { fileName = "unnamed.dat"; }
+					string fileName = jThumbnail.Value<string>("file_name");
 					string url = jThumbnail.Value<string>("url");
+					if (string.IsNullOrEmpty(fileName) || string.IsNullOrWhiteSpace(fileName))
+					{
+						fileName = Utils.ExtractFileNameFromThumbnailUrl(url);
+					}
 					videoThumbnails.Add(new YouTubeVideoThumbnail(width, height, fileName, url));
 				}
 			}

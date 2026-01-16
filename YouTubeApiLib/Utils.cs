@@ -129,8 +129,7 @@ namespace YouTubeApiLib
 				if (!string.IsNullOrEmpty(thumbnails[0].FileName) && thumbnails[0].FileName.EndsWith(".webp"))
 				{
 					string url = thumbnails[0].Url.Replace("vi_webp", "vi").Replace(".webp", ".jpg");
-					string fileName = FindRegexp(url, @"vi/.{11}/([^\&\?]*)");
-					if (string.IsNullOrEmpty(fileName)) { fileName = "unnamed.jpg"; }
+					string fileName = ExtractFileNameFromThumbnailUrl(url, @"vi/.{11}/([^\&\?]*)");
 					thumbnails.Insert(0, new YouTubeVideoThumbnail(
 						thumbnails[0].Width, thumbnails[0].Height, fileName, url));
 				}
@@ -203,13 +202,21 @@ namespace YouTubeApiLib
 					{
 						ushort width = jThumbnail.Value<ushort>("width");
 						ushort height = jThumbnail.Value<ushort>("height");
-						string fileName = FindRegexp(url, @"\w/.{11}/([^\&\?]*)");
-						if (string.IsNullOrEmpty(fileName)) { fileName = "unnamed.dat"; }
-
+						string fileName = jThumbnail.Value<string>("file_name");
+						if (string.IsNullOrEmpty(fileName) || string.IsNullOrWhiteSpace(fileName))
+						{
+							fileName = ExtractFileNameFromThumbnailUrl(url);
+						}
 						yield return new YouTubeVideoThumbnail(width, height, fileName, url);
 					}
 				}
 			}
+		}
+
+		internal static string ExtractFileNameFromThumbnailUrl(string url, string expression = @"\w/.{11}/([^\&\?]*)")
+		{
+			string fileName = FindRegexp(url, expression);
+			return !string.IsNullOrEmpty(fileName) && !string.IsNullOrWhiteSpace(fileName) ? fileName : "unnamed.jpg";
 		}
 
 		internal static JArray ThumbnailsToJson(IEnumerable<YouTubeVideoThumbnail> videoThumbnails)

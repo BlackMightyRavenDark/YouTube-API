@@ -339,6 +339,19 @@ namespace YouTubeApiLib
 			JObject json = Utils.TryParseJson(InitialSimplifiedInfo.SimplifiedVideoInfo.ToString());
 			if (json != null)
 			{
+				JArray jaThumbnails = json.Value<JArray>("thumbnails");
+				if (jaThumbnails != null && jaThumbnails.Count > 0)
+				{
+					foreach (JObject jThumbnail in jaThumbnails.Cast<JObject>())
+					{
+						if (!jThumbnail.ContainsKey("file_name"))
+						{
+							string url = jThumbnail.Value<string>("url");
+							jThumbnail["file_name"] = Utils.ExtractFileNameFromThumbnailUrl(url);
+						}
+					}
+				}
+
 				if (MediaTracks.Count > 0)
 				{
 					if (json.ContainsKey("download_urls")) { json.Remove("download_urls"); }
