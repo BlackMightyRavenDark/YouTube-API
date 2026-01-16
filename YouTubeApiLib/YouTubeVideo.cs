@@ -19,6 +19,7 @@ namespace YouTubeApiLib
 		public string Description { get; }
 		public long ViewCount { get; }
 		public string Category { get; }
+		public bool IsPaidful { get; }
 
 		/// <summary>
 		/// Является ли данное видео коротким (short aka "reel").
@@ -99,6 +100,7 @@ namespace YouTubeApiLib
 			Thumbnails = thumbnails;
 			InitialSimplifiedInfo = simplifiedInfo;
 			Status = status;
+			IsPaidful = status != null && status.IsOffer;
 
 			MediaTracks = new Dictionary<string, YouTubeMediaFormatList>();
 			UpdateStates(InitialSimplifiedInfo?.RawVideoInfo);
@@ -295,7 +297,7 @@ namespace YouTubeApiLib
 
 		private bool GetIsPlayable()
 		{
-			return Status != null && Status.IsPlayable;
+			return Status != null && Status.IsPlayable && !Status.IsOffer;
 		}
 
 		private bool GetIsLiveNow()

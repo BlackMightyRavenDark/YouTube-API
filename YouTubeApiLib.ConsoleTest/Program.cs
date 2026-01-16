@@ -55,6 +55,7 @@ namespace YouTubeApiLib.ConsoleTest
 						Console.WriteLine($"Channel title: {video.OwnerChannelTitle}");
 						Console.WriteLine($"Channel ID: {video.OwnerChannelId}");
 						Console.WriteLine($"Description: {video.Description}");
+						Console.WriteLine($"$ Paidful: {video.IsPaidful}");
 						Console.WriteLine($"View count: {video.ViewCount}");
 						Console.WriteLine($"Category: {video.Category}");
 						if (!video.IsLiveContent)
@@ -212,6 +213,16 @@ namespace YouTubeApiLib.ConsoleTest
 							if (!string.IsNullOrEmpty(video.Status.ReasonDetails))
 							{
 								Console.WriteLine($"Reason details: {video.Status.ReasonDetails}");
+							}
+							Console.WriteLine($"Is offer: {video.Status.IsOffer}");
+							if (video.Status.IsOffer)
+							{
+								Console.WriteLine($"Offer ID: {video.Status.OfferId}");
+								if (!string.IsNullOrWhiteSpace(video.Status.OfferDescription) &&
+									string.Compare(video.Status.OfferDescription, video.Status.Reason, true) != 0)
+								{
+									Console.WriteLine($"Offer description: {video.Status.OfferDescription}");
+								}
 							}
 
 							string thumbnailUrl =

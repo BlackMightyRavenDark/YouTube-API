@@ -14,17 +14,23 @@ namespace YouTubeApiLib
 		public bool IsAdult { get; }
 		public bool IsLoginRequired { get; }
 		public bool IsBotWarning { get; }
+		public bool IsOffer { get; }
+		public string OfferId { get; }
+		public string OfferDescription { get; }
 		public int ErrorCode { get; }
 		public string RawInfo { get; }
 
 		public YouTubeVideoPlayabilityStatus(string status, string reason, string reasonDetails,
-			bool isPlayableInEmbed,
+			bool isPlayableInEmbed, bool isOffer, string offerId, string offerDescription,
 			string thumbnailUrl, int errorCode, string rawInfo)
 		{
 			Status = status;
 			Reason = reason;
 			ReasonDetails = reasonDetails;
 			IsPlayableInEmbed = isPlayableInEmbed;
+			IsOffer = isOffer;
+			OfferId = offerId;
+			OfferDescription = offerDescription;
 			ThumbnailUrl = thumbnailUrl;
 			ErrorCode = errorCode;
 			RawInfo = rawInfo;
@@ -37,7 +43,8 @@ namespace YouTubeApiLib
 
 		public YouTubeVideoPlayabilityStatus(string status, string reason, string reasonDetails,
 			bool isPlayable, bool isPlayableInEmbed, bool isPrivate, bool isAdult,
-			bool isLoginRequired, bool isBotWarning, string thumbnailUrl, string rawInfo = null)
+			bool isLoginRequired, bool isBotWarning, bool isOffer, string offerId, string offerDescription,
+			string thumbnailUrl, string rawInfo = null)
 		{
 			Status = status;
 			Reason = reason;
@@ -48,13 +55,16 @@ namespace YouTubeApiLib
 			IsAdult = isAdult;
 			IsLoginRequired = isLoginRequired;
 			IsBotWarning = isBotWarning;
+			IsOffer = isOffer;
+			OfferId = offerId;
+			OfferDescription = offerDescription;
 			ThumbnailUrl = thumbnailUrl;
 			RawInfo = rawInfo;
 			ErrorCode = string.Compare(status, "OK", true) == 0 ? 200 : 403;
 		}
 
 		public YouTubeVideoPlayabilityStatus(int errorCode)
-			: this(null, null, null, false, null, errorCode, null) { }
+			: this(null, null, null, false, false, null, null, null, errorCode, null) { }
 
 		public static YouTubeVideoPlayabilityStatus Parse(JObject jPlayabilityStatus)
 		{
@@ -63,6 +73,9 @@ namespace YouTubeApiLib
 			string reasonDetails = null;
 			string thumbnailUrl = null;
 			bool isPlayableInEmbed = jPlayabilityStatus.Value<bool>("playableInEmbed");
+			bool isOffer = false;
+			string offerId = null;
+			string offerDescription = null;
 
 			JObject jErrorScreen = jPlayabilityStatus.Value<JObject>("errorScreen");
 			if (jErrorScreen != null)
@@ -91,6 +104,17 @@ namespace YouTubeApiLib
 						}
 					}
 				}
+
+				JObject jPlayerLegacyDesktopYpcOfferRenderer = jErrorScreen.Value<JObject>("playerLegacyDesktopYpcOfferRenderer");
+				if (jPlayerLegacyDesktopYpcOfferRenderer != null)
+				{
+					isOffer = true;
+					offerId = jPlayerLegacyDesktopYpcOfferRenderer.Value<string>("offerId");
+					if (string.IsNullOrEmpty(reason) || string.IsNullOrWhiteSpace(reason))
+					{
+						offerDescription = jPlayerLegacyDesktopYpcOfferRenderer.Value<string>("offerDescription");
+					}
+				}
 			}
 
 			if (string.IsNullOrEmpty(reason) || string.IsNullOrWhiteSpace(reason))
@@ -104,6 +128,7 @@ namespace YouTubeApiLib
 
 			int errorCode = status == "OK" ? 200 : 403;
 			return new YouTubeVideoPlayabilityStatus(status, reason, reasonDetails, isPlayableInEmbed,
+				isOffer, offerId, offerDescription,
 				thumbnailUrl, errorCode, jPlayabilityStatus.ToString());
 		}
 
@@ -147,8 +172,15 @@ namespace YouTubeApiLib
 				["is_private"] = IsPrivate,
 				["is_adult"] = IsAdult,
 				["is_login_required"] = IsLoginRequired,
-				["is_bot_warning"] = IsBotWarning
+				["is_bot_warning"] = IsBotWarning,
+				["is_offer"] = IsOffer,
+				["offer_id"] = OfferId
 			};
+			if (IsOffer && !string.IsNullOrEmpty(OfferDescription) &&
+				string.Compare(OfferDescription, Reason, true) != 0)
+			{
+				json["offer_description"] = OfferDescription;
+			}
 			if (!string.IsNullOrEmpty(ThumbnailUrl))
 			{
 				json["thumbnail_url"] = ThumbnailUrl;
@@ -168,6 +200,9 @@ namespace YouTubeApiLib
 				json.Value<bool>("is_adult"),
 				json.Value<bool>("is_login_required"),
 				json.Value<bool>("is_bot_warning"),
+				json.Value<bool>("is_offer"),
+				json.Value<string>("offer_id"),
+				json.Value<string>("offer_description"),
 				json.Value<string>("thumbnail_url"));
 		}
 	}
