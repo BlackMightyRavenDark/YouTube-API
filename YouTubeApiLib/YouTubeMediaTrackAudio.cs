@@ -7,6 +7,7 @@ namespace YouTubeApiLib
 		public int SampleRate { get; }
 		public int ChannelCount { get; }
 		public bool IsDynamicRangeCompression { get; }
+		public bool IsVoiceBoosted { get; }
 		public double LoudnessDb { get; }
 		public YouTubeAudioTrackLanguage Language { get; }
 
@@ -22,6 +23,7 @@ namespace YouTubeApiLib
 			int sampleRate,
 			int channelCount,
 			bool isDynamicRangeCompression,
+			bool isVoiceBoosted,
 			YouTubeAudioTrackLanguage language,
 			double loudnessDb,
 			int approxDurationMs,
@@ -43,6 +45,7 @@ namespace YouTubeApiLib
 			SampleRate = sampleRate;
 			ChannelCount = channelCount;
 			IsDynamicRangeCompression = isDynamicRangeCompression;
+			IsVoiceBoosted = isVoiceBoosted;
 			Language = language;
 			LoudnessDb = loudnessDb;
 		}
@@ -60,7 +63,7 @@ namespace YouTubeApiLib
 			string dashManifestUrl,
 			YouTubeDashUrlList dashUrls)
 			: this(formatId, bitrate, bitrate, null, -1L, null, null, null, sampleRate, channelCount,
-				false, null, 0.0, -1, null, mimeType, mimeExt, mimeCodecs, fileExtension,
+				false, false, null, 0.0, -1, null, mimeType, mimeExt, mimeCodecs, fileExtension,
 				true, false, dashManifestUrl, dashUrls) { }
 
 		// Упрощенный конструктор для аудио-дорожек не-DASH
@@ -76,6 +79,7 @@ namespace YouTubeApiLib
 			int sampleRate,
 			int channelCount,
 			bool isDynamicRangeCompression,
+			bool isVoiceBoosted,
 			YouTubeAudioTrackLanguage language,
 			double loudnessDb,
 			int approxDurationMs,
@@ -86,8 +90,8 @@ namespace YouTubeApiLib
 			string fileExtension,
 			bool isCiphered)
 			: this(formatId, bitrate, averageBitrate, lastModified, contentLength, quality, qualityLabel,
-				audioQuality, sampleRate, channelCount, isDynamicRangeCompression, language, loudnessDb,
-				approxDurationMs, fileUrl, mimeType, mimeExt, mimeCodecs, fileExtension,
+				audioQuality, sampleRate, channelCount, isDynamicRangeCompression, isVoiceBoosted, language,
+				loudnessDb, approxDurationMs, fileUrl, mimeType, mimeExt, mimeCodecs, fileExtension,
 				false, isCiphered, null, null) { }
 	}
 }

@@ -141,9 +141,9 @@ namespace YouTubeApiLib.ConsoleTest
 										{
 											YouTubeMediaTrackAudio audioTrack = track as YouTubeMediaTrackAudio;
 											string trackType = audioTrack.IsDashManifestPresent ? "DASH AUDIO" : "AUDIO";
-											string formatIdString = audioTrack.IsDynamicRangeCompression ? $"{audioTrack.FormatId}-DRC" : audioTrack.FormatId.ToString();
+											string formattedTrackId = FormatAudioTrackId(audioTrack);
 											int bitrate = audioTrack.AverageBitrate > 0 ? audioTrack.AverageBitrate : audioTrack.Bitrate;
-											info = $"{trackType} | ID {formatIdString} | {audioTrack.SampleRate} Hz | " +
+											info = $"{trackType} | ID {formattedTrackId} | {audioTrack.SampleRate} Hz | " +
 												$"{audioTrack.ChannelCount} ch | {audioTrack.AudioQuality} | {audioTrack.FileExtension}";
 											if (bitrate > 0)
 											{
@@ -152,6 +152,10 @@ namespace YouTubeApiLib.ConsoleTest
 											if (audioTrack.ContentLength > 0L)
 											{
 												info += $" | {audioTrack.ContentLength} bytes";
+											}
+											if (audioTrack.IsVoiceBoosted)
+											{
+												info += " | Voice boosted";
 											}
 											if (audioTrack.Language != null)
 											{
@@ -259,6 +263,13 @@ namespace YouTubeApiLib.ConsoleTest
 				Console.WriteLine("Video ID: <ERROR>");
 				Console.ReadLine();
 			}
+		}
+
+		private static string FormatAudioTrackId(YouTubeMediaTrackAudio audioTrack)
+		{
+			string t = audioTrack.IsDynamicRangeCompression ? $"{audioTrack.FormatId}-DRC" : audioTrack.FormatId.ToString();
+			if (audioTrack.IsVoiceBoosted) { t += "-VB"; }
+			return t;
 		}
 
 		private static string DateTimeToString(DateTime dateTime)

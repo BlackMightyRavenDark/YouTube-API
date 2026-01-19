@@ -179,6 +179,7 @@ namespace YouTubeApiLib
 						string fileExtension = !string.IsNullOrEmpty(mimeExt) && !string.IsNullOrWhiteSpace(mimeExt) ?
 							(mimeExt.ToLower() == "mp4" ? "m4a" : "weba") : "dat";
 						bool isDrc = jFormatItem.Value<bool>("isDrc");
+						bool isVoiceBoosted = jFormatItem.Value<bool>("isVb");
 						double loudnessDb = jFormatItem.Value<double>("loudnessDb");
 						YouTubeAudioTrackLanguage language = null;
 						if (jFormatItem.ContainsKey("audioTrack"))
@@ -194,7 +195,7 @@ namespace YouTubeApiLib
 						return new YouTubeMediaTrackAudio(
 							formatId, bitrate, averageBitrate, lastModified, contentLength,
 							quality, qualityLabel, audioQuality, audioSampleRate, audioChannelCount,
-							isDrc, language, loudnessDb, approxDurationMs, trackUrl,
+							isDrc, isVoiceBoosted, language, loudnessDb, approxDurationMs, trackUrl,
 							mimeType, mimeExt, mimeCodecs, fileExtension, isCiphered);
 					}
 			}
