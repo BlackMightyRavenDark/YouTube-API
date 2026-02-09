@@ -35,11 +35,12 @@ namespace YouTubeApiLib
 			bool isDash,
 			bool isCiphered,
 			string dashManifestUrl,
-			YouTubeDashUrlList dashUrls)
+			YouTubeDashUrlList dashUrls,
+			string rawInfo)
 			: base(formatId, bitrate, averageBitrate, lastModified, contentLength,
 				quality, qualityLabel, approxDurationMs, null, fileUrl,
 				mimeType, mimeExt, mimeCodecs, fileExtension,
-				isDash, isCiphered, dashManifestUrl, dashUrls)
+				isDash, isCiphered, dashManifestUrl, dashUrls, rawInfo)
 		{
 			AudioQuality = audioQuality;
 			SampleRate = sampleRate;
@@ -61,10 +62,11 @@ namespace YouTubeApiLib
 			string mimeCodecs,
 			string fileExtension,
 			string dashManifestUrl,
-			YouTubeDashUrlList dashUrls)
+			YouTubeDashUrlList dashUrls,
+			string rawInfo)
 			: this(formatId, bitrate, bitrate, null, -1L, null, null, null, sampleRate, channelCount,
 				false, false, null, 0.0, -1, null, mimeType, mimeExt, mimeCodecs, fileExtension,
-				true, false, dashManifestUrl, dashUrls) { }
+				true, false, dashManifestUrl, dashUrls, rawInfo) { }
 
 		// Упрощенный конструктор для аудио-дорожек не-DASH
 		public YouTubeMediaTrackAudio(
@@ -88,10 +90,11 @@ namespace YouTubeApiLib
 			string mimeExt,
 			string mimeCodecs,
 			string fileExtension,
-			bool isCiphered)
+			bool isCiphered,
+			string rawInfo)
 			: this(formatId, bitrate, averageBitrate, lastModified, contentLength, quality, qualityLabel,
 				audioQuality, sampleRate, channelCount, isDynamicRangeCompression, isVoiceBoosted, language,
 				loudnessDb, approxDurationMs, fileUrl, mimeType, mimeExt, mimeCodecs, fileExtension,
-				false, isCiphered, null, null) { }
+				false, isCiphered, null, null, rawInfo) { }
 	}
 }

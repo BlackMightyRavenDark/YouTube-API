@@ -135,7 +135,7 @@ namespace YouTubeApiLib
 							YouTubeMediaTrack video = new YouTubeMediaTrackVideo(
 								formatId, videoWidth, videoHeight, videoFrameRate, videoBitrate,
 								mimeType, mimeExtLowerCased, videoCodecs, fileExtension,
-								DashManifestUrl, dashUrlList);
+								DashManifestUrl, dashUrlList, node.InnerText);
 							resList.AddLast(video);
 						}
 					}
@@ -242,7 +242,7 @@ namespace YouTubeApiLib
 							YouTubeMediaTrack audio = new YouTubeMediaTrackAudio(
 								formatId, audioBitrate, audioSampleRate, audioChannelCount,
 								mimeType, mimeExtLowerCased, audioCodecs, fileExtension,
-								DashManifestUrl, dashUrlList);
+								DashManifestUrl, dashUrlList, node.InnerText);
 							resList.AddLast(audio);
 						}
 					}

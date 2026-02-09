@@ -23,7 +23,7 @@ namespace YouTubeApiLib
 				{
 					foreach (YouTubeBroadcast broadcast in broadcasts)
 					{
-						YouTubeMediaTrack hlsStream = new YouTubeMediaTrackHlsStream(broadcast, hlsManifestUrl);
+						YouTubeMediaTrack hlsStream = new YouTubeMediaTrackHlsStream(broadcast, hlsManifestUrl, broadcast.RawInfo);
 						mediaTracks.AddLast(hlsStream);
 					}
 				}
@@ -164,14 +164,14 @@ namespace YouTubeApiLib
 								formatId, videoWidth, videoHeight, videoFrameRate, bitrate, averageBitrate,
 								lastModified, contentLength, quality, qualityLabel, approxDurationMs,
 								projectionType, trackUrl,
-								mimeType, mimeExt, mimeCodecs, fileExtension, isCiphered);
+								mimeType, mimeExt, mimeCodecs, fileExtension, isCiphered, jFormatItem.ToString());
 						}
 
 						return new YouTubeMediaTrackContainer(
 							formatId, videoWidth, videoHeight, videoFrameRate, bitrate, averageBitrate,
 							lastModified, contentLength, quality, qualityLabel, audioQuality, audioSampleRate,
 							audioChannelCount, approxDurationMs, projectionType, trackUrl,
-							mimeType, mimeExt, mimeCodecs, fileExtension, isCiphered);
+							mimeType, mimeExt, mimeCodecs, fileExtension, isCiphered, jFormatItem.ToString());
 					}
 
 				case "audio":
@@ -196,7 +196,7 @@ namespace YouTubeApiLib
 							formatId, bitrate, averageBitrate, lastModified, contentLength,
 							quality, qualityLabel, audioQuality, audioSampleRate, audioChannelCount,
 							isDrc, isVoiceBoosted, language, loudnessDb, approxDurationMs, trackUrl,
-							mimeType, mimeExt, mimeCodecs, fileExtension, isCiphered);
+							mimeType, mimeExt, mimeCodecs, fileExtension, isCiphered, jFormatItem.ToString());
 					}
 			}
 

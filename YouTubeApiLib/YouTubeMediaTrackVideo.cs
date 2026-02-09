@@ -27,11 +27,12 @@ namespace YouTubeApiLib
 			bool isDashManifest,
 			bool isCiphered,
 			string dashManifestUrl,
-			YouTubeDashUrlList dashUrls)
+			YouTubeDashUrlList dashUrls,
+			string rawInfo)
 			: base(formatId, bitrate, averageBitrate, lastModified, contentLength,
 				  quality, qualityLabel, approxDurationMs, projectionType, fileUrl,
 				  mimeType, mimeExt, mimeCodecs, fileExtension,
-				  isDashManifest, isCiphered, dashManifestUrl, dashUrls)
+				  isDashManifest, isCiphered, dashManifestUrl, dashUrls, rawInfo)
 		{
 			VideoWidth = videoWidth;
 			VideoHeight = videoHeight;
@@ -49,10 +50,12 @@ namespace YouTubeApiLib
 			string mimeCodecs,
 			string fileExtension,
 			string dashManifestUrl,
-			YouTubeDashUrlList dashUrls)
+			YouTubeDashUrlList dashUrls,
+			string rawInfo)
 			: this(formatId, videoWidth, videoHeight, frameRate, bitrate, bitrate,
 				null, -1L, null, null, -1, null, null,
-				mimeType, mimeExt, mimeCodecs, fileExtension, true, false, dashManifestUrl, dashUrls) { }
+				mimeType, mimeExt, mimeCodecs, fileExtension, true, false,
+				dashManifestUrl, dashUrls, rawInfo) { }
 
 		// Упрощенный конструктор для видео-дорожек не-DASH и не-HLS
 		public YouTubeMediaTrackVideo(
@@ -72,9 +75,10 @@ namespace YouTubeApiLib
 			string mimeExt,
 			string mimeCodecs,
 			string fileExtension,
-			bool isCiphered)
+			bool isCiphered,
+			string rawInfo)
 			: this(formatId, videoWidth, videoHeight, frameRate, bitrate, averageBitrate, lastModified,
 				contentLength, quality, qualityLabel, approxDurationMs, projectionType, fileUrl,
-				mimeType, mimeExt, mimeCodecs, fileExtension, false, isCiphered, null, null) { }
+				mimeType, mimeExt, mimeCodecs, fileExtension, false, isCiphered, null, null, rawInfo) { }
 	}
 }

@@ -21,6 +21,7 @@ namespace YouTubeApiLib
 		public bool IsCiphered { get; }
 		public string DashManifestUrl { get; }
 		public YouTubeDashUrlList DashUrls { get; }
+		public string RawInfo { get; }
 
 		public YouTubeMediaTrack(
 			int formatId,
@@ -40,7 +41,8 @@ namespace YouTubeApiLib
 			bool isDashManifestPresent,
 			bool isCiphered,
 			string dashManifestUrl,
-			YouTubeDashUrlList dashUrls)
+			YouTubeDashUrlList dashUrls,
+			string rawInfo)
 		{
 			FormatId = formatId;
 			Bitrate = bitrate;
@@ -60,6 +62,7 @@ namespace YouTubeApiLib
 			IsCiphered = isCiphered;
 			DashManifestUrl = dashManifestUrl;
 			DashUrls = dashUrls;
+			RawInfo = rawInfo;
 		}
 
 		public virtual string GetShortInfo()

@@ -30,11 +30,12 @@ namespace YouTubeApiLib
 			string mimeExt,
 			string mimeCodecs,
 			string fileExtension,
-			bool isCiphered)
+			bool isCiphered,
+			string rawInfo)
 			: base(formatId, bitrate, averageBitrate, lastModified, contentLength,
 				quality, qualityLabel, approxDurationMs, projectionType, fileUrl,
 				mimeType, mimeExt, mimeCodecs, fileExtension,
-				false, isCiphered, null, null)
+				false, isCiphered, null, null, rawInfo)
 		{
 			VideoWidth = videoWidth;
 			VideoHeight = videoHeight;

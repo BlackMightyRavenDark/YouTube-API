@@ -1,6 +1,4 @@
-﻿#if DEBUG
-using System;
-#endif
+﻿using System;
 using System.Collections.Generic;
 
 namespace YouTubeApiLib
@@ -73,7 +71,8 @@ namespace YouTubeApiLib
 				int formatId = ExtractFormatIdFromUrl(url);
 				YouTubeMediaTrackUrl trackUrl = new YouTubeMediaTrackUrl(url, null);
 
-				YouTubeBroadcast broadcast = new YouTubeBroadcast(formatId, width, height, frameRate, bandwidth, codecs, trackUrl);
+				YouTubeBroadcast broadcast = new YouTubeBroadcast(formatId, width, height, frameRate, bandwidth, codecs, trackUrl,
+					strings[startIndex] + Environment.NewLine + url);
 				resList.AddLast(broadcast);
 			}
 
