@@ -52,7 +52,7 @@ namespace YouTubeApiLib
 			YouTubeDashUrlList dashUrls)
 			: this(formatId, videoWidth, videoHeight, frameRate, bitrate, bitrate,
 				null, -1L, null, null, -1, null, null,
-				mimeType, mimeExt, mimeCodecs, fileExtension, false) { }
+				mimeType, mimeExt, mimeCodecs, fileExtension, true, false, dashManifestUrl, dashUrls) { }
 
 		// Упрощенный конструктор для видео-дорожек не-DASH и не-HLS
 		public YouTubeMediaTrackVideo(
