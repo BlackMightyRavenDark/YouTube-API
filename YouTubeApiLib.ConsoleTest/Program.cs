@@ -97,7 +97,7 @@ namespace YouTubeApiLib.ConsoleTest
 						if (video.IsPlayable)
 						{
 							Console.WriteLine("Receiving download URLs...");
-							IYouTubeClient client = new YouTubeClientAndroidSdkless();
+							IYouTubeClient client = new YouTubeClientAndroidVr();
 							video.UpdateMediaFormats(client);
 							if (video.MediaTracks.Count > 0)
 							{

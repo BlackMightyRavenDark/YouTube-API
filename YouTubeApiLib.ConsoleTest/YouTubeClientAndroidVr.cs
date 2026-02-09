@@ -4,13 +4,13 @@ using MultiThreadedDownloaderLib;
 
 namespace YouTubeApiLib.ConsoleTest
 {
-	internal class YouTubeClientAndroidSdkless : IYouTubeClient
+	internal class YouTubeClientAndroidVr : IYouTubeClient
 	{
-		public string DisplayName => "android sdkless";
+		public string DisplayName => "android vr";
 		public YouTubeVideoWebPage WebPage { get; private set; }
 		public FileDownloader Downloader { get; set; }
 
-		public const string CLIENT_VERSION = "20.10.38";
+		public const string CLIENT_VERSION = "1.71.26";
 
 		public JObject GenerateRequestBody(string videoId, YouTubeConfig youTubeConfig = null)
 		{
@@ -28,11 +28,14 @@ namespace YouTubeApiLib.ConsoleTest
 
 			JObject jClient = new JObject()
 			{
-				["clientName"] = "ANDROID",
+				["clientName"] = "ANDROID_VR",
 				["clientVersion"] = CLIENT_VERSION,
-				["userAgent"] = $"com.google.android.youtube/{CLIENT_VERSION} (Linux; U; Android 11) gzip",
+				["deviceMake"] = "Oculus",
+				["deviceModel"] = "Quest 3",
+				["androidSdkVersion"] = 32,
+				["userAgent"] = $"com.google.android.apps.youtube.vr.oculus/{CLIENT_VERSION} (Linux; U; Android 12L; eureka-user Build/SQ3A.220605.009.A1) gzip",
 				["osName"] = "Android",
-				["osVersion"] = "11"
+				["osVersion"] = "12L"
 			};
 			JObject jContext = new JObject()
 			{
@@ -55,7 +58,7 @@ namespace YouTubeApiLib.ConsoleTest
 			{
 				{ "Origin", Utils.YOUTUBE_URL },
 				{ "X-Goog-Visitor-Id", youTubeConfig.VisitorData },
-				{ "X-YouTube-Client-Name", "3" },
+				{ "X-YouTube-Client-Name", "28" },
 				{ "X-YouTube-Client-Version", CLIENT_VERSION }
 			};
 		}
