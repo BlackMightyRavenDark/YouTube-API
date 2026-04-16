@@ -102,7 +102,7 @@ namespace YouTubeApiLib.GuiTestWPF
 						{
 							VideoTitle = _video.Title;
 							VideoChannelOwnerTitle = $"Канал: {_video.OwnerChannelTitle}";
-							VideoPublishDateFormatted = FormatDateTime(_video.DatePublished);
+							VideoPublishDateFormatted = $"Дата публикации: {FormatDateTime(_video.DatePublished)}";
 							VideoThumbnail = _video.Thumbnails != null && _video.Thumbnails.Count > 0 ?
 								await Task.Run(() =>
 								{

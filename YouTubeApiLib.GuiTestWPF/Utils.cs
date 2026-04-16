@@ -35,7 +35,7 @@ namespace YouTubeApiLib.GuiTestWPF
 
 		internal static string FormatDateTime(DateTime dateTime)
 		{
-			string formatted = dateTime.ToString("yyyy.MM.dd, hh:mm:ss");
+			string formatted = dateTime.ToString("yyyy.MM.dd, HH:mm:ss");
 			return dateTime.Kind == DateTimeKind.Utc ? $"{formatted} GMT" : formatted;
 		}
 
