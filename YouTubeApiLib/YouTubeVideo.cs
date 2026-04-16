@@ -129,7 +129,9 @@ namespace YouTubeApiLib
 		/// </param>
 		/// <param name="downloader">
 		/// Объект скачивателя, который будет использован для получения данных.
-		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
+		/// Если передать не 'null', заменяет собой скачиватель в свойстве 'client.Downloader'.
+		/// Иначе, будет использован скачиватель из свойства 'client.Downloader' или
+		/// будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
 		/// </param>
 		public static YouTubeVideo GetById(YouTubeVideoId videoId, IYouTubeClient client, FileDownloader downloader = null)
 		{
@@ -139,7 +141,7 @@ namespace YouTubeApiLib
 				if (client == null) { return CreateEmpty(new YouTubeVideoPlayabilityStatus(400)); }
 			}
 
-			client.Downloader = downloader;
+			if (downloader != null) { client.Downloader = downloader; }
 			YouTubeRawVideoInfoResult rawVideoInfoResult = client.GetRawVideoInfo(videoId, out _);
 			if (rawVideoInfoResult.ErrorCode == 200)
 			{
@@ -175,7 +177,9 @@ namespace YouTubeApiLib
 		/// </param>
 		/// <param name="downloader">
 		/// Объект скачивателя, который будет использован для получения данных.
-		/// Если передать 'null', будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
+		/// Если передать не 'null', заменяет собой скачиватель в свойстве 'client.Downloader'.
+		/// Иначе, будет использован скачиватель из свойства 'client.Downloader' или
+		/// будет автоматически создан новый объект скачивателя с настройками по-умолчанию.
 		/// </param>
 		public static YouTubeVideo GetById(string videoId, IYouTubeClient client, FileDownloader downloader = null)
 		{
