@@ -152,9 +152,9 @@
 												<DataGridTextColumn Header="Format ID"
 																	Binding="{Binding FormatId}" />
 												<DataGridTextColumn Header="Resolution"
-																	Binding="{Binding Resolution}"/>
+																	Binding="{Binding Resolution}" />
 												<DataGridTextColumn Header="Frame rate"
-																	Binding="{Binding FrameRate}"/>
+																	Binding="{Binding FrameRate}" />
 												<DataGridTextColumn Header="File size"
 																	Binding="{Binding FormattedFileSize}" />
 												<DataGridTextColumn Header="Language"
