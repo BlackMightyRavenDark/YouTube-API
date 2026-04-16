@@ -24,6 +24,9 @@ namespace YouTubeApiLib.GuiTestWPF
 			ResultVisibility = IsVideoSearching || _video == null ? Visibility.Hidden : Visibility.Visible; } }
 		public bool IsFormatListSearching { get => _isFormatListSearching; set => SetProperty(ref _isFormatListSearching, value); }
 		public Visibility ResultVisibility { get => _resultVisibility; set => SetProperty(ref _resultVisibility, value); }
+		public bool UseProxyServer { get => _useProxyServer; set => SetProperty(ref _useProxyServer, value); }
+		public string ProxyServerAddress { get => _proxyServerAddress; set => SetProperty(ref _proxyServerAddress, value); }
+		public int ProxyServerPort { get => _proxyServerPort; set => SetProperty(ref _proxyServerPort, value); }
 		public string CookieInput { get => _cookieInput; set => SetProperty(ref _cookieInput, value); }
 		public string FormattedApiClientId => $"Client ID: {(!string.IsNullOrEmpty(ApiClientId) ? ApiClientId : "<undefined>")}";
 
@@ -36,6 +39,9 @@ namespace YouTubeApiLib.GuiTestWPF
 		private bool _isVideoSearching;
 		private bool _isFormatListSearching;
 		private Visibility _resultVisibility = Visibility.Hidden;
+		private bool _useProxyServer;
+		private string _proxyServerAddress = "127.0.0.1";
+		private int _proxyServerPort = 12345;
 		private string _cookieInput;
 		private CookieContainer _cookies;
 		private YouTubeVideo _video;
@@ -72,11 +78,22 @@ namespace YouTubeApiLib.GuiTestWPF
 						return;
 					}
 
+					if (UseProxyServer && (string.IsNullOrEmpty(ProxyServerAddress) || string.IsNullOrWhiteSpace(ProxyServerAddress)))
+					{
+						MessageBox.Show("Не указан адрес прокси-сервера!", "Ошибка!",
+							MessageBoxButton.OK, MessageBoxImage.Error);
+						return;
+					}
+
 					IsVideoSearching = true;
 					MediaTracks.Clear();
 					_video = await Task.Run(() =>
 					{
 						FileDownloader d = new FileDownloader() { Cookies = _cookies };
+						if (UseProxyServer)
+						{
+							d.Proxy = new WebProxy(ProxyServerAddress, ProxyServerPort);
+						}
 						return YouTubeVideo.GetById(videoId.Id, d);
 					});
 					if (_video != null)
@@ -87,7 +104,11 @@ namespace YouTubeApiLib.GuiTestWPF
 							VideoChannelOwnerTitle = $"Канал: {_video.OwnerChannelTitle}";
 							VideoPublishDateFormatted = FormatDateTime(_video.DatePublished);
 							VideoThumbnail = _video.Thumbnails != null && _video.Thumbnails.Count > 0 ?
-								await Task.Run(() => DownloadImage(_video.Thumbnails[0].Url)) : null;
+								await Task.Run(() =>
+								{
+									WebProxy proxy = UseProxyServer ? new WebProxy(ProxyServerAddress, ProxyServerPort) : null;
+									return DownloadImage(_video.Thumbnails[0].Url, proxy);
+								}) : null;
 
 							if (_video.MediaTracks.Count > 0)
 							{
@@ -168,6 +189,13 @@ namespace YouTubeApiLib.GuiTestWPF
 			});
 			CommandUpdateFormatList = new LambdaCommand(async obj =>
 			{
+				if (UseProxyServer && (string.IsNullOrEmpty(ProxyServerAddress) || string.IsNullOrWhiteSpace(ProxyServerAddress)))
+				{
+					MessageBox.Show("Не указан адрес прокси-сервера!", "Ошибка!",
+						MessageBoxButton.OK, MessageBoxImage.Error);
+					return;
+				}
+
 				IsFormatListSearching = true;
 				MediaTracks.Clear();
 				ApiClientId = null;
@@ -177,6 +205,10 @@ namespace YouTubeApiLib.GuiTestWPF
 					{
 						Downloader = new FileDownloader() { Cookies = _cookies }
 					};
+					if (UseProxyServer)
+					{
+						client.Downloader.Proxy = new WebProxy(ProxyServerAddress, ProxyServerPort);
+					}
 					YouTubeStreamingDataResult streamingDataResult = YouTubeStreamingData.Get(_video.Id, client);
 					client.Downloader.Dispose();
 					return streamingDataResult.ErrorCode == 200 ? streamingDataResult.Data.Parse() : null;

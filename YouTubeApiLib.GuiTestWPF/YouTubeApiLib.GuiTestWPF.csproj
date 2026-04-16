@@ -73,8 +73,12 @@
     </ApplicationDefinition>
     <Compile Include="BaseCommand.cs" />
     <Compile Include="BoolInverseConverter.cs" />
+    <Compile Include="IntStringConverter.cs" />
     <Compile Include="LambdaCommand.cs" />
     <Compile Include="Notifier.cs" />
+    <Compile Include="NumericUpDown.xaml.cs">
+      <DependentUpon>NumericUpDown.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils.cs" />
     <Compile Include="ViewModelMainWindow.cs" />
     <Compile Include="YouTubeClientAndroidVr.cs" />
@@ -91,6 +95,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="NumericUpDown.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

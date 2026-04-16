@@ -11,6 +11,7 @@
 	</Window.DataContext>
 
 	<Window.Resources>
+		<local:NumericUpDown x:Key="numericUpDown" />
 		<local:BoolInverseConverter x:Key="boolInverser" />
 	</Window.Resources>
 
@@ -174,17 +175,69 @@
 					<Grid.RowDefinitions>
 						<RowDefinition Height="auto" />
 						<RowDefinition />
-						<RowDefinition Height="auto" />
 					</Grid.RowDefinitions>
 
-					<Label Content="Введите список куков (JSON array):"
-						   Grid.Row="0" />
-					<TextBox Text="{Binding CookieInput}"
-							 AcceptsReturn="True"
-							 Grid.Row="1" />
-					<Button Content="Применить куки"
-							Command="{Binding CommandApplyCookies}"
-							Grid.Row="2" />
+					<GroupBox Header="Прокси-сервер"
+							  Grid.Row="0">
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition />
+								<RowDefinition />
+							</Grid.RowDefinitions>
+							
+							<CheckBox Content="Использовать прокси-сервер"
+									  IsChecked="{Binding UseProxyServer}"
+									  Margin="0 4"
+									  Grid.Row="0" />
+
+							<Grid Grid.Row="1">
+								<Grid.RowDefinitions>
+									<RowDefinition />
+									<RowDefinition />
+								</Grid.RowDefinitions>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="auto" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+
+								<Label Content="Адрес сервера:"
+									   Grid.Row="0"
+									   Grid.Column="0" />
+								<TextBox Text="{Binding ProxyServerAddress}"
+										 VerticalContentAlignment="Center"
+										 Grid.Row="0"
+										 Grid.Column="1" />
+								<Label Content="Порт сервера:"
+									   Grid.Row="1"
+									   Grid.Column="0" />
+								<local:NumericUpDown MaxValue="65535"
+													 MinValue="80"
+													 Value="{Binding ProxyServerPort}"
+													 Grid.Row="1"
+													 Grid.Column="1" />
+							</Grid>
+						</Grid>
+					</GroupBox>
+
+					<GroupBox Header="Cookies"
+							  Grid.Row="1">
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="auto" />
+								<RowDefinition />
+								<RowDefinition Height="auto" />
+							</Grid.RowDefinitions>
+
+							<Label Content="Введите список куков (JSON array):"
+								   Grid.Row="0" />
+							<TextBox Text="{Binding CookieInput}"
+									 AcceptsReturn="True"
+									 Grid.Row="1" />
+							<Button Content="Применить куки"
+									Command="{Binding CommandApplyCookies}"
+									Grid.Row="2" />
+						</Grid>
+					</GroupBox>
 				</Grid>
 			</TabItem>
 		</TabControl>
