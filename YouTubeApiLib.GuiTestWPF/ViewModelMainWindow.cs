@@ -128,6 +128,12 @@ namespace YouTubeApiLib.GuiTestWPF
 							ApiClientId = null;
 							VideoThumbnail = await Task.Run(() => DownloadImage(_video.Status.ThumbnailUrl));
 						}
+
+						if (!_video.IsInfoAvailable && !_video.Status.IsBotWarning)
+						{
+							MessageBox.Show("Информация о видео не найдена!", "Ошибка!",
+								MessageBoxButton.OK, MessageBoxImage.Error);
+						}
 					}
 					else
 					{
