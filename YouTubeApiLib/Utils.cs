@@ -436,9 +436,8 @@ namespace YouTubeApiLib
 #else
 			catch
 			{
-				//подразумевается, что юзер ввёл ID видео, а не ссылку.
-				return new YouTubeVideoId(url);
 #endif
+				//подразумевается, что юзер ввёл ID видео, а не ссылку.
 				return new YouTubeVideoId(url);
 			}
 
