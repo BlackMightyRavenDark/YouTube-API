@@ -63,7 +63,7 @@
 										BorderThickness="2"
 										Margin="4 0">
 									<Border.ContextMenu>
-										<ContextMenu>
+										<ContextMenu FontFamily="Lucida Console">
 											<MenuItem Header="Копировать ссылку на картинку"
 													  Command="{Binding CommandCopyThumbnailUrl}" />
 											<MenuItem Header="Открыть картинку в браузере"
@@ -71,6 +71,10 @@
 											<Separator />
 											<MenuItem Header="Открыть видео в браузере"
 													  Command="{Binding CommandOpenVideoInBrowser}" />
+											<Separator />
+											<MenuItem Header="Эскизы"
+													  ItemsSource="{Binding ThumbnailMenuItems}"
+													  IsEnabled="{Binding IsThumbnailMenuEnabled}" />
 										</ContextMenu>
 									</Border.ContextMenu>
 

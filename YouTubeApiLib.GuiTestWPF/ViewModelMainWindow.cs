@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using MultiThreadedDownloaderLib;
@@ -14,6 +15,8 @@ namespace YouTubeApiLib.GuiTestWPF
 	internal class ViewModelMainWindow : Notifier
 	{
 		public ObservableCollection<ModelYouTubeMediaTrackWrapper> MediaTracks { get; }
+		public ObservableCollection<MenuItem> ThumbnailMenuItems { get; }
+
 		public string VideoId { get => _videoId; set => SetProperty(ref _videoId, value); }
 		public BitmapImage VideoThumbnail { get => _thumbnail; set => SetProperty(ref _thumbnail, value); }
 		public string VideoTitle { get => _videoTitle; set => SetProperty(ref _videoTitle, value); }
@@ -24,6 +27,7 @@ namespace YouTubeApiLib.GuiTestWPF
 			ResultVisibility = IsVideoSearching || _video == null ? Visibility.Hidden : Visibility.Visible; } }
 		public bool IsFormatListSearching { get => _isFormatListSearching; set => SetProperty(ref _isFormatListSearching, value); }
 		public Visibility ResultVisibility { get => _resultVisibility; set => SetProperty(ref _resultVisibility, value); }
+		public bool IsThumbnailMenuEnabled => ThumbnailMenuItems.Count > 0;
 		public bool UseProxyServer { get => _useProxyServer; set => SetProperty(ref _useProxyServer, value); }
 		public string ProxyServerAddress { get => _proxyServerAddress; set => SetProperty(ref _proxyServerAddress, value); }
 		public int ProxyServerPort { get => _proxyServerPort; set => SetProperty(ref _proxyServerPort, value); }
@@ -58,6 +62,8 @@ namespace YouTubeApiLib.GuiTestWPF
 		public ViewModelMainWindow()
 		{
 			MediaTracks = new ObservableCollection<ModelYouTubeMediaTrackWrapper>();
+			ThumbnailMenuItems = new ObservableCollection<MenuItem>();
+
 			CommandApplyCookies = new LambdaCommand(obj => _cookies = GetCookieContainer(CookieInput));
 			CommandFindVideo = new LambdaCommand(async obj =>
 			{
@@ -87,6 +93,7 @@ namespace YouTubeApiLib.GuiTestWPF
 
 					IsVideoSearching = true;
 					MediaTracks.Clear();
+					ThumbnailMenuItems.Clear();
 					_video = await Task.Run(() =>
 					{
 						FileDownloader d = new FileDownloader() { Cookies = _cookies };
@@ -119,6 +126,39 @@ namespace YouTubeApiLib.GuiTestWPF
 									MediaTracks.Add(new ModelYouTubeMediaTrackWrapper(track));
 								}
 							}
+
+							if (_video.Thumbnails != null && _video.Thumbnails.Count > 0)
+							{
+								ControlTemplate template = (ControlTemplate)Application.Current.Resources["radioMenuItemTemplate"];
+								int maxLength = _video.Thumbnails.Max(item => item.FileName.Length);
+								foreach (YouTubeVideoThumbnail thumbnail in _video.Thumbnails)
+								{
+									string t = $"{thumbnail.FileName.PadRight(maxLength)} | {thumbnail.Width}x{thumbnail.Height}";
+									MenuItem mi = new MenuItem()
+									{
+										Header = t,
+										Template = template,
+										Tag = thumbnail
+									};
+									mi.Click += async (s, e) =>
+									{
+										foreach (MenuItem menuItem in ThumbnailMenuItems)
+										{
+											menuItem.IsChecked = false;
+										}
+										(s as MenuItem).IsChecked = true;
+										string thumbnailUrl = ((s as MenuItem).Tag as YouTubeVideoThumbnail).Url;
+										VideoThumbnail = await Task.Run(() =>
+										{
+											WebProxy proxy = UseProxyServer ? new WebProxy(ProxyServerAddress, ProxyServerPort) : null;
+											return DownloadImage(thumbnailUrl, proxy);
+										});
+									};
+									ThumbnailMenuItems.Add(mi);
+								}
+								ThumbnailMenuItems[0].IsChecked = true;
+							}
+							RaisePropertyChanged(nameof(IsThumbnailMenuEnabled));
 						}
 						else
 						{
