@@ -274,7 +274,14 @@ namespace YouTubeApiLib.GuiTestWPF
 				try
 				{
 					ModelYouTubeMediaTrackWrapper trackWrapper = obj as ModelYouTubeMediaTrackWrapper;
-					OpenUrl(trackWrapper.BaseTrack.FileUrl.Url);
+					string url = trackWrapper.BaseTrack.FileUrl?.Url;
+					if (string.IsNullOrEmpty(url) || string.IsNullOrWhiteSpace(url))
+					{
+						MessageBox.Show("Ссылка на файл не найдена!", "Ошибка!",
+							MessageBoxButton.OK, MessageBoxImage.Error);
+						return;
+					}
+					OpenUrl(url);
 				}
 				catch (Exception ex)
 				{
