@@ -18,7 +18,7 @@
 	<Grid>
 		<TabControl>
 			<TabItem Header="Поиск">
-				<StackPanel>
+				<Grid>
 					<Grid>
 						<Grid.RowDefinitions>
 							<RowDefinition Height="auto" />
@@ -45,75 +45,74 @@
 										Margin="5" />
 							</Grid>
 						</StackPanel>
-					</Grid>
 
-					<Grid Visibility="{Binding ResultVisibility}"
-						  Grid.Row="1">
-						<Grid>
-							<Grid.RowDefinitions>
-								<RowDefinition Height="auto" />
-								<RowDefinition />
-							</Grid.RowDefinitions>
+						<Grid Visibility="{Binding ResultVisibility}"
+							  Grid.Row="1">
+							<Grid>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="auto" />
+									<RowDefinition />
+								</Grid.RowDefinitions>
 
-							<StackPanel Orientation="Horizontal"
-										VerticalAlignment="Center"
-										Height="120">
-								<Border Background="LightGray"
-										BorderBrush="Black"
-										BorderThickness="2"
-										Margin="4 0">
-									<Border.ContextMenu>
-										<ContextMenu FontFamily="Lucida Console">
-											<MenuItem Header="Копировать ссылку на картинку"
-													  Command="{Binding CommandCopyThumbnailUrl}" />
-											<MenuItem Header="Открыть картинку в браузере"
-													  Command="{Binding CommandOpenThumbnailInBrowser}" />
-											<Separator />
-											<MenuItem Header="Открыть видео в браузере"
-													  Command="{Binding CommandOpenVideoInBrowser}" />
-											<Separator />
-											<MenuItem Header="Эскизы"
-													  ItemsSource="{Binding ThumbnailMenuItems}"
-													  IsEnabled="{Binding IsThumbnailMenuEnabled}" />
-										</ContextMenu>
-									</Border.ContextMenu>
-
-									<Image Source="{Binding VideoThumbnail}"
-										   Width="180"
-										   Height="120" />
-								</Border>
-
-								<Grid>
-									<Grid.RowDefinitions>
-										<RowDefinition />
-										<RowDefinition Height="auto" />
-										<RowDefinition Height="auto" />
-									</Grid.RowDefinitions>
-
-									<Border>
+								<StackPanel Orientation="Horizontal"
+											VerticalAlignment="Center"
+											Height="120"
+											Grid.Row="0">
+									<Border Background="LightGray"
+											BorderBrush="Black"
+											BorderThickness="2"
+											Margin="4 0">
 										<Border.ContextMenu>
-											<ContextMenu>
-												<MenuItem Header="Копировать название"
-														  Command="{Binding CommandCopyVideoTitle}" />
+											<ContextMenu FontFamily="Lucida Console">
+												<MenuItem Header="Копировать ссылку на картинку"
+														  Command="{Binding CommandCopyThumbnailUrl}" />
+												<MenuItem Header="Открыть картинку в браузере"
+														  Command="{Binding CommandOpenThumbnailInBrowser}" />
+												<Separator />
+												<MenuItem Header="Открыть видео в браузере"
+														  Command="{Binding CommandOpenVideoInBrowser}" />
+												<Separator />
+												<MenuItem Header="Эскизы"
+														  ItemsSource="{Binding ThumbnailMenuItems}"
+														  IsEnabled="{Binding IsThumbnailMenuEnabled}" />
 											</ContextMenu>
 										</Border.ContextMenu>
 
-										<Label Content="{Binding VideoTitle}"
-											   Padding="2 0 0 0"
-											   Grid.Row="0" />
+										<Image Source="{Binding VideoThumbnail}"
+											   Width="180"
+											   Height="120" />
 									</Border>
-									<Label Content="{Binding VideoChannelOwnerTitle}"
-										   Padding="2 0 0 0"
-										   Grid.Row="1" />
-									<Label Content="{Binding VideoPublishDateFormatted}"
-										   Padding="2 0 0 0"
-										   Grid.Row="2" />
-								</Grid>
-							</StackPanel>
 
-							<GroupBox Header="Форматы"
-									  Grid.Row="1">
-								<DockPanel>
+									<Grid>
+										<Grid.RowDefinitions>
+											<RowDefinition />
+											<RowDefinition Height="auto" />
+											<RowDefinition Height="auto" />
+										</Grid.RowDefinitions>
+
+										<Border>
+											<Border.ContextMenu>
+												<ContextMenu>
+													<MenuItem Header="Копировать название"
+															  Command="{Binding CommandCopyVideoTitle}" />
+												</ContextMenu>
+											</Border.ContextMenu>
+
+											<Label Content="{Binding VideoTitle}"
+												   Padding="2 0 0 0"
+												   Grid.Row="0" />
+										</Border>
+										<Label Content="{Binding VideoChannelOwnerTitle}"
+											   Padding="2 0 0 0"
+											   Grid.Row="1" />
+										<Label Content="{Binding VideoPublishDateFormatted}"
+											   Padding="2 0 0 0"
+											   Grid.Row="2" />
+									</Grid>
+								</StackPanel>
+
+								<GroupBox Header="Форматы"
+										  Grid.Row="1">
 									<Grid>
 										<Grid.RowDefinitions>
 											<RowDefinition Height="auto" />
@@ -145,10 +144,9 @@
 											</DataGrid.RowStyle>
 
 											<DataGrid.InputBindings>
-												<MouseBinding
-													MouseAction="LeftDoubleClick"
-													Command="{Binding CommandMediaTrackListLeftDoubleClick}"
-													CommandParameter="{Binding MediaTracks/}" />
+												<MouseBinding MouseAction="LeftDoubleClick"
+															  Command="{Binding CommandMediaTrackListLeftDoubleClick}"
+															  CommandParameter="{Binding MediaTracks/}" />
 											</DataGrid.InputBindings>
 
 											<DataGrid.Columns>
@@ -167,11 +165,11 @@
 											</DataGrid.Columns>
 										</DataGrid>
 									</Grid>
-								</DockPanel>
-							</GroupBox>
+								</GroupBox>
+							</Grid>
 						</Grid>
 					</Grid>
-				</StackPanel>
+				</Grid>
 			</TabItem>
 
 			<TabItem Header="Настройки">
