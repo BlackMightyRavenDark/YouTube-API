@@ -176,7 +176,15 @@ namespace YouTubeApiLib.GuiTestWPF
 							VideoChannelOwnerTitle = "Канал: <Недоступно>";
 							VideoPublishDateFormatted = "Дата публикации: <Недоступно>";
 							ApiClientId = null;
-							VideoThumbnail = await Task.Run(() => DownloadImage(_video.Status.ThumbnailUrl));
+							VideoThumbnail = await Task.Run(() =>
+							{
+								FileDownloader d = new FileDownloader();
+								if (UseProxyServer)
+								{
+									d.Proxy = new WebProxy(ProxyServerAddress, ProxyServerPort);
+								}
+								return DownloadImage(_video.Status.ThumbnailUrl, d);
+							});
 						}
 
 						if (!_video.IsInfoAvailable && !_video.Status.IsBotWarning)
