@@ -137,6 +137,8 @@ namespace YouTubeApiLib.GuiTestWPF
 									MenuItem mi = new MenuItem()
 									{
 										Header = t,
+										HorizontalContentAlignment = HorizontalAlignment.Left,
+										VerticalContentAlignment = VerticalAlignment.Center,
 										Template = template,
 										Tag = thumbnail
 									};
