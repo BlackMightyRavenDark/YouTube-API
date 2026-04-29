@@ -113,8 +113,12 @@ namespace YouTubeApiLib.GuiTestWPF
 							VideoThumbnail = _video.Thumbnails != null && _video.Thumbnails.Count > 0 ?
 								await Task.Run(() =>
 								{
-									WebProxy proxy = UseProxyServer ? new WebProxy(ProxyServerAddress, ProxyServerPort) : null;
-									return DownloadImage(_video.Thumbnails[0].Url, proxy);
+									FileDownloader d = new FileDownloader();
+									if (UseProxyServer)
+									{
+										d.Proxy = new WebProxy(ProxyServerAddress, ProxyServerPort);
+									}
+									return DownloadImage(_video.Thumbnails[0].Url, d);
 								}) : null;
 
 							if (_video.MediaTracks.Count > 0)
@@ -152,8 +156,12 @@ namespace YouTubeApiLib.GuiTestWPF
 										string thumbnailUrl = ((s as MenuItem).Tag as YouTubeVideoThumbnail).Url;
 										VideoThumbnail = await Task.Run(() =>
 										{
-											WebProxy proxy = UseProxyServer ? new WebProxy(ProxyServerAddress, ProxyServerPort) : null;
-											return DownloadImage(thumbnailUrl, proxy);
+											FileDownloader d = new FileDownloader();
+											if (UseProxyServer)
+											{
+												d.Proxy = new WebProxy(ProxyServerAddress, ProxyServerPort);
+											}
+											return DownloadImage(thumbnailUrl, d);
 										});
 									};
 									ThumbnailMenuItems.Add(mi);

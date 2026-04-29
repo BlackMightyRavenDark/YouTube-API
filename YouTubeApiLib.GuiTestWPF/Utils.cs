@@ -39,9 +39,10 @@ namespace YouTubeApiLib.GuiTestWPF
 			return dateTime.Kind == DateTimeKind.Utc ? $"{formatted} GMT" : formatted;
 		}
 
-		internal static BitmapImage DownloadImage(string url, WebProxy proxy = null)
+		internal static BitmapImage DownloadImage(string url, FileDownloader downloader = null)
 		{
-			FileDownloader d = new FileDownloader() { Url = url, Proxy = proxy };
+			FileDownloader d = downloader ?? new FileDownloader();
+			d.Url = url;
 			MemoryStream stream = new MemoryStream();
 			if (d.Download(stream) == 200)
 			{
