@@ -94,15 +94,8 @@ namespace YouTubeApiLib.GuiTestWPF
 					IsVideoSearching = true;
 					MediaTracks.Clear();
 					ThumbnailMenuItems.Clear();
-					_video = await Task.Run(() =>
-					{
-						FileDownloader d = new FileDownloader() { Cookies = _cookies };
-						if (UseProxyServer)
-						{
-							d.Proxy = new WebProxy(ProxyServerAddress, ProxyServerPort);
-						}
-						return YouTubeVideo.GetById(videoId.Id, d);
-					});
+					FileDownloader d = MakeDownloader();
+					_video = await Task.Run(() => YouTubeVideo.GetById(videoId.Id, d));
 					if (_video != null)
 					{
 						if (_video.Status.ErrorCode == 200)
@@ -111,15 +104,7 @@ namespace YouTubeApiLib.GuiTestWPF
 							VideoChannelOwnerTitle = $"Канал: {_video.OwnerChannelTitle}";
 							VideoPublishDateFormatted = $"Дата публикации: {FormatDateTime(_video.DatePublished)}";
 							VideoThumbnail = _video.Thumbnails != null && _video.Thumbnails.Count > 0 ?
-								await Task.Run(() =>
-								{
-									FileDownloader d = new FileDownloader();
-									if (UseProxyServer)
-									{
-										d.Proxy = new WebProxy(ProxyServerAddress, ProxyServerPort);
-									}
-									return DownloadImage(_video.Thumbnails[0].Url, d);
-								}) : null;
+								await Task.Run(() => DownloadImage(_video.Thumbnails[0].Url, d)) : null;
 
 							if (_video.MediaTracks.Count > 0)
 							{
@@ -154,15 +139,7 @@ namespace YouTubeApiLib.GuiTestWPF
 										}
 										(s as MenuItem).IsChecked = true;
 										string thumbnailUrl = ((s as MenuItem).Tag as YouTubeVideoThumbnail).Url;
-										VideoThumbnail = await Task.Run(() =>
-										{
-											FileDownloader d = new FileDownloader();
-											if (UseProxyServer)
-											{
-												d.Proxy = new WebProxy(ProxyServerAddress, ProxyServerPort);
-											}
-											return DownloadImage(thumbnailUrl, d);
-										});
+										VideoThumbnail = await Task.Run(() => DownloadImage(thumbnailUrl, d));
 									};
 									ThumbnailMenuItems.Add(mi);
 								}
@@ -176,15 +153,7 @@ namespace YouTubeApiLib.GuiTestWPF
 							VideoChannelOwnerTitle = "Канал: <Недоступно>";
 							VideoPublishDateFormatted = "Дата публикации: <Недоступно>";
 							ApiClientId = null;
-							VideoThumbnail = await Task.Run(() =>
-							{
-								FileDownloader d = new FileDownloader();
-								if (UseProxyServer)
-								{
-									d.Proxy = new WebProxy(ProxyServerAddress, ProxyServerPort);
-								}
-								return DownloadImage(_video.Status.ThumbnailUrl, d);
-							});
+							VideoThumbnail = await Task.Run(() => DownloadImage(_video.Status.ThumbnailUrl, d));
 						}
 
 						if (!_video.IsInfoAvailable && !_video.Status.IsBotWarning)
@@ -267,12 +236,8 @@ namespace YouTubeApiLib.GuiTestWPF
 				{
 					IYouTubeClient client = new YouTubeClientAndroidVr()
 					{
-						Downloader = new FileDownloader() { Cookies = _cookies }
+						Downloader = MakeDownloader()
 					};
-					if (UseProxyServer)
-					{
-						client.Downloader.Proxy = new WebProxy(ProxyServerAddress, ProxyServerPort);
-					}
 					YouTubeStreamingDataResult streamingDataResult = YouTubeStreamingData.Get(_video.Id, client);
 					client.Downloader.Dispose();
 					return streamingDataResult.ErrorCode == 200 ? streamingDataResult.Data.Parse() : null;
@@ -306,6 +271,16 @@ namespace YouTubeApiLib.GuiTestWPF
 					MessageBox.Show(ex.Message, "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
 				}
 			}, obj => MediaTracks.Count > 0);
+		}
+
+		private FileDownloader MakeDownloader()
+		{
+			FileDownloader d = new FileDownloader() { Cookies = _cookies };
+			if (UseProxyServer && !string.IsNullOrEmpty(ProxyServerAddress) && !string.IsNullOrWhiteSpace(ProxyServerAddress))
+			{
+				d.Proxy = new WebProxy(ProxyServerAddress, ProxyServerPort);
+			}
+			return d;
 		}
 	}
 }
