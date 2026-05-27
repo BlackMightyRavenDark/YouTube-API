@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿#if DEBUG
+using System;
+#endif
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
@@ -65,8 +68,28 @@ namespace YouTubeApiLib
 
 		internal static string ExtractContinuationToken(JObject jTokenRoot)
 		{
-			JObject jContinuationItemRenderer = jTokenRoot.Value<JObject>("continuationItemRenderer");
-			return jContinuationItemRenderer?.Value<JObject>("continuationEndpoint")?.Value<JObject>("continuationCommand")?.Value<string>("token");
+			try
+			{
+				if (jTokenRoot.ContainsKey("continuationItemRenderer"))
+				{
+					JObject jContinuationItemRenderer = jTokenRoot.Value<JObject>("continuationItemRenderer");
+					return jContinuationItemRenderer?.Value<JObject>("continuationEndpoint")?.Value<JObject>("continuationCommand")?.Value<string>("token");
+				}
+
+				JArray jaChips = jTokenRoot.Value<JObject>("richGridRenderer")?.Value<JObject>("header")?.Value<JObject>("chipBarViewModel")?.Value<JArray>("chips");
+				return jaChips != null && jaChips.Count > 0 ? (jaChips[0] as JObject)
+					.Value<JObject>("chipViewModel")?.Value<JObject>("tapCommand")?.Value<JObject>("innertubeCommand")?.Value<JObject>("continuationCommand")?.Value<string>("token") : null;
+			}
+#if DEBUG
+			catch (Exception ex)
+			{
+				System.Diagnostics.Debug.WriteLine(ex.Message);
+#else
+			catch
+			{
+#endif
+				return null;
+			}
 		}
 	}
 }

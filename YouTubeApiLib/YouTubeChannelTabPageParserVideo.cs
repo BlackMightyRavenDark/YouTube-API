@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿#if DEBUG
+using System;
+#endif
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
@@ -20,7 +23,7 @@ namespace YouTubeApiLib
 
 		public IEnumerable<YouTubeVideoThumbnail> ExtractThumbnails(JObject jVideoItem)
 		{
-			JArray jaThumbnails = jVideoItem.Value<JObject>("richItemRenderer")?.Value<JObject>("content")?.Value<JObject>("videoRenderer")?.Value<JObject>("thumbnail")?.Value<JArray>("thumbnails");
+			JArray jaThumbnails = jVideoItem.Value<JObject>("richItemRenderer")?.Value<JObject>("content")?.Value<JObject>("lockupViewModel")?.Value<JObject>("contentImage")?.Value<JObject>("thumbnailViewModel")?.Value<JObject>("image")?.Value<JArray>("sources");
 			if (jaThumbnails != null && jaThumbnails.Count > 0)
 			{
 				var thumbnails = YouTubeChannelTab.ParseThumbnails(new JArray[] { jaThumbnails });
@@ -110,34 +113,63 @@ namespace YouTubeApiLib
 
 		public List<YouTubeVideoLite> Parse(out string continuationToken)
 		{
-			continuationToken = null;
+			YouTubeChannelTab tab = YouTubeChannel.FindSelectedTab(ChannelTabPageResponse, Channel);
+			JObject jContent = tab?.Data != null ? tab.Data.Value<JObject>("content") : null;
+			continuationToken = jContent != null ? YouTubeChannelTab.ExtractContinuationToken(jContent) : null;
 			JArray jaItems = FindGridItems();
 			if (jaItems != null && jaItems.Count > 0)
 			{
 				List<YouTubeVideoLite> videos = new List<YouTubeVideoLite>();
 				foreach (JObject j in jaItems.Cast<JObject>())
 				{
-					JObject jVideoRenderer = j.Value<JObject>("richItemRenderer")?.Value<JObject>("content")?.Value<JObject>("videoRenderer");
-					if (jVideoRenderer != null)
+					try
 					{
-						string videoId = jVideoRenderer.Value<string>("videoId");
-						if (!string.IsNullOrEmpty(videoId))
+						JObject jLookupViewModel = j.Value<JObject>("richItemRenderer")?.Value<JObject>("content")?.Value<JObject>("lockupViewModel");
+						if (jLookupViewModel != null)
 						{
-							JArray jRuns = jVideoRenderer.Value<JObject>("title")?.Value<JArray>("runs");
-							string title = jRuns != null && jRuns.Count > 0 ? (jRuns[0] as JObject).Value<string>("text") : "<untitled>";
-							string length = jVideoRenderer.Value<JObject>("lengthText").Value<string>("simpleText");
-							List<YouTubeVideoThumbnail> thumbnails = ExtractThumbnails(j).ToList();
-							if (thumbnails.Count > 1)
+							string videoId = jLookupViewModel.Value<string>("contentId");
+							if (string.IsNullOrEmpty(videoId) || string.IsNullOrWhiteSpace(videoId))
 							{
-								thumbnails.Sort((x, y) => x.Height > y.Height ? -1 : 1);
+								videoId = Utils.FindRegexp(j.ToString(), @"""videoId"":\s?""(.{11})""");
 							}
-							videos.Add(new YouTubeVideoLite(title, videoId, length, thumbnails, Channel, ChannelTabPage));
+							if (!string.IsNullOrEmpty(videoId) && !string.IsNullOrWhiteSpace(videoId))
+							{
+								string videoTitle = jLookupViewModel.Value<JObject>("metadata")?.Value<JObject>("lockupMetadataViewModel")?.Value<JObject>("title")?.Value<string>("content");
+								List<YouTubeVideoThumbnail> thumbnails = ExtractThumbnails(j).ToList();
+								if (thumbnails.Count > 1)
+								{
+									thumbnails.Sort((x, y) => x.Height > y.Height ? -1 : 1);
+								}
+
+								string videoLength = null;
+								try
+								{
+									JObject jThumbnailViewModel = jLookupViewModel.Value<JObject>("contentImage")?.Value<JObject>("thumbnailViewModel");
+									if (jThumbnailViewModel != null)
+									{
+										videoLength = ((jThumbnailViewModel.Value<JArray>("overlays")[0] as JObject).Value<JObject>("thumbnailBottomOverlayViewModel")?.Value<JArray>("badges")[0] as JObject).Value<JObject>("thumbnailBadgeViewModel").Value<string>("text");
+									}
+								}
+#if DEBUG
+								catch (Exception ex)
+								{
+									System.Diagnostics.Debug.WriteLine(ex.Message);
+								}
+#else
+								catch { }
+#endif
+								videos.Add(new YouTubeVideoLite(videoTitle, videoId, videoLength, thumbnails, Channel, ChannelTabPage));
+							}
 						}
 					}
-					else
+#if DEBUG
+					catch (Exception ex)
 					{
-						continuationToken = YouTubeChannelTab.ExtractContinuationToken(j);
+						System.Diagnostics.Debug.WriteLine(ex.Message);
 					}
+#else
+					catch { }
+#endif
 				}
 
 				return videos;
