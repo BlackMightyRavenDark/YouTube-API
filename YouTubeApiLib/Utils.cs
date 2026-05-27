@@ -563,22 +563,35 @@ namespace YouTubeApiLib
 			return false;
 		}
 
-		internal static TimeSpan DurationFromString(string length)
+		internal static TimeSpan DurationFromString(string lengthTime, out string errorMessage)
 		{
-			string[] splitted = length?.Split(':');
-			if (splitted != null)
+			try
 			{
-				switch (splitted.Length)
+				errorMessage = null;
+
+				// The lengthTime must be in 'H:MM:SS' or 'M:SS' or 'SS' format, with or without leading zeros.
+				string[] splitted = lengthTime?.Split(':');
+				if (splitted != null)
 				{
-					case 1:
-						return TimeSpan.FromSeconds(int.Parse(splitted[0]));
+					switch (splitted.Length)
+					{
+						case 1:
+							return TimeSpan.FromSeconds(int.Parse(splitted[0]));
 
-					case 2:
-						return TimeSpan.FromSeconds(int.Parse(splitted[0]) * 60 + int.Parse(splitted[1]));
+						case 2:
+							return TimeSpan.FromSeconds(int.Parse(splitted[0]) * 60 + int.Parse(splitted[1]));
 
-					case 3:
-						return TimeSpan.FromSeconds(int.Parse(splitted[0]) * 3600 + int.Parse(splitted[1]) * 60 + int.Parse(splitted[2]));
+						case 3:
+							return TimeSpan.FromSeconds(int.Parse(splitted[0]) * 3600 + int.Parse(splitted[1]) * 60 + int.Parse(splitted[2]));
+					}
 				}
+			}
+			catch (Exception ex)
+			{
+#if DEBUG
+				System.Diagnostics.Debug.WriteLine(ex.Message);
+#endif
+				errorMessage = ex.Message;
 			}
 
 			return TimeSpan.Zero;

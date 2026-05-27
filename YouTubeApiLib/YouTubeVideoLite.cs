@@ -22,7 +22,7 @@ namespace YouTubeApiLib
 			Id = id;
 			Length = length;
 			bool isLiveNow = string.Equals(length, "live", StringComparison.OrdinalIgnoreCase);
-			Duration = !isLiveNow ? Utils.DurationFromString(length) : TimeSpan.Zero;
+			Duration = !isLiveNow ? Utils.DurationFromString(length, out _) : TimeSpan.Zero;
 			if (thumbnails != null)
 			{
 				Thumbnails = new List<YouTubeVideoThumbnail>(thumbnails);
