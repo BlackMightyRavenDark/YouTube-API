@@ -21,9 +21,9 @@ namespace YouTubeApiLib.TestChannelPages
 				if (videoLitePageResult.ErrorCode == 200)
 				{
 					Console.WriteLine($"{channel} {page.Title} tab page:");
-					foreach (YouTubeVideoLite videoLight in videoLitePageResult.VideoLitePage.Videos)
+					foreach (YouTubeVideoLite videoLite in videoLitePageResult.VideoLitePage.Videos)
 					{
-						Console.WriteLine($"{videoLight.Id} > {videoLight.Title}");
+						Console.WriteLine($"{videoLite.Id} > {videoLite.Title}");
 					}
 
 					string token = videoLitePageResult.VideoLitePage.HasNextPage ? videoLitePageResult.VideoLitePage.ContinuationToken : "null";
