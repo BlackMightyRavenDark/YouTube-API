@@ -24,7 +24,7 @@ namespace YouTubeApiLib.GuiTestWPF
 		public string VideoPublishDateFormatted { get => _videoPublishDateFormatted; set => SetProperty(ref _videoPublishDateFormatted, value); }
 		public string ApiClientId { get => _apiClientId; set { SetProperty(ref _apiClientId, value); RaisePropertyChanged(nameof(FormattedApiClientId)); } }
 		public bool IsVideoSearching { get => _isVideoSearching; set { SetProperty(ref _isVideoSearching, value);
-			ResultVisibility = IsVideoSearching || _video == null ? Visibility.Hidden : Visibility.Visible; } }
+			ResultVisibility = (IsVideoSearching || _video == null || !_video.IsInfoAvailable) ? Visibility.Hidden : Visibility.Visible; } }
 		public bool IsFormatListSearching { get => _isFormatListSearching; set => SetProperty(ref _isFormatListSearching, value); }
 		public Visibility ResultVisibility { get => _resultVisibility; set => SetProperty(ref _resultVisibility, value); }
 		public bool IsThumbnailMenuEnabled => ThumbnailMenuItems.Count > 0;
